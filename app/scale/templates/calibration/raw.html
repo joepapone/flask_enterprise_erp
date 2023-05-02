@@ -1,0 +1,40 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            {%- if id == 'zero' %}
+            <a href="{{ url_for('scale.zero') }}"> ❰ Back</a>
+            {%- elif id == 'span' %}
+            <a href="{{ url_for('scale.span') }}"> ❰ Back</a>
+            {%- endif %}
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <div class="data col-10 col-s-10">
+                <div class="raw-container">
+                    <div class="progress-label">
+                        <label id="progress_label">{{ progress_text }}</label>
+                    </div>
+                    <div class="progress-block" id="progress_block">
+                        <div class="progress" id="progress_bar"></div>
+                    </div>
+                    <div class="raw-value">
+                        <b id="raw_value">0.000</b>
+                    </div>
+                    <div class="buttons-container">
+                        <div class="button-block">
+                            <button onclick="progressBar()" class="button-submit" id="read">Read</button>
+                        </div>
+                        <div class="button-block">
+                            <form action="" method="POST" enctype=multipart/form-data>
+                                <button class="button-submit"  id="store">Store</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

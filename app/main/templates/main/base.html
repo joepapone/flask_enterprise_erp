@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('main.static', filename='css/style.css') }}">
+    <title> Smart Home </title>
+</head>
+<body onload="refresh()">
+    <div class="header">
+        <img class="header-block" id="header-img" src="{{ url_for('main.static', filename='icons/favicon.png') }}" 
+        alt="image" width="80" height="80" style="vertical-align:middle">
+        <h1 class="header-block">{{ header }}</h1>
+    </div>
+    <div class="row">
+        {%- block content %}{% endblock -%}
+    </div>
+    <div class="footer">    
+        {% block footer -%}
+        <p>Ferreira's Smart Home.</p>
+        <p>&copy; Copyright 2021 by José Ferreira</p>
+        {%- endblock %}
+    </div>
+    <!-- Executes javascripts after DOM is complete -->
+    <script src="{{ url_for('main.static', filename='js/app.js') }}"></script>
+</body>
+</html>

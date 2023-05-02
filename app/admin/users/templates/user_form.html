@@ -1,0 +1,81 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('users.list') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <form action="" method="POST" enctype=multipart/form-data>
+                {{ form.csrf_token }}
+                <div class="data col-6 col-s-6">
+                    {%- for message in get_flashed_messages() %}
+                    <div>
+                        {%- if "Error" not in message: %}
+                        <div class="alert success">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                        {%- if "Error" in message: %}
+                        <div class="alert error">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                    </div>
+                    {%- endfor %}
+                    <div class="form container">
+                        <div class="form-row {% if form.user_name.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="user_name">{{ form.user_name.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.user_name() }}
+                                {%- for error in form.user_name.errors %}
+                                {%- if form.user_name.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.role_id.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="role_id">{{ form.role_id.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.role_id() }}
+                                {%- for error in form.role_id.errors %}
+                                {%- if form.role_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.email.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="email">{{ form.email.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.email() }}
+                                {%- for error in form.email.errors %}
+                                {%- if form.email.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.password.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="password">{{ form.password.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.password() }}
+                                {%- for error in form.password.errors %}
+                                {%- if form.password.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <input class="field-submit" type="submit" value="Submit">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}

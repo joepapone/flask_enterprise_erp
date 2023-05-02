@@ -1,0 +1,48 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('scale.calibration') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <form action="" method="POST" enctype=multipart/form-data>
+                <div class="data col-6 col-s-6">
+                    {{ form.csrf_token }}
+                    {%- for message in get_flashed_messages() %}
+                    <div>
+                        {%- if "Error" not in message: %}
+                        <div class="alert success">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                        {%- if "Error" in message: %}
+                        <div class="alert error">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                    </div>
+                    {%- endfor %}
+                    <div class="form container">
+                        <div class="form-row {% if form.comments.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="comments">{{ form.comments.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.comments() }}
+                                {%- for error in form.comments.errors %}
+                                {%- if form.comments.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <input class="field-submit" type="submit" value="Submit">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}

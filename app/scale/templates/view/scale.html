@@ -1,0 +1,33 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('main.home') }}"> ❰ Back</a>
+            <a href="{{ url_for('scale.calibration') }}"> ❱ Calibration</a>
+            <a href="{{ url_for('scale.events') }}"> ❱ Events</a>
+            <a href="{{ url_for('scale.trend') }}"> ❱ Trend</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <div class="data col-9 col-s-9">
+                <div class="weight-container" id="load_weight">
+                    <div class="left">
+                        <div id="weight-value">
+                            {{ value }}
+                        </div>
+                    </div>
+                    <div class="right">
+                        <div id="weight-units">
+                            {{ unit }}
+                        </div>
+                    </div>
+                </div>
+                <div class="weight-date">
+                    <div id='datetime'></div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

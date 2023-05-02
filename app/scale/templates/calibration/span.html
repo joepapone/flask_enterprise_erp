@@ -1,0 +1,61 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('scale.calibration') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <form action="" method="POST" enctype=multipart/form-data>
+                {{ form.csrf_token }}
+                <div class="data col-6 col-s-6">
+                    {%- for message in get_flashed_messages() %}
+                    <div>
+                        {%- if "Error" not in message: %}
+                        <div class="alert success">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                        {%- if "Error" in message: %}
+                        <div class="alert error">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                    </div>
+                    {%- endfor %}
+                    <div class="form container">
+                        <div class="form-row {% if form.raw_span.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="raw_span">{{ form.raw_span.label }}</label>
+                            </div>
+                            <a href="{{ url_for('scale.view_raw', id='span') }}">
+                                <div class="input-col">
+                                    {{ form.raw_span() }}
+                                    {%- for error in form.raw_span.errors %}
+                                    {%- if form.raw_span.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                    {%- endfor %}
+                                </div>
+                            </a>
+                        </div>
+                        <div class="form-row {% if form.span.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="span">{{ form.span.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.span() }}
+                                {%- for error in form.span.errors %}
+                                {%- if form.span.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            {{ form.submit() }}
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}

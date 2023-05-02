@@ -1,0 +1,38 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('scale.weight') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <div class="data col-8 col-s-8">
+                <div class="table-overflow">
+                    <table class="table" id="events">
+                        <caption>
+                            <div>
+                                Count: {{events|length}}
+                            </div>
+                        </caption>
+                        <tr>
+                            <th class="date sort" onclick="SortTableTxt('events', 0)">Date</th>
+                            <th class="date sort" onclick="SortTableTxt('events', 1)">Time</th>
+                            <th class="text sort" onclick="SortTableTxt('events', 2)">Description</th>
+                            <th class="code sort" onclick="SortTableTxt('events', 3)">Code</th>
+                        </tr>
+                        {%- for message in events %}
+                        <tr>
+                            <td class="date">{{ message[0] }}</td>
+                            <td class="date">{{ message[1] }}</td>
+                            <td class="text">{{ message[2] }}</td>
+                            <td class="code">{{ message[3] }}</td>
+                        </tr>
+                        {%- endfor %}
+                    </table>
+                </div>
+            </div> 
+        </div>
+    {% endblock %}

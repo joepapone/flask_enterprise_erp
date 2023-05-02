@@ -1,0 +1,20 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('scale.weight') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <div class="data col-9 col-s-9">
+                <div class="chart-row">
+                    <div class="chart">
+                        {{ trend }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

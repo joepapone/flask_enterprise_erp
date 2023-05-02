@@ -1,0 +1,52 @@
++---app.py
+|
+|
++---student
+|   |   student.py
+|   |   __init__.py
+|   |   
+|   +---static
+|   |   +---css
+|   |   |       login-page.css
+|   |   |       signup-page.css
+|   |   |       
+|   |   \---js
+|   |           firebaseConfig.js
+|   |           
+|   +---templates
+|   |       base.html
+|   |       student-login-page.html
+|   |       student-signup-page.html
+
+
+.
+├── alembic
+│   ├── env.py
+│   ├── README
+│   ├── script.py.mako
+│   └── versions
+│       ├── 1c20e6a53339_create_db.py
+│       └── d821ac509404_1e_revision.py
+├── alembic.ini
+├── app
+│   ├── blueprints
+│   │   └── manage_data
+│   │       ├── forms.py
+│   │       └── views.py
+│   ├── factory.py
+│   ├── factory.py_first_version
+│   ├── model.py
+│   ├── service_app_db.py
+│   ├── service_app_logging.py
+│   ├── services.py
+│   └── templates
+│       ├── base.html
+│       ├── home.html
+│       ├── item_delete.html
+│       ├── item_new_edit.html
+│       └── items_list.html
+├── app.db
+├── app.log
+├── config.py
+├── requirements.txt
+└── run.py

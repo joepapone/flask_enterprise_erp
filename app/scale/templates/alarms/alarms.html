@@ -1,0 +1,70 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('scale.calibration') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <form action="" method="POST" enctype=multipart/form-data>
+                {{ form.csrf_token }}
+                <div class="data col-6 col-s-6">
+                    {%- for message in get_flashed_messages() %}
+                    <div>
+                        {%- if "Error" not in message: %}
+                        <div class="alert success">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                        {%- if "Error" in message: %}
+                        <div class="alert error">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                        </div>
+                        {%- endif %}
+                    </div>
+                    {%- endfor %}
+                    <div class="form container">
+                        <div class="form-row {% if form.alarm_H.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="alarm_H">{{ form.alarm_H.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.alarm_H() }}
+                                {% for error in form.alarm_H.errors %}
+                                {%- if form.alarm_H.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.alarm_L.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="alarm_L">{{ form.alarm_L.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.alarm_L() }}
+                                {% for error in form.alarm_L.errors %}
+                                {%- if form.alarm_L.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.alarm_LL.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="alarm_LL">{{ form.alarm_LL.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.alarm_LL() }}
+                                {%- for error in form.alarm_LL.errors %}
+                                {%- if form.alarm_LL.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div> 
+                        <div class="form-row">
+                            <input class="field-submit" type="submit" value="Submit">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}

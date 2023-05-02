@@ -1,0 +1,19 @@
+{% extends 'main/base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('main.home') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading">
+                <div class="text">
+                    <h1>{{heading}}</h1> 
+                </div>
+            </div>
+            <div>
+                <h3><strong>Error description:</strong></h3>
+                <p>{{description}}</p>
+                <h3><strong>The administrator has been notified.</strong></h3>
+                <p>Sorry for the inconvenience!</p>
+            </div>
+        </div>
+    {% endblock %}
