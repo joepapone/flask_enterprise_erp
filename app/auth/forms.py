@@ -2,7 +2,7 @@ from flask_wtf import FlaskForm
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from wtforms import fields
 from wtforms.validators import Email, InputRequired, ValidationError
-from ..admin.users.models import User
+from ..user.models import User
 
 
 class LoginForm(FlaskForm):
@@ -28,6 +28,8 @@ class LoginForm(FlaskForm):
         form.user = user
 
 
+'''
+
 class RegistrationForm(FlaskForm):
     role = fields.SelectField(label='Role', validators=[InputRequired()], description="User role",
         render_kw={'class': 'field-data', 'autofocus': ""})
@@ -42,7 +44,7 @@ class RegistrationForm(FlaskForm):
         user = User.query.filter(User.email == field.data).first()
         if user is not None:
             raise ValidationError("A member with that email already exists")
-
+'''
 
 '''
 class UserForm(FlaskForm):

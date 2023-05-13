@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <title> Enterprise ERP </title>
+</head>
+<body onload="refresh()">
+    <!-- Navigation Bar -->
+    <ul class="navbar">
+        <li class="left">
+            <div>
+                <a href="{{ url_for('root.home') }}">
+                    <img class="logo" src="{{ url_for('static', filename='icons/favicon.png') }}"
+                    alt="image" width="50" height="50">
+                </a>
+            </div>
+        </li>
+        <li class="left">
+            <div>
+                <a href="{{ url_for('root.about') }}">
+                    <h1 class="text">{{ header }}</h1>
+                </a>
+            </div>
+        </li>
+        <li class="dropdownbox">
+            <div class="dropdown">
+                <div>
+                    <img class="avantar" src="{{ url_for('static', filename='icons/favicon.png') }}"
+                    alt="image" width="30" height="30">
+                </div>
+                <div class="dropdown-content">
+                    <a href="{{ url_for('auth.login') }}"> ❱ Login</a>
+                    {%- if status == 0: %}
+                    <a href="{{ url_for('auth.login') }}"> ❱ Login</a>
+                    {%- endif %}
+                    {%- if status == 1: %}
+                    <a href="{{ url_for('auth.logout') }}"> ❱ Profile</a>
+                    <a href="{{ url_for('auth.logout') }}"> ❱ Logout</a>
+                    {%- endif %}
+                </div>
+            </div>
+        </li>
+        <li class="right">
+            <div class="textbox">
+                <pre class="text">{{ user }}</pre>
+            </div>
+        </li>
+        <li class="right">
+            <div class="textbox">
+                {%- if status == 1: %}
+                <b><pre class="text">Welcome:</pre></b>
+                {%- endif %}
+            </div>
+        </li>
+    </ul>
+    <!-- Content -->
+    <div id="content" class="content">
+        {%- block content %}{% endblock -%}
+    </div>
+    <!-- Footer -->
+    <div id="footer" class="footer">    
+        {% block footer -%}
+        <p>Enterprise ERP System.</p>
+        <p>&copy; Copyright 2021 by José Ferreira</p>
+        {%- endblock %}
+    </div>
+    <!-- Executes javascripts after DOM is complete -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

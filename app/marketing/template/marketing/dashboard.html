@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <div class="data col-6 col-s-6">
+                {%- for message in get_flashed_messages() %}
+                <div>
+                    {%- if "Error" not in message: %}
+                    <div class="alert success">
+                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                    </div>
+                    {%- endif %}
+                    {%- if "Error" in message: %}
+                    <div class="alert error">
+                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                    </div>
+                    {%- endif %}
+                </div>
+                {%- endfor %}
+                <div class="form container">
+                    <div style="padding-left: 18px;">
+                        <h4><pre>{{description}}</pre></h4>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <b><pre>Name:</pre></b>
+                        </div>
+                        <div class="input-col">
+                            <pre>{{ data['name'] }}</pre>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <b><pre>Email:</pre></b>
+                        </div>
+                        <div class="input-col">
+                            <pre>{{ data['email'] }}</pre>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <b><pre>Role:</pre></b>
+                        </div>
+                        <div class="input-col">
+                            <pre>{{ data['role'] }}</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="data col-3 col-s-3">
+                <div class="page_image">
+                    <div class="image-block">
+                        <img src= "{{ url_for('static', filename='icons/home.png') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

@@ -4,18 +4,18 @@ from flask_principal import RoleNeed, Permission, Identity, identity_changed, Pe
 
 from .. import db
 from ..config import HEADER
-from ..admin.users.models import User
-from .forms import LoginForm, RegistrationForm
-from ..admin.users.forms import UserForm
+from ..user.models import User
+from .forms import LoginForm
 
 
 auth = Blueprint('auth', __name__,
     template_folder='templates',
-    static_folder='static')
+    static_folder='static',
+    static_url_path='/static')
 
 
 # Create a permission with a single Need (RoleNeed)
-admin_permission = Permission(RoleNeed('admin'))
+admin_permission = Permission(RoleNeed('Admin'))
 
 
 @auth.route('/login', methods=('GET', 'POST'))
@@ -25,120 +25,50 @@ def login():
 
     # Create form instance
     form = LoginForm()
+
+    # Validate form input
     if form.validate_on_submit():
-        # Add authenticated user to current session
-        login_user(form.user, remember=form.remember)
+        # Create model instance with query data
+        user = User.query.filter(User.email == form.email.data).first()
 
-        # Inform Flask-Principal the identity changed
-        identity_changed.send(current_app._get_current_object(), identity=Identity(form.user.email))
+        print(f'Login user: {user}')
 
-        return redirect(request.args.get("next") or url_for("main.home"))
+        # Validate password
+        if user.is_valid_password(form.password.data):
+            # Add user to session with Flask-Login
+            login_user(user, remember=form.remember.data)
+
+            # Inform Flask-Principal the identity changed
+            identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
+
+            print(f'Permission: {admin_permission}')
+
+            #return redirect(request.args.get('next') or '/')
+            return redirect(request.args.get("next") or url_for("root.home"))
+
+        flash('Error - Invalid user or password!')
+
+        #return redirect(request.args.get("next") or url_for("main.home"))
     return render_template('auth/login.html', header=HEADER, heading=heading, form=form)
 
 
 @auth.route('/logout')
 @login_required
 def logout():
-    # Remove user from current session 
+    # Remove the user information from the session
     logout_user()
+
+    # Remove session keys set by Flask-Principal
+    #for key in ('identity.name', 'identity.auth_type'):
+    #    db.session.pop(key, None)
 
     # Inform Flask-Principal user is anonymous
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
 
-    return redirect(url_for('main.index'))
-
-
-@auth.route('/admin')
-@login_required
-def admin():
-    # Set html page heading
-    heading='User list'
-
-    # Create model instance with query data
-    users = User.query.all()
-
-    return render_template('auth/admin.html', header=HEADER, heading=heading, users=users)
-
-
-@auth.route('/register', methods=('GET', 'POST'))
-@login_required
-def register():
-    # Set html page heading
-    heading='Register'
-
-    # Create form instance
-    form = RegistrationForm()
-    if form.validate_on_submit():
-        # Create model instance with query data
-        user = User()
-
-        # Populate object attributes with form data.
-        form.populate_obj(user)
-
-        # Marked for insertion
-        db.session.add(user)
-
-        # Commit changes to database
-        db.session.commit()
-        flash('New user {0} successfully submitted'.format(user.user_name))
-        return redirect(url_for('auth.admin'))
-
-    return render_template('auth/register.html', header=HEADER, heading=heading, form=form)
-
-
-@auth.route('/modify/user<id>', methods=('GET', 'POST'))
-@login_required
-def modify(id):
-    # Set html page heading
-    heading='Modify credentials'
-
-    # Create model instance with query data
-    user = User.query.get(id)
-
-    if user == None:
-        # Report result.        
-        flash('Error - User id: {0} not found!'.format(id))
-        return redirect(url_for('auth.admin'))
-
-    # Create form instance and load it with object data
-    form = UserForm(obj=user)
-
-    if form.validate_on_submit():
-        # Populate object attributes with form data.
-        form.populate_obj(user)
-
-        # Commit changes to database
-        db.session.commit() 
-        flash('User {0} modifications successfully submitted'.format(user.user_name))
-        return redirect(url_for('auth.admin'))
-
-    return render_template('auth/modify.html', header=HEADER, heading=heading, form=form)
-
-
-@auth.route('/delete/user<id>', methods=('GET', 'POST'))
-@login_required
-def delete(id):
-    # Create model instance with query data
-    user = User.query.get(id)
-
-    if user == None:
-        # Report result.        
-        flash('Error - User id: {0} not found!'.format(id))
-    
-    else:
-        # Marked for deletion
-        db.session.delete(user)
-
-        # Commit changes to database
-        db.session.commit()
-        flash('User {0} successfully deleted!'.format(user.name))
-
-    return redirect(url_for('auth.admin'))
+    return redirect(request.args.get('next') or '/')
 
 
 @auth.errorhandler(PermissionDenied)
 def handle_error(e):
     flash('Error - Admin privileges required')
-    return redirect(url_for('main.home'))
-
-#@admin_permission.require()
+    return redirect(url_for('root.home'))

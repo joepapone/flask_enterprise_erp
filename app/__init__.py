@@ -1,8 +1,9 @@
 __author__ = 'Jose Ferreira'
 
-from flask import Flask
+from flask import Flask, g, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_principal import Principal, identity_loaded
+from .config import HEADER
 
 # initize SQLAlchemy for use in models
 db = SQLAlchemy()
@@ -31,50 +32,48 @@ def create_app():
 
 
     # initialize Flask-Principal
-    from .main.authentication import on_identity_loaded
+    from .auth.auth import on_identity_loaded
     Principal(app)
     identity_loaded.connect(on_identity_loaded, app)
 
 
     # initialize Flask-Login
-    from .main.authentication import login_manager
+    from .auth.auth import login_manager
     login_manager.init_app(app)
 
-    
+
+
+    @app.before_request
+    def before_request():
+        g.user = 'test dumb' in request.headers
+        g.header = HEADER
+        print("before_request executing!")
+        #g.pjax = 'X-PJAX' @app.before_request in request.headers
+
+
     # initialize Flask-Mail
     #mail.init_app(app)
 
 
-    # blueprint for main non-authenticated routes
-    from .main.routes import main
-    app.register_blueprint(main)
+    # blueprint for non-authenticated routes
+    from .routes import root
+    app.register_blueprint(root)
 
-
-    # blueprint for users routes
+    # blueprint authentication routes
     from .auth.routes import auth
     app.register_blueprint(auth)
+    
+    # blueprint for role and user routes
+    from .role.routes import role
+    app.register_blueprint(role)
 
-
-    # blueprint for user roles routes
-    from .admin.roles.routes import roles
-    app.register_blueprint(roles)
-
-
-    # blueprint for users routes
-    from .admin.users.routes import users
-    app.register_blueprint(users)
-
-
-    # blueprint for scale routes
-    from .scale.routes import scale
-    app.register_blueprint(scale)
-
+    from .user.routes import user
+    app.register_blueprint(user)
 
     # blueprint for errors routes
-    from .errors.handlers import errors, page_not_found, internal_server_error
+    from .errors.routes import errors, page_not_found, internal_server_error
     app.register_blueprint(errors)
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(500, internal_server_error)
     
-
     return app

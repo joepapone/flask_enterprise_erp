@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="/home/joe/Python/enterprise_erp/app/main/static/css/style.css">
+    <title> Enterprise ERP </title>
+</head>
+<body onload="refresh()">
+    <!-- Navigation Bar -->
+    <ul class="navbar">
+        <li class="left">
+            <div>
+                <a href="#home">
+                    <img class="logo" src="/home/joe/Python/enterprise_erp/app/main/static/icons/favicon.png"
+                    alt="image" width="50" height="50">
+                </a>
+            </div>
+        </li>
+        <li class="left">
+            <div>
+                <a href="#about">
+                    <h1 class="text">Enterprise ERP</h1>
+                </a>
+            </div>
+        </li>
+        <li class="dropdownbox">
+            <div class="dropdown">
+                <div>
+                    <img class="avantar" src="/home/joe/Python/enterprise_erp/app/main/static/icons/favicon.png"
+                    alt="image" width="30" height="30">
+                </div>
+                <div class="dropdown-content">
+                    <a href="#"> ❱ Profile 12345567890</a>
+                    <a href="#"> ❱ Logout</a>
+                </div>
+            </div>
+        </li>
+        <li class="right">
+            <div class="textbox">
+                <pre class="text">José Ferreira</pre>
+            </div>
+        </li>
+        <li class="right">
+            <div class="textbox">
+                <b><pre class="text">Welcome:</pre></b>
+            </div>
+        </li>
+    </ul>
+    <!-- Content -->
+    <div class="row">
+
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('users.list') }}"> ❱ Users</a>
+            <a href="{{ url_for('scale.weight') }}"> ❱ Scale</a>
+            <a href="{{ url_for('auth.logout') }}"> ❱ Logout</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>Heading</h1>
+                </div>
+            </div>
+            <div class="data col-6 col-s-6">
+                <div>
+                    <div class="alert success">
+                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                    </div>
+                    <div class="alert error">
+                        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                    </div>
+                </div>
+                <div class="form container">
+                    <div style="padding-left: 18px;">
+                        <h4><pre>Blablaba</pre></h4>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <b><pre>Name:</pre></b>
+                        </div>
+                        <div class="input-col">
+                            <pre>José Ferreira</pre>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <b><pre>Email:</pre></b>
+                        </div>
+                        <div class="input-col">
+                            <pre>jose.ferreira@gmail.com</pre>
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <b><pre>Role:</pre></b>
+                        </div>
+                        <div class="input-col">
+                            <pre>Admin</pre>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="data col-3 col-s-3">
+                <div class="page_image">
+                    <div class="image-block">
+                        <img src= "{{ url_for('main.static', filename='icons/home.png') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    <!-- Footer -->
+    <div class="footer">    
+        {% block footer -%}
+        <p>Enterprise ERP System</p>
+        <p>&copy; Copyright 2023 by José Ferreira</p>
+        {%- endblock %}
+    </div>
+    <!-- Executes javascripts after DOM is complete -->
+    <script src="{{ url_for('main.static', filename='js/app.js') }}"></script>
+</body>
+</html>
