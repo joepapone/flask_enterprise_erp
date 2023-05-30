@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <div class="dash-container">
+                <div class="dash-panel ">
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="chart1"></div>
+                        <script>
+                            Plotly.newPlot("chart1", {{ chart1|tojson }} );
+                        </script>
+                    </div>
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="chart2"></div>
+                        <script>
+                            Plotly.newPlot("chart2", {{ chart2|tojson }} );
+                        </script>
+                    </div>
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="chart3"></div>
+                        <script>
+                            Plotly.newPlot("chart3", {{ chart3|tojson }} );
+                        </script>
+                    </div>
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="chart4"></div>
+                        <script>
+                            Plotly.newPlot("chart4", {{ chart4|tojson }} );
+                        </script>
+                    </div>
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="linePlot"></div>
+                    </div>
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="BarPlot1">
+                            {{ chart1 }}
+                        </div>
+                    </div>
+                    <div class="dash-inline">
+                        <div class="dash-chart" id="piePlot">
+                            {{ chart2 }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}

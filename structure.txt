@@ -3,10 +3,11 @@ enterprise_erp/
 |	+---admin/
 |	|	+---templates/
 |	|	|	+---admin/
+|	|	|		+---admin_dashboard.html
 |	|	|		+---admin.html
 |	|	|
 |	|	+---__init__.py
-|	|	+---auth.py
+|	|	+---admin.py
 |	|	+---forms.py
 |	|	+---models.py
 |	|	+---routes.py
@@ -32,6 +33,32 @@ enterprise_erp/
 |	|	+---__init__.py
 |	|	+---erros.py
 |	|
+|	+---facilities/
+|	|	+---templates/
+|	|	|	+---facilities/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---facilities.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---finance/
+|	|	+---templates/
+|	|	|	+---finance/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---finance.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
 |	+---home/
 |	|	+---templates/
 |	|	|	+---home/
@@ -40,14 +67,80 @@ enterprise_erp/
 |	|	+---__init__.py
 |	|	+---home.py
 |	|
-|	+---product/
+|	+---hr/
 |	|	+---templates/
-|	|	|	+---product/
+|	|	|	+---hr/
+|	|	|		+---dashboard.html
 |	|	|		+---list.html
 |	|	|		+---form.html
 |	|	|
 |	|	+---__init__.py
-|	|	+---product.py
+|	|	+---hr.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---it/
+|	|	+---templates/
+|	|	|	+---it/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---it.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---maintenance/
+|	|	+---templates/
+|	|	|	+---maintenance/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---maintenance.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---marketing/
+|	|	+---templates/
+|	|	|	+---marketing/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---marketing.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---production/
+|	|	+---templates/
+|	|	|	+---production/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---production.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---quality/
+|	|	+---templates/
+|	|	|	+---quality/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---quality.py
 |	|	+---forms.py
 |	|	+---models.py
 |	|	+---routes.py
@@ -64,6 +157,19 @@ enterprise_erp/
 |	|	+---models.py
 |	|	+---routes.py
 |	|
+|	+---sales/
+|	|	+---templates/
+|	|	|	+---sales/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---sales.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
 |	+---static/
 |	|	+---css/
 |	|	|	+---style.css
@@ -73,6 +179,32 @@ enterprise_erp/
 |	|	|
 |	|	+---js/
 |	|		+---app.js
+|	|
+|	+---stock/
+|	|	+---templates/
+|	|	|	+---stock/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---stock.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---suppliers/
+|	|	+---templates/
+|	|	|	+---suppliers/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---suppliers.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
 |	|
 |	+---templates/
 |	|	+---app/
@@ -88,6 +220,19 @@ enterprise_erp/
 |	|	|
 |	|	+---__init__.py
 |	|	+---user.py
+|	|	+---forms.py
+|	|	+---models.py
+|	|	+---routes.py
+|	|
+|	+---utilities/
+|	|	+---templates/
+|	|	|	+---user/
+|	|	|		+---dashboard.html
+|	|	|		+---list.html
+|	|	|		+---form.html
+|	|	|
+|	|	+---__init__.py
+|	|	+---utilities.py
 |	|	+---forms.py
 |	|	+---models.py
 |	|	+---routes.py

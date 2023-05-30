@@ -1,8 +1,8 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
 from flask_login import login_required, login_user, logout_user
-from flask_principal import RoleNeed, Permission, Identity, identity_changed, PermissionDenied, AnonymousIdentity
+from flask_principal import Identity, identity_changed, AnonymousIdentity
+from .auth import timed_serializer
 
-from .. import db
 from ..config import HEADER
 from ..user.models import User
 from .forms import LoginForm
@@ -12,10 +12,6 @@ auth = Blueprint('auth', __name__,
     template_folder='templates',
     static_folder='static',
     static_url_path='/static')
-
-
-# Create a permission with a single Need (RoleNeed)
-admin_permission = Permission(RoleNeed('Admin'))
 
 
 @auth.route('/login', methods=('GET', 'POST'))
@@ -41,8 +37,6 @@ def login():
             # Inform Flask-Principal the identity changed
             identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
 
-            print(f'Permission: {admin_permission}')
-
             #return redirect(request.args.get('next') or '/')
             return redirect(request.args.get("next") or url_for("root.home"))
 
@@ -66,9 +60,3 @@ def logout():
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
 
     return redirect(request.args.get('next') or '/')
-
-
-@auth.errorhandler(PermissionDenied)
-def handle_error(e):
-    flash('Error - Admin privileges required')
-    return redirect(url_for('root.home'))

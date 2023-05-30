@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+    {% block content %}
+        <div class="menu col-2 col-s-2">
+            <a href="{{ url_for('user.profile') }}"> ❰ Back</a>
+        </div>
+        <div class="data col-10 col-s-10">
+            <div class="heading background">
+                <div class="text">
+                    <h1>{{ heading }}</h1>
+                </div>
+            </div>
+            <form action="" method="POST" enctype=multipart/form-data>
+                {{ form.csrf_token }}
+                <div class="data col-6 col-s-6">
+                    {% with messages = get_flashed_messages() %}
+                    <div>
+                        {% if messages %}
+                        <div class="alert error">
+                            <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ messages[0] }}
+                        </div>
+                        {%- endif %}
+                    </div>
+                    {% endwith %}
+                    <div class="form container">                 
+                        <div class="form-row {% if form.password.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="password">{{ form.password.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.password() }}
+                                {%- for error in form.password.errors %}
+                                {%- if form.password.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.confirm.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="password">{{ form.confirm.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.confirm() }}
+                                {%- for error in form.confirm.errors %}
+                                {%- if form.confirm.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row">
+                            <input class="field-submit" type="submit" value="Submit">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    {% endblock %}

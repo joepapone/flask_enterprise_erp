@@ -5,6 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <title> Enterprise ERP </title>
 </head>
 <body onload="refresh()">
@@ -13,7 +14,7 @@
         <li class="left">
             <div>
                 <a href="{{ url_for('root.home') }}">
-                    <img class="logo" src="{{ url_for('static', filename='icons/favicon.png') }}"
+                    <img class="logo" src="{{ url_for('static', filename='icons/logo.jpg') }}"
                     alt="image" width="50" height="50">
                 </a>
             </div>
@@ -28,30 +29,23 @@
         <li class="dropdownbox">
             <div class="dropdown">
                 <div>
-                    <img class="avantar" src="{{ url_for('static', filename='icons/favicon.png') }}"
+                    <img class="avantar" src="{{ url_for('static', filename='icons/user.png') }}"
                     alt="image" width="30" height="30">
                 </div>
                 <div class="dropdown-content">
-                    <a href="{{ url_for('auth.login') }}"> ❱ Login</a>
-                    {%- if status == 0: %}
-                    <a href="{{ url_for('auth.login') }}"> ❱ Login</a>
-                    {%- endif %}
-                    {%- if status == 1: %}
-                    <a href="{{ url_for('auth.logout') }}"> ❱ Profile</a>
+                    {%- if current_user.is_authenticated %}
+                    <a href="{{ url_for('user.profile') }}"> ❱ Profile</a>
                     <a href="{{ url_for('auth.logout') }}"> ❱ Logout</a>
+                    {% else %}
+                    <a href="{{ url_for('auth.login') }}"> ❱ Login</a>
                     {%- endif %}
                 </div>
             </div>
         </li>
         <li class="right">
             <div class="textbox">
-                <pre class="text">{{ user }}</pre>
-            </div>
-        </li>
-        <li class="right">
-            <div class="textbox">
-                {%- if status == 1: %}
-                <b><pre class="text">Welcome:</pre></b>
+                {%- if current_user.is_authenticated %}
+                <b><pre class="text">Welcome, {{ current_user.user_name }}</pre></b>
                 {%- endif %}
             </div>
         </li>

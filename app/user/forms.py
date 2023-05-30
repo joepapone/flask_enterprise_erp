@@ -1,7 +1,8 @@
 from flask_wtf import FlaskForm
 from wtforms import fields
-from wtforms.validators import Email, InputRequired, ValidationError
+from wtforms.validators import Email, InputRequired, ValidationError, EqualTo
 from .models import User, Role
+
 
 # Get data to populate select field
 def get_roles():
@@ -44,3 +45,12 @@ class UserForm(FlaskForm):
         user = User.query.filter(User.email == field.data).first()
         if user is not None:
             raise ValidationError("A member with that email already exists")
+
+
+# From attributes
+class ChangePasswordForm(FlaskForm):
+    password = fields.PasswordField(label='Password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="New password",
+    render_kw={'class': 'field-data', 'placeholder': 'New password..'})
+    confirm = fields.PasswordField(label='Password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="Confirm password",
+    render_kw={'class': 'field-data', 'placeholder': 'Confirm password..'})
+        

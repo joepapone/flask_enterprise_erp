@@ -1,11 +1,11 @@
 from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
-from flask_login import login_required
+from flask_login import login_required, current_user
 from flask_principal import RoleNeed, Permission, PermissionDenied
 
 from .. import db
 from ..app import HEADER
 from .models import User
-from .forms import UserForm
+from .forms import UserForm, ChangePasswordForm
 
 
 user = Blueprint('user', __name__,
@@ -20,6 +20,7 @@ admin_permission = Permission(RoleNeed('Admin'))
 
 @user.route('/user/list')
 @login_required
+@admin_permission.require()
 def list():
     # Set html page heading
     heading='Users'
@@ -107,6 +108,51 @@ def delete(id):
         flash('User {0} successfully deleted!'.format(item.user_name))
 
     return redirect(url_for('user.list'))
+
+
+@user.route('/profile', methods=["GET", "POST"])
+@login_required
+def profile():
+    # Set html page heading
+    heading='Profile'
+
+    # User profile
+    description = 'You are registered as:'
+    data = {'name': current_user.user_name, 'email': current_user.email, 'role': current_user.role}
+    
+    return render_template('user/profile.html', header=HEADER, heading=heading, description=description, data=data)
+
+
+@user.route('/reset', methods=["GET", "POST"])
+@login_required
+def reset():
+    # Set html page heading
+    heading='Change password'
+
+    # Get current user id
+    id = current_user.user_id
+
+    # Create model instance with query data
+    item = User.query.get(id)
+
+    if item == None:
+        # Report result.        
+        flash('Error - User id: {0} not found!'.format(id))
+        return redirect(url_for('user.list'))
+
+    # Create form instance and load it with object data
+    form = ChangePasswordForm(obj=item)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(item)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash('User {0} passwaord changed successfully!'.format(item.user_name))
+        return redirect(url_for('root.home'))
+
+    return render_template('user/reset.html', header=HEADER, heading=heading, form=form)
 
 
 @user.errorhandler(PermissionDenied)
