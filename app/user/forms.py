@@ -4,7 +4,7 @@ from wtforms.validators import Email, InputRequired, ValidationError, EqualTo
 from .models import User, Role
 
 
-# Get data to populate select field
+# Get roles to populate select field
 def get_roles():
     list = [(row.role_id, row.role_name) for row in Role.query.all()]
 
@@ -23,14 +23,7 @@ def length(min=-1, max=-1):
     return _length
 
 
-# Validate for duplicates
-def duplicate(form, field):
-    item = User.query.filter(User.role_id == field.data).first()
-    if item is not None:
-        raise ValidationError("User attribute already exists")
-
-
-# From attributes
+# User form attributes
 class UserForm(FlaskForm):  
     user_name = fields.StringField(label='Name', validators=[length(min=3, max=50)], description="User name",
         render_kw={'class': 'field-data', 'placeholder': 'Name..'})
@@ -44,10 +37,10 @@ class UserForm(FlaskForm):
     def validate_email(form, field):
         user = User.query.filter(User.email == field.data).first()
         if user is not None:
-            raise ValidationError("A member with that email already exists")
+            raise ValidationError("A user with that email already exists")
 
 
-# From attributes
+# Change password form attributes
 class ChangePasswordForm(FlaskForm):
     password = fields.PasswordField(label='Password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="New password",
     render_kw={'class': 'field-data', 'placeholder': 'New password..'})

@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
+from flask import Blueprint, flash, redirect, render_template, url_for, request, current_app
 from flask_login import login_required, current_user
 from flask_principal import RoleNeed, Permission, PermissionDenied
 
@@ -9,15 +9,23 @@ from .forms import UserForm, ChangePasswordForm
 
 
 user = Blueprint('user', __name__,
-    template_folder='templates',
-    static_folder='static',
-    static_url_path='/static')
+                 template_folder='templates',
+                 static_folder='static',
+                 static_url_path='/static')
 
 
 # Create a permission with a single Need (RoleNeed)
 admin_permission = Permission(RoleNeed('Admin'))
 
 
+# Permission denied error handler
+@user.errorhandler(PermissionDenied)
+def handle_error(e):
+    flash('Error - Admin privileges required')
+    return redirect(url_for('root.home'))
+
+
+# User list
 @user.route('/user/list')
 @login_required
 @admin_permission.require()
@@ -31,6 +39,7 @@ def list():
     return render_template('user/list.html', header=HEADER, heading=heading, list=list)
 
 
+# User add
 @user.route('/user/add', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
@@ -58,6 +67,7 @@ def add():
     return render_template('user/form.html', header=HEADER, heading=heading, form=form)
 
 
+# User edit
 @user.route('/user/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
@@ -88,6 +98,7 @@ def edit(id):
     return render_template('user/form.html', header=HEADER, heading=heading, form=form)
 
 
+# User delete
 @user.route('/user/delete/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
@@ -110,6 +121,7 @@ def delete(id):
     return redirect(url_for('user.list'))
 
 
+# User profile
 @user.route('/profile', methods=["GET", "POST"])
 @login_required
 def profile():
@@ -123,6 +135,7 @@ def profile():
     return render_template('user/profile.html', header=HEADER, heading=heading, description=description, data=data)
 
 
+# User reset
 @user.route('/reset', methods=["GET", "POST"])
 @login_required
 def reset():
@@ -153,9 +166,3 @@ def reset():
         return redirect(url_for('root.home'))
 
     return render_template('user/reset.html', header=HEADER, heading=heading, form=form)
-
-
-@user.errorhandler(PermissionDenied)
-def handle_error(e):
-    flash('Error - Admin privileges required')
-    return redirect(url_for('root.home'))

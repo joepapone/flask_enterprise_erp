@@ -2,6 +2,8 @@
     {% block content %}
         <div class="menu col-2 col-s-2">
             <a href="{{ url_for('user.list') }}"> ❱ Users</a>
+            <a href="{{ url_for('admin.department_list') }}"> ❱ Departments</a>
+            <a href="{{ url_for('admin.job_list') }}"> ❱ Jobs</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -9,186 +11,90 @@
                     <h1>{{ heading }}</h1>
                 </div>
             </div>
-            <div class="data col-6 col-s-6">
-                <div class="w3-row-padding w3-margin-bottom">
-                    <div class="w3-quarter">
-                        <div class="w3-container w3-red w3-padding-16">
-                            <div class="w3-left"><i class="fa fa-comment w3-xxxlarge"></i></div>
-                                <div class="w3-right">
-                                    <h3>52</h3>
-                                </div>
-                            <div class="w3-clear"></div>
-                            <h4>Messages</h4>
-                        </div>
-                    </div>
-                    <div class="w3-quarter">
-                        <div class="w3-container w3-blue w3-padding-16">
-                            <div class="w3-left"><i class="fa fa-eye w3-xxxlarge"></i></div>
-                                <div class="w3-right">
-                                    <h3>99</h3>
-                                </div>
-                            <div class="w3-clear"></div>
-                            <h4>Views</h4>
-                        </div>
-                    </div>
-                    <div class="w3-quarter">
-                        <div class="w3-container w3-teal w3-padding-16">
-                            <div class="w3-left"><i class="fa fa-share-alt w3-xxxlarge"></i></div>
-                                <div class="w3-right">
-                                    <h3>23</h3>
-                                </div>
-                            <div class="w3-clear"></div>
-                            <h4>Shares</h4>
-                        </div>
-                    </div>
-                    <div class="w3-quarter">
-                        <div class="w3-container w3-orange w3-text-white w3-padding-16">
-                            <div class="w3-left"><i class="fa fa-users w3-xxxlarge"></i></div>
-                                <div class="w3-right">
-                                    <h3>50</h3>
-                                </div>
-                            <div class="w3-clear"></div>
-                            <h4>Users</h4>
-                        </div>
-                    </div>
+            <div class="dash-container">
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart1"></div>
+                    <script>
+                        Plotly.newPlot("chart1", {{ chart1|tojson }} );
+                    </script>
                 </div>
-
-
-                <div class="w3-panel">
-                    <div class="w3-row-padding" style="margin:0 -16px">
-                        <div class="w3-third">
-                            <h5>Regions</h5>
-                            <img src="/w3images/region.jpg" style="width:100%" alt="Google Regional Map">
-                        </div>
-                        <div class="w3-twothird">
-                            <h5>Feeds</h5>
-                            <table class="w3-table w3-striped w3-white">
-                                <tr>
-                                    <td><i class="fa fa-user w3-text-blue w3-large"></i></td>
-                                    <td>New record, over 90 views.</td>
-                                    <td><i>10 mins</i></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="fa fa-bell w3-text-red w3-large"></i></td>
-                                    <td>Database error.</td>
-                                    <td><i>15 mins</i></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="fa fa-users w3-text-yellow w3-large"></i></td>
-                                    <td>New record, over 40 users.</td>
-                                    <td><i>17 mins</i></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="fa fa-comment w3-text-red w3-large"></i></td>
-                                    <td>New comments.</td>
-                                    <td><i>25 mins</i></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="fa fa-bookmark w3-text-blue w3-large"></i></td>
-                                    <td>Check transactions.</td>
-                                    <td><i>28 mins</i></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="fa fa-laptop w3-text-red w3-large"></i></td>
-                                    <td>CPU overload.</td>
-                                    <td><i>35 mins</i></td>
-                                </tr>
-                                <tr>
-                                    <td><i class="fa fa-share-alt w3-text-green w3-large"></i></td>
-                                    <td>New shares.</td>
-                                    <td><i>39 mins</i></td>
-                                </tr>
-                            </table>
-                        </div>
-                    </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart2"></div>
+                    <script>
+                        Plotly.newPlot("chart2", {{ chart2|tojson }} );
+                    </script>
                 </div>
-
-
-                <div class="w3-container">
-                    <h5>Recent Comments</h5>
-                        <div class="w3-row">
-                            <div class="w3-col m2 text-center">
-                                <img class="w3-circle" src="/w3images/avatar3.png" style="width:96px;height:96px">
-                            </div>
-                            <div class="w3-col m10 w3-container">
-                                <h4>John <span class="w3-opacity w3-medium">Sep 29, 2014, 9:12 PM</span></h4>
-                                <p>Keep up the GREAT work! I am cheering for you!! Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p><br>
-                            </div>
-                        </div>
-                    
-                        <div class="w3-row">
-                            <div class="w3-col m2 text-center">
-                                <img class="w3-circle" src="/w3images/avatar1.png" style="width:96px;height:96px">
-                            </div>
-                            <div class="w3-col m10 w3-container">
-                                <h4>Bo <span class="w3-opacity w3-medium">Sep 28, 2014, 10:15 PM</span></h4>
-                                <p>Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p><br>
-                            </div>
-                        </div>
-                    </div>
-                <br>
-
-
-                <div class="w3-container w3-dark-grey w3-padding-32">
-                    <div class="w3-row">
-                        <div class="w3-container w3-third">
-                            <h5 class="w3-bottombar w3-border-green">Demographic</h5>
-                            <p>Language</p>
-                            <p>Country</p>
-                            <p>City</p>
-                        </div>
-                        <div class="w3-container w3-third">
-                            <h5 class="w3-bottombar w3-border-red">System</h5>
-                            <p>Browser</p>
-                            <p>OS</p>
-                            <p>More</p>
-                        </div>
-                        <div class="w3-container w3-third">
-                            <h5 class="w3-bottombar w3-border-orange">Target</h5>
-                            <p>Users</p>
-                            <p>Active</p>
-                            <p>Geo</p>
-                            <p>Interests</p>
-                        </div>
-                    </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart3"></div>
+                    <script>
+                        Plotly.newPlot("chart3", {{ chart3|tojson }} );
+                    </script>
                 </div>
-                
-                
-                <div class="form container">
-                    <div style="padding-left: 18px;">
-                        <h4><pre>{{description}}</pre></h4>
-                    </div>
-                    <div class="form-row">
-                        <div class="label-col">
-                            <b><pre>Name:</pre></b>
-                        </div>
-                        <div class="input-col">
-                            <pre>{{ data['name'] }}</pre>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="label-col">
-                            <b><pre>Email:</pre></b>
-                        </div>
-                        <div class="input-col">
-                            <pre>{{ data['email'] }}</pre>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="label-col">
-                            <b><pre>Role:</pre></b>
-                        </div>
-                        <div class="input-col">
-                            <pre>{{ data['role'] }}</pre>
-                        </div>
-                    </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart4"></div>
+                    <script>
+                        Plotly.newPlot("chart4", {{ chart4|tojson }} );
+                    </script>
                 </div>
-            </div>
-            <div class="data col-3 col-s-3">
-                <div class="page_image">
-                    <div class="image-block">
-                        <img src= "{{ url_for('static', filename='icons/home.png') }}">
-                    </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart5"></div>
+                    <script>
+                        Plotly.newPlot("chart5", {{ chart5|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart6"></div>
+                    <script>
+                        Plotly.newPlot("chart6", {{ chart6|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart7"></div>
+                    <script>
+                        Plotly.newPlot("chart7", {{ chart7|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart8"></div>
+                    <script>
+                        Plotly.newPlot("chart8", {{ chart8|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart9"></div>
+                    <script>
+                        Plotly.newPlot("chart9", {{ chart9|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart10"></div>
+                    <script>
+                        Plotly.newPlot("chart10", {{ chart10|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart11"></div>
+                    <script>
+                        Plotly.newPlot("chart11", {{ chart11|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart12"></div>
+                    <script>
+                        Plotly.newPlot("chart12", {{ chart12|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart13"></div>
+                    <script>
+                        Plotly.newPlot("chart13", {{ chart13|tojson }} );
+                    </script>
+                </div>
+                <div class="dash-row">
+                    <div class="dash-chart" id="chart14"></div>
+                    <script>
+                        Plotly.newPlot("chart14", {{ chart14|tojson }} );
+                    </script>
                 </div>
             </div>
         </div>

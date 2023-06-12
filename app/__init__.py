@@ -25,8 +25,8 @@ def create_app():
 
     # Initialize Flask-SQLAlchemy
     db.init_app(app)
-    #with app.app_context():
-    #    db.create_all()
+    with app.app_context():
+        db.create_all()
 
 
     # Initialize Flask-Principal
@@ -58,28 +58,31 @@ def create_app():
     #mail.init_app(app)
 
 
-    # blueprint for non-authenticated routes
-    from .routes import root
-    app.register_blueprint(root)
-
-    # blueprint authentication routes
-    from .auth.routes import auth
-    app.register_blueprint(auth)
-    
-    # blueprint for role and user routes
-    from .role.routes import role
-    app.register_blueprint(role)
-
-    from .user.routes import user
-    app.register_blueprint(user)
-
-    # blueprint for errors routes
+    # Blueprint for errors routes
     from .errors.routes import errors, page_not_found, internal_server_error
     app.register_blueprint(errors)
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(500, internal_server_error)
 
-    # blueprint for human resources
+    # Blueprint for non-authenticated routes
+    from .routes import root
+    app.register_blueprint(root)
+
+    # Blueprint authentication routes
+    from .auth.routes import auth
+    app.register_blueprint(auth)
+    
+    # Blueprint for role and user routes
+    from .role.routes import role
+    app.register_blueprint(role)
+    from .user.routes import user
+    app.register_blueprint(user)
+
+    # Blueprint for admin routes
+    from .admin.routes import admin
+    app.register_blueprint(admin)
+
+    # Blueprint for human resources routs
     from .hr.routes import hr
     app.register_blueprint(hr)
 

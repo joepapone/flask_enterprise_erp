@@ -60,4 +60,4 @@ class User(UserMixin, db.Model):
         return (self.user_id)
     
     def __repr__(self):
-        return "<User #{:d}>".format(self.user_id)
+        return f'Job: {self.user_name} ({self.user_id})'

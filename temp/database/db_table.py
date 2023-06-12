@@ -1,68 +1,15 @@
 import db_transaction as db
-from db_encrypt import encode, decode
-from db_config import ADMIN, ADMIN_EMAIL, ADMIN_PW
-
-# Encrypt admin password.
-salt, pw_hash = encode(ADMIN_PW)
 
 # Create database SQL transaction.
-sql_transact = f'''
--- Create database business_erp 
-DROP DATABASE IF EXISTS business_erp;
-
-CREATE DATABASE business_erp;
+sql_transact = '''
 USE business_erp;
 
--- Delete tables according to foreign key sequence
-DROP TABLE IF EXISTS role;
-DROP TABLE IF EXISTS user;
+-- Delete tables
 DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS job_history;
 DROP TABLE IF EXISTS department;
 DROP TABLE IF EXISTS department_history;
 
--- Role
-CREATE TABLE role (
-    role_id INT NOT NULL AUTO_INCREMENT,
-    role_name VARCHAR(50),
-    PRIMARY KEY (role_id)
-);
-
-INSERT INTO 
-    role (role_name)
-VALUES 
-    ('Admin'), 
-    ('Production Manager'),
-    ('Production Supervisor'),
-    ('Sales Manager'),
-    ('Salesperson'),
-    ('Procurement Manager'),
-    ('Procurement'),
-    ('Accounting')
-;
-COMMIT;
-
--- User
-CREATE TABLE user (
-    user_id INT NOT NULL AUTO_INCREMENT,
-    user_name VARCHAR(50),
-    role_id INT NOT NULL,
-    email VARCHAR(120),
-    _salt VARBINARY(255),
-    _hash VARBINARY(255),
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    UNIQUE (email),
-    PRIMARY KEY (user_id),
-    FOREIGN KEY (role_id) REFERENCES role(role_id)
-);
-
--- Admin user
-INSERT INTO 
-    user (user_name,role_id,email,_salt,_hash) 
-VALUES 
-    ('{ADMIN}',{1},'{ADMIN_EMAIL}',X'{salt}',X'{pw_hash}');
-COMMIT;
 
 -- Department
 CREATE TABLE department (

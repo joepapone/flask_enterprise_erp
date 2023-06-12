@@ -1,7 +1,7 @@
 from .. import db
 
 
-# Define the Role data-model
+# Define the role data-model
 class Role(db.Model):
     # Table name
     __tablename__ = 'role'

@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, request, url_for, current_app
+from flask import Blueprint, flash, redirect, render_template, url_for, request, current_app
 from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
 
@@ -9,17 +9,26 @@ from .forms import RoleForm
 
 
 role = Blueprint('role', __name__,
-    template_folder='templates',
-    static_folder='static',
-    static_url_path='/static')
+                 template_folder='templates',
+                 static_folder='static',
+                 static_url_path='/static')
 
 
 # Create a permission with a single Need (RoleNeed)
 admin_permission = Permission(RoleNeed('Admin'))
 
 
+# Permission denied error handler
+@role.errorhandler(PermissionDenied)
+def handle_error(e):
+    flash('Error - Admin privileges required')
+    return redirect(url_for('root.home'))
+
+
+# Role list
 @role.route('/role/list')
 @login_required
+@admin_permission.require()
 def list():
     # Set html page heading
     heading='Roles'
@@ -30,6 +39,7 @@ def list():
     return render_template('role/list.html', header=HEADER, heading=heading, list=list)
 
 
+# Role add
 @role.route('/role/add', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
@@ -57,6 +67,7 @@ def add():
     return render_template('role/form.html', header=HEADER, heading=heading, form=form)
 
 
+# Role edit
 @role.route('/role/edit/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
@@ -87,6 +98,7 @@ def edit(id):
     return render_template('role/form.html', header=HEADER, heading=heading, form=form)
 
 
+# Role delete
 @role.route('/role/delete/<int:id>', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
@@ -109,7 +121,3 @@ def delete(id):
     return redirect(url_for('role.list'))
 
 
-@role.errorhandler(PermissionDenied)
-def handle_error(e):
-    flash('Error - Admin privileges required')
-    return redirect(url_for('root.home'))

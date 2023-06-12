@@ -25,8 +25,8 @@ var data = [{
 // Define Layout
 var layout = {
   width: 385,
-  height: 365,
-  title: "World Wide Wine Production",
+  height: 360,
+  title: '<b>Number of Employees</b><br><span style="font-size: 25"><b>630</b></span>',
   annotations: [
     {
       font: {
@@ -34,7 +34,7 @@ var layout = {
       },
       showarrow: false,
       text: 'GHG',
-      x: 0.50,
+      x: 0.5,
       y: 0.5
     }]
   };
@@ -72,15 +72,16 @@ var data = [
     type: "indicator",
     value: 200,
     delta: { reference: 160 },
-    gauge: { axis: { visible: false, range: [0, 250] } },
-    domain: { row: 0, column: 0 }
+    gauge: { axis: { visible: true, range: [0, 250] } },
+    domain: { x: [0.1, 0.9], y: [0, 1] },
+    title: { text: "Speed" }
   }
 ];
 
 var layout = {
   width: 385,
   height: 200,
-  margin: { t: 50, b: 25, l: 20, r: 20 },
+  margin: { t: 50, b: 20, l: 20, r: 20 },
   template: {
     data: {
       indicator: [
@@ -103,17 +104,19 @@ var data = [
     gauge: {
       shape: "bullet",
       axis: {
-        visible: false,
+        visible: true,
         range: [-200, 200]
       }
-    }
+    },
+    domain: { x: [0.15, 1], y: [0.35, 0.65] },
+    title: { text: "Profit" }
   }
 ];
 
 var layout = {
   width: 385,
   height: 200,
-  margin: { t: 50, b: 50, l: 25, r: 25 },
+  margin: { t: 20, b: 20, l: 20, r: 20 },
   template: {
     data: {
       indicator: [
@@ -134,40 +137,24 @@ var data = [
     type: "indicator",
     mode: "number+delta",
     value: 300,
-  }
-];
-
-var layout = {
-  width: 189,
-  height: 200,
-  margin: { t: 50, b: 25, l: 20, r: 20 },
-  template: {
-    data: {
-      indicator: [
-        {
-          title: { text: "Adcentism" },
-          mode: "number+delta+gauge",
-          delta: { reference: 80 }
-        }
-      ]
-    }
-  }
-};
-
-Plotly.newPlot('indicator3', data, layout, config);
-
-var data = [
+    domain: { row: 0, column: 0 },
+    title: { text: "Accelaration" }
+  },
   { 
-  type: "indicator", 
-  mode: "delta", 
-  value: 40
+    type: "indicator", 
+    mode: "delta", 
+    value: 40,
+    domain: { row: 0, column: 1 },
+    title: { text: "Velocity" }
   }
 ];
 
 var layout = {
-  width: 189,
+  autosize: false,
+  width: 385,
   height: 200,
   margin: { t: 50, b: 25, l: 20, r: 20 },
+  grid: { rows: 1, columns: 2, pattern: "independent" },
   template: {
     data: {
       indicator: [
