@@ -170,7 +170,7 @@ html {
   padding: 18px;
 }
 
-.menu a:link, a:visited {
+.menu-link, .menu-link:visited {
   padding: 10px;
   border-top-right-radius: 0px;
   border-bottom-right-radius: 0px;
@@ -184,7 +184,7 @@ html {
   width: 100%;
 }
 
-.menu a:hover, a:active {
+.menu-link:hover, .menu-link:active {
   background-color: #3b3b3b;
 }
 
@@ -475,6 +475,151 @@ html {
 }
 
 
+/* -- Data sheet -- */
+.sheet.container {
+  width: 100%;
+  border-radius: 10px;
+  background-color: #f2f2f2;
+  padding: 20px;
+  margin-bottom: 3px;
+}
+
+.sheet-row.header {
+  display: inline-block;
+  width: 100%;
+  padding: 1px;
+  border-bottom: 1px solid #999999;
+}
+
+.sheet-col.header {
+  float: left;
+  width: 70%;
+  margin-right: 5px;
+  font-size: 22px;
+}
+
+.sheet-col.icon {
+  float: right;
+  width: 30px;
+  margin: 4px;
+}
+
+.sheet-icon {
+  padding: 1px;
+}
+
+.sheet-row {
+  display: inline-block;
+  width: 100%;
+  padding: 0px;
+}
+
+.sheet-label-col {
+  float: left;
+  width: 25%;
+  margin-right: 5px;
+}
+
+.sheet-data-col {
+  float: left;
+  width: 50%;
+  padding-right: 5px;
+}
+
+.sheet-dial-col {
+  float: left;
+  width: 50px;
+  padding-right: 5px;
+  text-align: right;
+}
+
+.sheet-icon-col {
+  float: left;
+  width: 30px;
+  padding-right: 5px;
+}
+
+.sheet-icon-col .icon {
+  margin: 5px;
+}
+
+.sheet-label-text {
+  padding: 5px;
+  font-size: 18px;
+  color: #3b3b3b;
+}
+
+.sheet-data-text {
+  padding: 5px;
+  font-size: 17px;
+  color: #3b3b3b;
+}
+
+.data-link:link, .data-link:visited {
+  text-decoration: none;
+  color: #3b3b3b;
+  background-color: transparent;
+}
+
+.data-link:hover, .data-link:active{
+  color: #0084ff;
+}
+
+.editbtn {
+  float: right;
+  width: 20%;
+  text-align: center;
+}
+
+.btn-link:link, .btn-link:visited {
+  display: inline-block;
+  background-color: #3b3b3b;
+  color: #ffffff;
+  padding: 10px 50px;
+  border-radius: 5px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  text-align: center;
+  text-decoration: none;
+}
+
+/* Tooltip --*/
+.tooltip {
+  position: relative;
+  display: inline-block;
+}
+
+.tooltip .tooltiptext {
+  visibility: hidden;
+  width: 120px;
+  background-color: #3b3b3b;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px 0;
+  position: absolute;
+  z-index: 1;
+  bottom: 150%;
+  left: 50%;
+  margin-left: -60px;
+  font-size: 16px;
+}
+
+.tooltip .tooltiptext::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: #3b3b3b transparent transparent transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
+}
+
+
 /* -- Form -- */
 .form.container {
   border-radius: 10px;
@@ -492,12 +637,37 @@ html {
 
 .label-col {
   float: left;
-  width: 25%;
+  width: 30%;
 }
   
 .input-col {
-  float: right;
+  float: left;
   width: 70%;
+  padding-right: 5px;
+}
+
+.input-col-15 {
+  float: left;
+  width: 15%;
+  padding-right: 5px;
+}
+
+.input-col-35 {
+  float: left;
+  width: 35%;
+  padding-right: 5px;
+}
+
+.input-col-55 {
+  float: left;
+  width: 55%;
+  padding-right: 5px;
+}
+
+.submit-col {
+  float: right;
+  width: 20%;
+  padding-right: 5px;
 }
 
 .field-label {
@@ -518,8 +688,9 @@ html {
 
 .field-submit {
   background-color: #4CAF50;
+  width: 100%;
+  padding: 14px;
   color: white;
-  padding: 12px 35px;
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -532,8 +703,16 @@ html {
 
 /* Responsive layout */
 @media screen and (max-width: 600px) {
-  .label-col, .input-col, .field-submit {
+  .label-col, .input-col, .submit-col {
     width: 100%;
+    margin-top: 10;
+  }
+}
+
+/* Responsive layout */
+@media screen and (max-width: 600px) {
+  .input-col-15, .input-col-35, .input-col-55 {
+    width: 50%;
     margin-top: 10;
   }
 }
@@ -699,6 +878,7 @@ hr {
 
 .page_image .image-block {
   display: block;
+  width: 80%;
   padding: 20px;
 }
 

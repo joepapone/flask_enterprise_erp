@@ -13,7 +13,7 @@ def create_app():
     app = Flask(__name__)
 
     #app.config.from_object(config_class)
-    app.config["DEBUG"] = DEBUG
+    app.config['DEBUG'] = DEBUG
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI                              
     app.config['WTF_CSRF_SECRET_KEY'] = WTF_CSRF

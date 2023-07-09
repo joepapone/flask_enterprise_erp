@@ -24,7 +24,7 @@ def department_duplicate(form, field):
 
 # Department form attributes
 class DepartmentForm(FlaskForm):
-    department_name = fields.StringField(label='Name', validators=[length(min=3, max=50), department_duplicate], description="Department name",
+    department_name = fields.StringField(label='Department', validators=[length(min=3, max=50), department_duplicate], description="Department name",
     render_kw={'class': 'field-data', 'placeholder': 'Name..', 'autofocus': ""})
 
 
@@ -42,9 +42,10 @@ def job_duplicate(form, field):
 
 # Job form attributes
 class JobForm(FlaskForm):
-    department_id = fields.SelectField(label='department', choices=get_departments ,validators=[InputRequired()], description="Department",
+    department_id = fields.SelectField(label='Department', choices=get_departments ,validators=[InputRequired()], description="Department",
     render_kw={'class': 'field-data', 'autofocus': ""})
-    job_title = fields.StringField(label='Name', validators=[length(min=3, max=50), job_duplicate], description="Job title",
+    job_title = fields.StringField(label='Job titile', validators=[length(min=3, max=50), job_duplicate], description="Job title",
     render_kw={'class': 'field-data', 'placeholder': 'Title..', 'autofocus': ""})
-    job_description = fields.StringField(label='Name', validators=[length(min=3, max=150), job_duplicate], description="Job description",
-    render_kw={'class': 'field-data', 'placeholder': 'Description..', 'autofocus': ""})
+    job_description = fields.TextAreaField(label='Job description', validators=[length(min=3, max=1000), job_duplicate], description="Job description",
+    render_kw={'class': 'field-data', 'rows': 10, 'placeholder': 'Description..', 'autofocus': ""})
+

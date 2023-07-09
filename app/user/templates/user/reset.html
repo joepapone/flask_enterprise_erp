@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a href="{{ url_for('user.profile') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('user.profile') }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -45,7 +45,9 @@
                             </div>
                         </div>
                         <div class="form-row">
-                            <input class="field-submit" type="submit" value="Submit">
+                            <div class="submit-col">
+                                <input class="field-submit" type="submit" value="Submit">
+                            </div>
                         </div>
                     </div>
                 </div>

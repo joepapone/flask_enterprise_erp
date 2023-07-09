@@ -9,7 +9,7 @@ class Config(object):
 '''
 
 # Application configurations
-DEBUG = False
+DEBUG = True
 SECRET_KEY = '1650414995b5442d8bb75ec46a355879' # Generate via terminal: $ python3 -c "import uuid; print(uuid.uuid4().hex)"
 DATABASE_URI = 'mysql+pymysql://admin:admin@localhost/business_erp' # username:password@host:port/database
 WTF_CSRF = '86ece5f425614cbdbc3d3c8079de4154'

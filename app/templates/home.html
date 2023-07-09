@@ -1,8 +1,8 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a href="{{ url_for('admin.dashboard') }}"> ❱ Admin</a>
-            <a href="{{ url_for('hr.dashboard') }}"> ❱ Human Resources</a>
+            <a class="menu-link" href="{{ url_for('admin.dashboard') }}"> ❱ Admin</a>
+            <a class="menu-link" href="{{ url_for('hr.dashboard') }}"> ❱ Human Resources</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">

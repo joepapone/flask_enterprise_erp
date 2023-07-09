@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('admin.dashboard') }}"> ❰ Back</a>
-            <a class="menu-link" href="{{ url_for('admin.job_history') }}"> ❱ History</a>
+            <a class="menu-link" href="{{ url_for('hr.dashboard') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.terms_list') }}"> ❱ Employment terms</a>
+            <a class="menu-link" href="{{ url_for('hr.status_list') }}"> ❱ Employment status</a>
+            <a class="menu-link" href="{{ url_for('hr.employee_history') }}"> ❱ History</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -10,7 +12,7 @@
                     <h1>{{ heading }}</h1>
                 </div>
             </div>
-            <div class="data col-8 col-s-8">
+            <div class="data col-10 col-s-10">
                 <div class="table-overflow">
                     {%- for message in get_flashed_messages() %}
                     <div>
@@ -30,20 +32,20 @@
                         <tr>
                             <th class="search">
                                 <div class="search-box">
-                                    <input class="search-text" id="search" name="search" type="text" placeholder="Search job ?"
-                                    onkeyup="SearchFunction('job', 1)">
+                                    <input class="search-text" id="search" name="search" type="text" placeholder="Search employee ?"
+                                    onkeyup="SearchFunction('employee', 1)">
                                     <input class="search-submit" id="search_submit" value="submit" type="submit">
                                     <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
                                 </div>
                             </th>
                             <th class="action">
-                                <a href="{{ url_for('admin.job_add') }}">
+                                <a href="{{ url_for('hr.employee_add') }}">
                                     <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
                                 </a>
                             </th>
                         </tr>
                     </table>
-                    <table class="table" id="jobs">
+                    <table class="table" id="employees">
                         <caption>
                             <div>
                                 Count: {{list|length}}
@@ -51,21 +53,27 @@
                         </caption>
                         <tr>
                             <th class="center sort" onclick="SortTableTxt('list', 0)">ID</th>
-                            <th class="text sort" style="width: 40%;" onclick="SortTableTxt('list', 1)">Job</th>
-                            <th class="center sort" onclick="SortTableTxt('list', 2)">ID</th>
-                            <th class="text sort" style="width: 40%;" onclick="SortTableTxt('list', 3)">Department</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Employee</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Department</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Job</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Terms</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Status</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Modified</th>
                             <th class="action">Delete</th>
                         </tr>
                         {%- for item in list %}
                         <tr>
-                            <td class="id"><a href="{{ url_for('admin.job_edit', id=item.job_id) }}">{{ item.job_id }}</a></td>
-                            <td class="text"><a href="{{ url_for('admin.job_edit', id=item.job_id) }}">{{ item.job_title }}</a></td>
-                            <td class="id"><a href="{{ url_for('admin.job_edit', id=item.job_id) }}">{{ item.department.department_id }}</a></td>
-                            <td class="text"><a href="{{ url_for('admin.job_edit', id=item.job_id) }}">{{ item.department.department_name }}</a></td>
+                            <td class="id"><a href="{{ url_for('hr.employee_edit', employee_id=item.employee_id) }}">{{ item.employee_id }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.employee_name }} {{ item.employee_surname }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.department.department_name }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.job.job_title }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.terms.terms }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.status.status_title }}</a></td>
+                            <td class="center"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.modified }}</a></td>
                             <td class="action">
-                                <input class="icon" type="image" src="{{ url_for('.static', filename='icons/delete.png') }}" id="delete{{ item.job_id }}" 
-                                value="{{ url_for('admin.job_delete', id=item.job_id) }}" 
-                                onclick="DeleteFunction('delete{{ item.job_id }}')">
+                                <input class="icon" type="image" src="{{ url_for('.static', filename='icons/delete.png') }}" id="delete{{ item.employee_id }}" 
+                                value="{{ url_for('hr.employee_delete', employee_id=item.employee_id) }}" 
+                                onclick="DeleteFunction('delete{{ item.employee_id }}')">
                             </td>
                         </tr>
                         {%- endfor %}
@@ -77,8 +85,8 @@
             <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">×</span>
             <form class="modal-content" action="/action_page.php" method="POST" id='form'>
                 <div class="modal-container">
-                    <h1>Delete job</h1>
-                    <p>Are you sure you want to delete this job?</p>
+                    <h1>Delete employee</h1>
+                    <p>Are you sure you want to delete this employee?</p>
                     <div class="clearfix">
                         <button class="cancelbtn modal-button" type="button" 
                             onclick="document.getElementById('id01').style.display='none'">Cancel

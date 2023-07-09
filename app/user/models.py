@@ -61,3 +61,14 @@ class User(UserMixin, db.Model):
     
     def __repr__(self):
         return f'Job: {self.user_name} ({self.user_id})'
+    
+
+    '''
+    class ProfileForm(Form):
+    birthday  = DateTimeField('Your Birthday', format='%m/%d/%y')
+    signature = TextAreaField('Forum Signature')
+
+    class AdminProfileForm(ProfileForm):
+    username = StringField('Username', [validators.Length(max=40)])
+    level    = IntegerField('User Level', [validators.NumberRange(min=0, max=10)])
+    '''

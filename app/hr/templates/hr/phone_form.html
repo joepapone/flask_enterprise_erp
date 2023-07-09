@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('admin.job_list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.employee_sheet', employee_id=employee_id) }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -27,36 +27,36 @@
                     </div>
                     {%- endfor %}
                     <div class="form container">
-                        <div class="form-row {% if form.department_id.errors %}error{% endif %}">
+                        <div class="form-row {% if form.dial_code.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="department_id">{{ form.department_id.label }}</label>
+                                <label class="field-label" for="dial_code">{{ form.dial_code.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.department_id() }}
-                                {%- for error in form.department_id.errors %}
-                                {%- if form.department_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.dial_code}}
+                                {%- for error in form.dial_code.errors %}
+                                {%- if form.dial_code.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
-                        <div class="form-row {% if form.job_title.errors %}error{% endif %}">
+                        <div class="form-row {% if form.phone_number.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="title">{{ form.job_title.label }}</label>
+                                <label class="field-label" for="phone_number">{{ form.phone_number.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.job_title }}
-                                {%- for error in form.job_title.errors %}
-                                {%- if form.job_title.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.phone_number}}
+                                {%- for error in form.phone_number.errors %}
+                                {%- if form.phone_number.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
-                        <div class="form-row {% if form.job_description.errors %}error{% endif %}">
+                        <div class="form-row {% if form.label.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="description">{{ form.job_description.label }}</label>
+                                <label class="field-label" for="label">{{ form.label.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.job_description }}
-                                {%- for error in form.job_description.errors %}
-                                {%- if form.job_description.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.label}}
+                                {%- for error in form.label.errors %}
+                                {%- if form.label.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>

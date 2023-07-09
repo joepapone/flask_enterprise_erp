@@ -5,7 +5,7 @@ from flask_principal import RoleNeed, Permission, PermissionDenied
 from .. import db
 from ..app import HEADER
 from ..charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
-from .models import Department, Department_History, Job, Job_History
+from .models import Currency, Country, Tax, Department, Department_History, Job, Job_History
 from .forms import DepartmentForm, JobForm
 
 admin = Blueprint('admin', __name__,
@@ -71,6 +71,21 @@ def dashboard():
     return render_template('admin/dashboard.html', header=HEADER, heading=heading, 
                            chart1=plot1, chart2=plot2, chart3=plot3, chart4=plot4, chart5=plot5, chart6=plot6, chart7=plot7, chart8=plot8,
                            chart9=plot9, chart10=plot10, chart11=plot11, chart12=plot12, chart13=plot13, chart14=plot14)
+
+
+# General
+@admin.route('/admin/general')
+@login_required
+def general():
+    # Set html page heading
+    heading='General'
+
+    # Create model instances with query data
+    country = db.session.execute(db.select(Country)).scalars().all()
+    currency = db.session.execute(db.select(Currency)).scalars().all()
+    tax = db.session.execute(db.select(Tax)).scalars().all()
+
+    return render_template('admin/general.html', header=HEADER, heading=heading, country=country, currency=currency, tax=tax)
 
 
 # Department list
@@ -327,3 +342,4 @@ def job_history():
     list = db.session.execute(db.select(Job_History)).scalars().all()
 
     return render_template('admin/job_history.html', header=HEADER, heading=heading, list=list)
+

@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('admin.job_list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.employee_list') }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -31,14 +31,14 @@
                         </caption>
                         <tr>
                             <th class="id sort" onclick="SortTableTxt('list', 0)">ID</th>
-                            <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Job ID</th>
+                            <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Employee ID</th>
                             <th class="left sort" style="width: 60%;" onclick="SortTableTxt('list', 2)">Event</th>
                             <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 3)">Created</th>
                         </tr>
                         {%- for item in list %}
                         <tr>
                             <td class="id">{{ item.event_id }}</td>
-                            <td class="center">{{ item.job_id }}</td>
+                            <td class="center">{{ item.employee_id }}</td>
                             <td class="left">{{ item.event_description}}</td>
                             <td class="right">{{ item.created }}</td>
                         </tr>

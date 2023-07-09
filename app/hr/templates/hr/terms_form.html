@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('role.list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.terms_list') }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -27,19 +27,21 @@
                     </div>
                     {%- endfor %}
                     <div class="form container">
-                        <div class="form-row {% if form.role_name.errors %}error{% endif %}">
+                        <div class="form-row {% if form.terms.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="name">{{ form.role_name.label }}</label>
+                                <label class="field-label" for="terms">{{ form.terms.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.role_name }}
-                                {%- for error in form.role_name.errors %}
-                                {%- if form.role_name.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.terms}}
+                                {%- for error in form.terms.errors %}
+                                {%- if form.terms.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
                         <div class="form-row">
-                            <input class="field-submit" type="submit" value="Submit">
+                            <div class="submit-col">
+                                <input class="field-submit" type="submit" value="Submit">
+                            </div>
                         </div>
                     </div>
                 </div>
