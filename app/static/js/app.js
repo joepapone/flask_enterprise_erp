@@ -1,4 +1,3 @@
-
 // Sort table text.
 function SortTableTxt(sort_table, col) {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
@@ -60,10 +59,12 @@ window.onclick = function(event) {
 }
 
 // Submit delete
-function DeleteFunction(input) {
+function DeleteFunction(input, item) {
     form_action = document.getElementById(input).value;
     document.getElementById("form").action = form_action;
-    document.getElementById('id01').style.display='block'
+    document.getElementById('id01').style.display='block';
+    document.getElementById('msg-h1').innerHTML='Delete ' + item + '!';
+    document.getElementById('msg-p').innerHTML='Are you sure you want to delete this ' + item + '?';
 }
 
 // Select dropdown

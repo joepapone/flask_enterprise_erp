@@ -15,7 +15,7 @@ class Terms(db.Model):
         return (self.terms_id)
         
     def __repr__(self):
-        return f'Terms: {self.terms} ({self.terms_id})'
+        return f'Terms ({self.terms_id}): {self.terms}'
 
 
 # Status data-model
@@ -30,7 +30,7 @@ class Status(db.Model):
         return (self.status_id)
         
     def __repr__(self):
-        return f'Status: {self.status_title} ({self.status_id})'
+        return f'Status ({self.status_id}): {self.status_title}'
     
 
 # Employee data-model
@@ -57,7 +57,7 @@ class Employee(db.Model):
         return (self.employee_id)
         
     def __repr__(self):
-        return f'Employee: {self.employee_name} ({self.employee_id})'
+        return f'Employee ({self.employee_id}): {self.employee_name} {self.employee_surname}'
 
 
 # employee history data-model
@@ -75,7 +75,7 @@ class Employee_History(db.Model):
         self.event_description = event_description
     
     def __repr__(self):
-        return f'Event: {self.event_description} ({self.event_id})'
+        return f'Event ({self.event_id}): {self.event_description}'
 
 
 # Email data-model
@@ -96,7 +96,7 @@ class Email(db.Model):
         return (self.email_id)
         
     def __repr__(self):
-        return f'Status: {self.email} ({self.email_id})'
+        return f'Email ({self.email_id}): {self.email}'
 
 
 # Phone data-model
@@ -118,6 +118,37 @@ class Phone(db.Model):
         return (self.phone_id)
         
     def __repr__(self):
-        return f'Status: {self.phone_number} ({self.phone_id})'
+        return f'Phone ({self.phone_id}): {self.phone_number}'
+
+
+# Address data-model
+class Address(db.Model):
+    # Table name
+    __tablename__ = 'employee_address'
+    # Main Fields
+    address_id = db.Column(db.Integer, primary_key=True)
+    address1 = db.Column(db.String(50))
+    address2 = db.Column(db.String(50))
+    postal_code = db.Column(db.String(50))
+    city = db.Column(db.String(50))
+    state = db.Column(db.String(50))
+    country_id = db.Column(db.Integer, db.ForeignKey('country.country_id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    country = db.relationship(Country, foreign_keys=[country_id])
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+
+    def get_id(self):
+        return (self.address_id)
+        
+    def __repr__(self):
+        return f'Address ({self.address_id}): {self.address1}\
+            \n{self.address2}\
+            \n{self.postal_code} {self.city}\
+            \n{self.state}\
+            \n{self.country_id}'
+
 
 

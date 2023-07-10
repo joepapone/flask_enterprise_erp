@@ -5,9 +5,9 @@ from flask_principal import RoleNeed, Permission, PermissionDenied
 from .. import db
 from ..app import HEADER
 from ..charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
-from .models import Terms, Status, Employee, Employee_History, Email, Phone
+from .models import Terms, Status, Employee, Employee_History, Email, Phone, Address
 from ..admin.models import Department, Job
-from .forms import TermsForm, StatusForm, EmployeeForm, EmailForm, PhoneForm
+from .forms import TermsForm, StatusForm, EmployeeForm, EmailForm, PhoneForm, AddressForm
 
 hr = Blueprint('hr', __name__,
                template_folder='templates',
@@ -23,6 +23,7 @@ TITLE_STATUS='empoyment status'
 TITLE_EMPLOYEE='empoyee'
 TITLE_EMAIL='email'
 TITLE_PHONE='phone'
+TITLE_ADDRESS='address'
 
 # Permission denied error handler
 @hr.errorhandler(PermissionDenied)
@@ -308,11 +309,12 @@ def employee_sheet(employee_id):
     employee_obj = db.session.execute(db.select(Employee).where(Employee.employee_id == employee_id)).scalars().all()
     email_obj = db.session.execute(db.select(Email).where(Email.employee_id == employee_id)).scalars().all()
     phone_obj = db.session.execute(db.select(Phone).where(Phone.employee_id == employee_id)).scalars().all()
+    address_obj = db.session.execute(db.select(Address).where(Address.employee_id == employee_id)).scalars().all()
 
     print(employee_obj)
 
     return render_template('hr/employee_sheet.html', header=HEADER, heading=heading, data_list=employee_obj, email_list=email_obj, phone_list=phone_obj, 
-                           employee_id=employee_id)
+                           address_list=address_obj, employee_id=employee_id)
 
 
 # Employee add
@@ -630,6 +632,100 @@ def phone_delete(employee_id, phone_id):
         flash(f'{TITLE_PHONE.capitalize()} {obj.dial_code} {obj.phone_number} successfully deleted!')
         
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+
+# Employment address add
+@hr.route('/hr/employee/<int:employee_id>/address/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def address_add(employee_id):
+    # Set html page heading
+    heading=f'Add {TITLE_ADDRESS}'
+
+    # Create form instance
+    form = AddressForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Address()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_ADDRESS.capitalize()} (ID: {obj.address_id}) - {obj.postal_code} {obj.city} was successfully added!')
+        
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+    
+    return render_template('hr/address_form.html', header=HEADER, heading=heading, form=form, employee_id=employee_id)
+
+
+# Employment address edit
+@hr.route('/hr/employee/<int:employee_id>/address/edit/<int:address_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def address_edit(employee_id, address_id):
+    # Set html page heading
+    heading=f'Edit {TITLE_ADDRESS}'
+
+    # Create model instance with query data
+    obj = db.session.get(Address, address_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_ADDRESS.capitalize()} nº{address_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = AddressForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_ADDRESS.capitalize()} (ID: {obj.address_id}) - {obj.postal_code} {obj.city} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/address_form.html', header=HEADER, heading=heading, form=form, employee_id=employee_id)
+
+
+# Employment address delete
+@hr.route('/hr/employee/<int:employee_id>/address/delete/<int:address_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def address_delete(employee_id, address_id):
+    # Create model instance with query data
+    obj = db.session.get(Address, address_id)
+    # Check for child dependencies
+    child_obj = None #db.session.execute(db.select(Employee).filter_by(address_id=id)).first()
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_ADDRESS.capitalize()} ({address_id}) was not found!')
+    
+    elif child_obj != None:
+        # Report result.        
+        flash(f'Error - {TITLE_ADDRESS.capitalize()} ({address_id}) cannot be deleted because it has dependencies!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_ADDRESS.capitalize()} (ID: {obj.address_id}) - {obj.postal_code} {obj.city} successfully deleted!')
+        
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
 
 
 
