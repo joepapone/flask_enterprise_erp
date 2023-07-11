@@ -54,11 +54,11 @@ COMMIT;
 -- Employee gender
 CREATE TABLE employee_gender (
     gender_id INT NOT NULL AUTO_INCREMENT,
-    gender_name VARCHAR(50),
+    gender VARCHAR(50),
     PRIMARY KEY (gender_id)
 );
 
-INSERT INTO employee_gender (gender_name)
+INSERT INTO employee_gender (gender)
 VALUES ('Male'),
 	('Female')
 ;
@@ -74,7 +74,10 @@ CREATE TABLE employee_marital (
 INSERT INTO employee_marital (marital_status)
 VALUES ('Single'),
     ('Married'),
-	('Divorced')
+    ('Partnership),
+    ('Widowed'),
+    ('Divorced'),
+    ('Separated')
 ;
 COMMIT;
 

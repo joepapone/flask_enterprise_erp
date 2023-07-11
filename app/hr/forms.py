@@ -4,7 +4,7 @@ from wtforms.validators import ValidationError, InputRequired, Email
 
 from .. import db
 from ..admin.models import Country, Department
-from .models import Terms, Status
+from .models import Terms, Status, Gender, Marital
 
 
 # Validate for length
@@ -114,5 +114,29 @@ class AddressForm(FlaskForm):
     render_kw={'class': 'field-data', 'placeholder': 'State..', 'autofocus': ''})
     country_id = fields.SelectField(label='Country', choices=get_country ,validators=[InputRequired()], description='Country',
     render_kw={'class': 'field-data', 'placeholder': 'Country..', 'autofocus': ''})
+
+
+# Validate gender for duplicates
+def gender_duplicate(form, field):
+    obj = Gender.query.filter(Gender.gender == field.data).first()
+    if obj is not None:
+        raise ValidationError('Gender already exists')
+
+# Gender form attributes
+class GenderForm(FlaskForm):
+    gender = fields.StringField(label='Gender', validators=[length(min=3, max=50), gender_duplicate], description='Gender',
+    render_kw={'class': 'field-data', 'placeholder': 'Gender..', 'autofocus': ''})
+
+
+# Validate marital for duplicates
+def marital_duplicate(form, field):
+    obj = Marital.query.filter(Marital.marital_status == field.data).first()
+    if obj is not None:
+        raise ValidationError('Marital status already exists')
+
+# Marital form attributes
+class MaritalForm(FlaskForm):
+    marital_status = fields.StringField(label='Marital status', validators=[length(min=3, max=50), marital_duplicate], description='Marital status',
+    render_kw={'class': 'field-data', 'placeholder': 'Marital status..', 'autofocus': ''})
 
 

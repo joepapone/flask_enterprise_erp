@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('hr.terms_list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.marital_list') }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -27,14 +27,14 @@
                     </div>
                     {%- endfor %}
                     <div class="form container">
-                        <div class="form-row {% if form.terms.errors %}error{% endif %}">
+                        <div class="form-row {% if form.marital_status.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="terms">{{ form.terms.label }}</label>
+                                <label class="field-label" for="marital">{{ form.marital_status.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.terms}}
-                                {%- for error in form.terms.errors %}
-                                {%- if form.terms.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.marital_status}}
+                                {%- for error in form.marital_status.errors %}
+                                {%- if form.marital_status.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>

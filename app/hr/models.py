@@ -151,4 +151,34 @@ class Address(db.Model):
             \n{self.country_id}'
 
 
+# Gender data-model
+class Gender(db.Model):
+    # Table name
+    __tablename__ = 'employee_gender'
+    # Main Fields
+    gender_id = db.Column(db.Integer, primary_key=True) 
+    gender = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.gender_id)
+        
+    def __repr__(self):
+        return f'gender ({self.gender_id}): {self.gender}'
+
+
+# Marital data-model
+class Marital(db.Model):
+    # Table name
+    __tablename__ = 'employee_marital'
+    # Main Fields
+    marital_id = db.Column(db.Integer, primary_key=True) 
+    marital_status = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.marital_id)
+        
+    def __repr__(self):
+        return f'Marital ({self.marital_id}): {self.marital_status}'
+
+
 

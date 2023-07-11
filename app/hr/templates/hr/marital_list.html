@@ -9,7 +9,7 @@
                     <h1>{{ heading }}</h1>
                 </div>
             </div>
-            <div class="data col-4 col-s-4">
+            <div class="data col-6 col-s-6">
                 <div class="table-overflow">
                     {%- for message in get_flashed_messages() %}
                     <div>
@@ -29,20 +29,20 @@
                         <tr>
                             <th class="search">
                                 <div class="search-box">
-                                    <input class="search-text" id="search" name="search" type="text" placeholder="Search terms ?"
-                                    onkeyup="SearchFunction('terms', 1)">
+                                    <input class="search-text" id="search" name="search" type="text" placeholder="Search marital ?"
+                                    onkeyup="SearchFunction('marital', 1)">
                                     <input class="search-submit" id="search_submit" value="submit" type="submit">
                                     <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
                                 </div>
                             </th>
                             <th class="action">
-                                <a href="{{ url_for('hr.terms_add') }}">
+                                <a href="{{ url_for('hr.marital_add') }}">
                                     <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
                                 </a>
                             </th>
                         </tr>
                     </table>
-                    <table class="table" id="terms">
+                    <table class="table" id="marital">
                         <caption>
                             <div>
                                 Count: {{list|length}}
@@ -50,17 +50,17 @@
                         </caption>
                         <tr>
                             <th class="center sort" onclick="SortTableTxt('list', 0)">ID</th>
-                            <th class="text sort" style="width: 90%;" onclick="SortTableTxt('list', 1)">Employment terms</th>
+                            <th class="text sort" style="width: 90%;" onclick="SortTableTxt('list', 1)">Employment marital</th>
                             <th class="action">Delete</th>
                         </tr>
                         {%- for item in list %}
                         <tr>
-                            <td class="id"><a href="{{ url_for('hr.terms_edit', terms_id=item.terms_id) }}">{{ item.terms_id }}</a></td>
-                            <td class="text"><a href="{{ url_for('hr.terms_edit', terms_id=item.terms_id) }}">{{ item.terms }}</a></td>
+                            <td class="id"><a href="{{ url_for('hr.marital_edit', marital_id=item.marital_id) }}">{{ item.marital_id }}</a></td>
+                            <td class="text"><a href="{{ url_for('hr.marital_edit', marital_id=item.marital_id) }}">{{ item.marital_status }}</a></td>
                             <td class="action">
-                                <input class="icon" type="image" src="{{ url_for('.static', filename='icons/delete.png') }}" id="delete{{ item.terms_id }}" 
-                                value="{{ url_for('hr.terms_delete', terms_id=item.terms_id) }}" 
-                                onclick="DeleteFunction('delete{{ item.terms_id }}', 'maritual state')">
+                                <input class="icon" type="image" src="{{ url_for('.static', filename='icons/delete.png') }}" id="delete{{ item.marital_id }}" 
+                                value="{{ url_for('hr.marital_delete', marital_id=item.marital_id) }}" 
+                                onclick="DeleteFunction('delete{{ item.marital_id }}', 'marital status')">
                             </td>
                         </tr>
                         {%- endfor %}

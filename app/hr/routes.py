@@ -5,9 +5,9 @@ from flask_principal import RoleNeed, Permission, PermissionDenied
 from .. import db
 from ..app import HEADER
 from ..charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
-from .models import Terms, Status, Employee, Employee_History, Email, Phone, Address
+from .models import Terms, Status, Employee, Employee_History, Email, Phone, Address, Gender, Marital
 from ..admin.models import Department, Job
-from .forms import TermsForm, StatusForm, EmployeeForm, EmailForm, PhoneForm, AddressForm
+from .forms import TermsForm, StatusForm, EmployeeForm, EmailForm, PhoneForm, AddressForm, GenderForm, MaritalForm
 
 hr = Blueprint('hr', __name__,
                template_folder='templates',
@@ -24,6 +24,8 @@ TITLE_EMPLOYEE='empoyee'
 TITLE_EMAIL='email'
 TITLE_PHONE='phone'
 TITLE_ADDRESS='address'
+TITLE_GENDER='gender'
+TITLE_MARITAL='maritual status'
 
 # Permission denied error handler
 @hr.errorhandler(PermissionDenied)
@@ -93,7 +95,7 @@ def terms_list():
 
 
 # Employment terms add
-@hr.route('/hr/employee/term/add', methods=('GET', 'POST'))
+@hr.route('/hr/employee/terms/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
 def terms_add():
@@ -122,7 +124,7 @@ def terms_add():
 
 
 # Employment terms edit
-@hr.route('/hr/employee/term/edit/<int:terms_id>', methods=('GET', 'POST'))
+@hr.route('/hr/employee/terms/edit/<int:terms_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
 def terms_edit(terms_id):
@@ -153,7 +155,7 @@ def terms_edit(terms_id):
     return render_template('hr/terms_form.html', header=HEADER, heading=heading, form=form)
 
 
-# Employment term delete
+# Employment terms delete
 @hr.route('/hr/employee/terms/delete/<int:terms_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -715,7 +717,7 @@ def address_delete(employee_id, address_id):
     elif child_obj != None:
         # Report result.        
         flash(f'Error - {TITLE_ADDRESS.capitalize()} ({address_id}) cannot be deleted because it has dependencies!')
-        
+
     else:
         # Marked for deletion
         db.session.delete(obj)
@@ -725,6 +727,212 @@ def address_delete(employee_id, address_id):
         flash(f'{TITLE_ADDRESS.capitalize()} (ID: {obj.address_id}) - {obj.postal_code} {obj.city} successfully deleted!')
         
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+
+# Employment gender list
+@hr.route('/hr/employee/gender/list')
+@login_required
+def gender_list():
+    # Set html page heading
+    heading=TITLE_GENDER.capitalize()
+
+    # Create model instance with query data
+    list = db.session.execute(db.select(Gender)).scalars().all()
+
+    return render_template('hr/gender_list.html', header=HEADER, heading=heading, list=list)
+
+
+# Employment gender add
+@hr.route('/hr/employee/gender/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def gender_add():
+    # Set html page heading
+    heading=f'Add {TITLE_GENDER}'
+
+    # Create form instance
+    form = GenderForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Gender()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_GENDER.capitalize()} (ID: {obj.gender_id}) - {obj.gender} was successfully added!')
+        
+        return redirect(url_for('hr.gender_list'))
+    
+    return render_template('hr/gender_form.html', header=HEADER, heading=heading, form=form)
+
+
+# Employment gender edit
+@hr.route('/hr/employee/gender/edit/<int:gender_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def gender_edit(gender_id):
+    # Set html page heading
+    heading=f'Edit {TITLE_GENDER}'
+
+    # Create model instance with query data
+    obj = db.session.get(Gender, gender_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_GENDER.capitalize()} (ID: {obj.gender_id}) was not found!')
+        return redirect(url_for('hr.gender_list'))
+
+    # Create form instance and load it with object data
+    form = GenderForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_GENDER.capitalize()} (ID: {obj.gender_id}) - {obj.gender} was successfully edited!')
+
+        return redirect(url_for('hr.gender_list'))
+
+    return render_template('hr/gender_form.html', header=HEADER, heading=heading, form=form)
+
+
+# Employment gender delete
+@hr.route('/hr/employee/gender/delete/<int:gender_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def gender_delete(gender_id):
+    # Create model instance with query data
+    obj = db.session.get(Gender, gender_id)
+    # Check for child dependencies
+    child_obj = None #db.session.execute(db.select(Employee).filter_by(gender_id=id)).first()
+
+    if obj == None:
+        # Report result
+        flash(f'Error - The gender (ID: {obj.gender_id}) was not found!')
+    
+    elif child_obj != None:
+        # Report result.
+        flash(f'Error - {TITLE_GENDER.capitalize()} (ID: {obj.gender_id}) - {obj.gender} cannot be deleted because it has dependencies!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_GENDER.capitalize()} (ID: {obj.gender_id}) - {obj.gender} successfully deleted!')
+        
+    return redirect(url_for('hr.gender_list'))
+
+
+# Employment marital list
+@hr.route('/hr/employee/marital/list')
+@login_required
+def marital_list():
+    # Set html page heading
+    heading=TITLE_MARITAL.capitalize()
+
+    # Create model instance with query data
+    list = db.session.execute(db.select(Marital)).scalars().all()
+
+    return render_template('hr/marital_list.html', header=HEADER, heading=heading, list=list)
+
+
+# Employment marital add
+@hr.route('/hr/employee/marital/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def marital_add():
+    # Set html page heading
+    heading=f'Add {TITLE_MARITAL}'
+
+    # Create form instance
+    form = MaritalForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Marital()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_MARITAL.capitalize()} (ID: {obj.marital_id}) - {obj.marital_status} was successfully added!')
+        
+        return redirect(url_for('hr.marital_list'))
+    
+    return render_template('hr/marital_form.html', header=HEADER, heading=heading, form=form)
+
+
+# Employment marital edit
+@hr.route('/hr/employee/marital/edit/<int:marital_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def marital_edit(marital_id):
+    # Set html page heading
+    heading=f'Edit {TITLE_MARITAL}'
+
+    # Create model instance with query data
+    obj = db.session.get(Marital, marital_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_MARITAL.capitalize()} (ID: {obj.marital_id}) was not found!')
+        return redirect(url_for('hr.marital_list'))
+
+    # Create form instance and load it with object data
+    form = MaritalForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_MARITAL.capitalize()} (ID: {obj.marital_id}) - {obj.marital_status} was successfully edited!')
+
+        return redirect(url_for('hr.marital_list'))
+
+    return render_template('hr/marital_form.html', header=HEADER, heading=heading, form=form)
+
+
+# Employment mariatial delete
+@hr.route('/hr/employee/marital/delete/<int:marital_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def marital_delete(marital_id):
+    # Create model instance with query data
+    obj = db.session.get(Marital, marital_id)
+    # Check for child dependencies
+    child_obj = None #db.session.execute(db.select(Employee).filter_by(marital_id=id)).first()
+
+    if obj == None:
+        # Report result
+        flash(f'Error - The marital nº{marital_id} was not found!')
+    
+    elif child_obj != None:
+        # Report result.
+        flash(f'Error - {TITLE_MARITAL.capitalize()} (ID: {obj.marital_id}) - {obj.marital_status} cannot be deleted because it has dependencies!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_MARITAL.capitalize()} (ID: {obj.marital_id}) - {obj.marital_status} successfully deleted!')
+        
+    return redirect(url_for('hr.marital_list'))
 
 
 
