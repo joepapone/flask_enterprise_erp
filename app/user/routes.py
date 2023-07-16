@@ -3,7 +3,7 @@ from flask_login import login_required, current_user
 from flask_principal import RoleNeed, Permission, PermissionDenied
 
 from .. import db
-from ..app import HEADER
+from ..config import HEADER
 from .models import User
 from .forms import UserForm, ChangePasswordForm
 

@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'home/base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('admin.department_list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.job_list') }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -15,8 +15,8 @@
                         <tr>
                             <th class="search">
                                 <div class="search-box">
-                                    <input class="search-text" id="search" name="search" type="text" placeholder="Search department ?"
-                                    onkeyup="SearchFunction('department', 1)">
+                                    <input class="search-text" id="search" name="search" type="text" placeholder="Search job ?"
+                                    onkeyup="SearchFunction('job', 1)">
                                     <input class="search-submit" id="search_submit" value="submit" type="submit">
                                     <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
                                 </div>
@@ -31,14 +31,14 @@
                         </caption>
                         <tr>
                             <th class="id sort" onclick="SortTableTxt('list', 0)">ID</th>
-                            <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Department ID</th>
+                            <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Job ID</th>
                             <th class="left sort" style="width: 60%;" onclick="SortTableTxt('list', 2)">Event</th>
                             <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 3)">Created</th>
                         </tr>
                         {%- for item in list %}
                         <tr>
                             <td class="id">{{ item.event_id }}</td>
-                            <td class="center">{{ item.department_id }}</td>
+                            <td class="center">{{ item.job_id }}</td>
                             <td class="left">{{ item.event_description}}</td>
                             <td class="right">{{ item.created }}</td>
                         </tr>

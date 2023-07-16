@@ -3,7 +3,7 @@ from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
 
 from .. import db
-from ..app import HEADER
+from ..config import HEADER
 from .models import Role
 from .forms import RoleForm
 

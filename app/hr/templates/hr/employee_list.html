@@ -1,11 +1,11 @@
-{% extends 'base.html' %}
+{% extends 'home/base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
             <a class="menu-link" href="{{ url_for('hr.dashboard') }}"> ❰ Back</a>
-            <a class="menu-link" href="{{ url_for('hr.terms_list') }}"> ❱ Employment terms</a>
-            <a class="menu-link" href="{{ url_for('hr.status_list') }}"> ❱ Employment status</a>
-            <a class="menu-link" href="{{ url_for('hr.gender_list') }}"> ❱ Gender list</a>
-            <a class="menu-link" href="{{ url_for('hr.maritial_list') }}"> ❱ Maritial status</a>
+            <a class="menu-link" href="{{ url_for('hr.department_list') }}"> ❱ Departments</a>
+            <a class="menu-link" href="{{ url_for('hr.job_list') }}"> ❱ Jobs</a>
+            <a class="menu-link" href="{{ url_for('hr.gender_list') }}"> ❱ Genders</a>
+            <a class="menu-link" href="{{ url_for('hr.marital_list') }}"> ❱ Marital status</a>
             <a class="menu-link" href="{{ url_for('hr.employee_history') }}"> ❱ History</a>
         </div>
         <div class="data col-10 col-s-10">
@@ -55,23 +55,21 @@
                         </caption>
                         <tr>
                             <th class="center sort" onclick="SortTableTxt('list', 0)">ID</th>
-                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Employee</th>
-                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Department</th>
-                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Job</th>
-                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Terms</th>
-                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Status</th>
+                            <th class="left sort" style="width: 25%;" onclick="SortTableTxt('list', 1)">Employee</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Birthdate</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Gender</th>
+                            <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Marital status</th>
                             <th class="center sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Modified</th>
                             <th class="action">Delete</th>
                         </tr>
                         {%- for item in list %}
                         <tr>
                             <td class="id"><a href="{{ url_for('hr.employee_edit', employee_id=item.employee_id) }}">{{ item.employee_id }}</a></td>
-                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.employee_name }} {{ item.employee_surname }}</a></td>
-                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.department.department_name }}</a></td>
-                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.job.job_title }}</a></td>
-                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.terms.terms }}</a></td>
-                            <td class="left"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.status.status_title }}</a></td>
-                            <td class="center"><a href="{{ url_for('hr.employee_sheet', employee_id=item.employee_id) }}">{{ item.modified }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_index', employee_id=item.employee_id) }}">{{ item.employee_name }} {{ item.employee_surname }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_index', employee_id=item.employee_id) }}">{{ item.birthdate }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_index', employee_id=item.employee_id) }}">{{ item.gender.gender }}</a></td>
+                            <td class="left"><a href="{{ url_for('hr.employee_index', employee_id=item.employee_id) }}">{{ item.marital.marital_status }}</a></td>
+                            <td class="center"><a href="{{ url_for('hr.employee_index', employee_id=item.employee_id) }}">{{ item.modified }}</a></td>
                             <td class="action">
                                 <input class="icon" type="image" src="{{ url_for('.static', filename='icons/delete.png') }}" id="delete{{ item.employee_id }}" 
                                 value="{{ url_for('hr.employee_delete', employee_id=item.employee_id) }}" 

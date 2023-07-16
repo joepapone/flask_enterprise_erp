@@ -1,5 +1,6 @@
 __author__ = 'Jose Ferreira'
 
+import os
 from flask import Flask, g, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_principal import Principal, identity_loaded
@@ -13,10 +14,14 @@ def create_app():
     app = Flask(__name__)
 
     #app.config.from_object(config_class)
+    # Application configuration
     app.config['DEBUG'] = DEBUG
     app.config['SECRET_KEY'] = SECRET_KEY
     app.config['SQLALCHEMY_DATABASE_URI'] = DATABASE_URI                              
     app.config['WTF_CSRF_SECRET_KEY'] = WTF_CSRF
+
+    # Set static file path
+    app.root_path = app.root_path + '/home'
 
 
     # add Flask-WTForms CSRF Protection
@@ -40,14 +45,14 @@ def create_app():
     login_manager.init_app(app)
 
 
-
+    '''
     @app.before_request
     def before_request():
         g.user = 'test dumb' in request.headers
         g.header = HEADER
         print("before_request executing!")
         #g.pjax = 'X-PJAX' @app.before_request in request.headers
-
+    '''
 
 
 
@@ -64,9 +69,9 @@ def create_app():
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(500, internal_server_error)
 
-    # Blueprint for non-authenticated routes
-    from .routes import root
-    app.register_blueprint(root)
+    # Blueprint for base routes
+    from .home.routes import base
+    app.register_blueprint(base)
 
     # Blueprint authentication routes
     from .auth.routes import auth

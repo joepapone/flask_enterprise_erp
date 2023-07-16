@@ -1,7 +1,7 @@
 {% extends 'home/base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('role.list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.employee_index', employee_id=employee_id) }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -27,19 +27,32 @@
                     </div>
                     {%- endfor %}
                     <div class="form container">
-                        <div class="form-row {% if form.role_name.errors %}error{% endif %}">
+                        <div class="form-row {% if form.end_date.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="name">{{ form.role_name.label }}</label>
+                                <label class="field-label" for="description">{{ form.end_date.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.role_name }}
-                                {%- for error in form.role_name.errors %}
-                                {%- if form.role_name.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.end_date }}
+                                {%- for error in form.end_date.errors %}
+                                {%- if form.end_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.status_id.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="title">{{ form.status_id.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.status_id }}
+                                {%- for error in form.status_id.errors %}
+                                {%- if form.status_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
                         <div class="form-row">
-                            <input class="field-submit" type="submit" value="Submit">
+                            <div class="submit-col">
+                                <input class="field-submit" type="submit" value="Submit">
+                            </div>
                         </div>
                     </div>
                 </div>

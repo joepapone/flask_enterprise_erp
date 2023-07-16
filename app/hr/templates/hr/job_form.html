@@ -1,7 +1,7 @@
 {% extends 'home/base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('user.list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.job_list') }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -27,47 +27,36 @@
                     </div>
                     {%- endfor %}
                     <div class="form container">
-                        <div class="form-row {% if form.user_name.errors %}error{% endif %}">
+                        <div class="form-row {% if form.department_id.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="user_name">{{ form.user_name.label }}</label>
+                                <label class="field-label" for="department_id">{{ form.department_id.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.user_name() }}
-                                {%- for error in form.user_name.errors %}
-                                {%- if form.user_name.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.department_id() }}
+                                {%- for error in form.department_id.errors %}
+                                {%- if form.department_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
-                        <div class="form-row {% if form.role_id.errors %}error{% endif %}">
+                        <div class="form-row {% if form.job_title.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="role_id">{{ form.role_id.label }}</label>
+                                <label class="field-label" for="title">{{ form.job_title.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.role_id() }}
-                                {%- for error in form.role_id.errors %}
-                                {%- if form.role_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.job_title }}
+                                {%- for error in form.job_title.errors %}
+                                {%- if form.job_title.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
-                        <div class="form-row {% if form.email.errors %}error{% endif %}">
+                        <div class="form-row {% if form.job_description.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="email">{{ form.email.label }}</label>
+                                <label class="field-label" for="description">{{ form.job_description.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.email() }}
-                                {%- for error in form.email.errors %}
-                                {%- if form.email.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                                {%- endfor %}
-                            </div>
-                        </div>
-                        <div class="form-row {% if form.password.errors %}error{% endif %}">
-                            <div class="label-col">
-                                <label class="field-label" for="password">{{ form.password.label }}</label>
-                            </div>
-                            <div class="input-col">
-                                {{ form.password() }}
-                                {%- for error in form.password.errors %}
-                                {%- if form.password.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.job_description }}
+                                {%- for error in form.job_description.errors %}
+                                {%- if form.job_description.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>

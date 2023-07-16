@@ -1,7 +1,7 @@
-{% extends 'base.html' %}
+{% extends 'home/base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('admin.job_list') }}"> ❰ Back</a>
+            <a class="menu-link" href="{{ url_for('hr.employee_index', employee_id=employee_id) }}"> ❰ Back</a>
         </div>
         <div class="data col-10 col-s-10">
             <div class="heading background">
@@ -32,31 +32,42 @@
                                 <label class="field-label" for="department_id">{{ form.department_id.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.department_id() }}
+                                {{ form.department_id(onclick="DropdownFunction('department_id','job_id','/hr/employee/job/')") }}
                                 {%- for error in form.department_id.errors %}
                                 {%- if form.department_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
-                        <div class="form-row {% if form.job_title.errors %}error{% endif %}">
+                        <div class="form-row {% if form.job_id.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="title">{{ form.job_title.label }}</label>
+                                <label class="field-label" for="title">{{ form.job_id.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.job_title }}
-                                {%- for error in form.job_title.errors %}
-                                {%- if form.job_title.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.job_id }}
+                                {%- for error in form.job_id.errors %}
+                                {%- if form.job_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>
-                        <div class="form-row {% if form.job_description.errors %}error{% endif %}">
+                        <div class="form-row {% if form.terms_id.errors %}error{% endif %}">
                             <div class="label-col">
-                                <label class="field-label" for="description">{{ form.job_description.label }}</label>
+                                <label class="field-label" for="title">{{ form.terms_id.label }}</label>
                             </div>
                             <div class="input-col">
-                                {{ form.job_description }}
-                                {%- for error in form.job_description.errors %}
-                                {%- if form.job_description.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {{ form.terms_id }}
+                                {%- for error in form.terms_id.errors %}
+                                {%- if form.terms_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                                {%- endfor %}
+                            </div>
+                        </div>
+                        <div class="form-row {% if form.start_date.errors %}error{% endif %}">
+                            <div class="label-col">
+                                <label class="field-label" for="description">{{ form.start_date.label }}</label>
+                            </div>
+                            <div class="input-col">
+                                {{ form.start_date }}
+                                {%- for error in form.start_date.errors %}
+                                {%- if form.start_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                                 {%- endfor %}
                             </div>
                         </div>

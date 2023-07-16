@@ -9,9 +9,10 @@ from .forms import LoginForm
 
 
 auth = Blueprint('auth', __name__,
-    template_folder='templates',
-    static_folder='static',
-    static_url_path='/static')
+                 url_prefix='/home',
+                 template_folder='templates',
+                 static_folder='static',
+                 static_url_path='/static')
 
 
 @auth.route('/login', methods=('GET', 'POST'))
@@ -38,7 +39,7 @@ def login():
             identity_changed.send(current_app._get_current_object(), identity=Identity(user.user_id))
 
             #return redirect(request.args.get('next') or '/')
-            return redirect(request.args.get("next") or url_for("root.home"))
+            return redirect(request.args.get("next") or url_for("base.home"))
 
         flash('Error - Invalid user or password!')
 

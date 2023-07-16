@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'home/base.html' %}
     {% block content %}
         <div class="menu col-2 col-s-2">
             <a class="menu-link" href="{{ url_for('hr.employee_list') }}"> ❰ Back</a>
@@ -27,7 +27,7 @@
                 <div class="sheet container">
                     <div class="sheet-row header">
                         <div class="sheet-col header">
-                            <b>Functions and terms</b>
+                            <b>General information</b>
                         </div>
                     </div>
                     {%- for item in data_list %}
@@ -36,39 +36,78 @@
                             <div class="sheet-label-text"><b>Name</b></div>
                         </div>
                         <div class="sheet-data-col">
-                            <div class="sheet-data-text"><a class="data-link" href="{{ url_for('hr.employee_edit', employee_id=employee_id) }}">{{ item.employee_name }} {{ item.employee_surname }}</a></div>
+                            <div class="sheet-data-text">
+                                <a class="data-link" href="{{ url_for('hr.employee_edit', employee_id=employee_id) }}">
+                                    <div>{{ item.title.title_name }} {{ item.employee_name }} {{ item.employee_surname }}</div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     <div class="sheet-row">
                         <div class="sheet-label-col">
-                            <div class="sheet-label-text"><b>Department</b></div>
+                            <div class="sheet-label-text"><b>Birthdate</b></div>
                         </div>
                         <div class="sheet-data-col">
-                            <div class="sheet-data-text">{{ item.department.department_name }}</div>
+                            <div class="sheet-data-text">{{ item.birthdate }}</div>
                         </div>
                     </div>
                     <div class="sheet-row">
                         <div class="sheet-label-col">
-                            <div class="sheet-label-text"><b>Job</b></div>
+                            <div class="sheet-label-text"><b>Gender</b></div>
                         </div>
                         <div class="sheet-data-col">
-                            <div class="sheet-data-text">{{ item.job.job_title }}</div>
+                            <div class="sheet-data-text">{{ item.gender.gender }}</div>
                         </div>
                     </div>
                     <div class="sheet-row">
                         <div class="sheet-label-col">
-                            <div class="sheet-label-text"><b>Terms</b></div>
+                            <div class="sheet-label-text"><b>Marital status</b></div>
                         </div>
                         <div class="sheet-data-col">
-                            <div class="sheet-data-text">{{ item.terms.terms }}</div>
+                            <div class="sheet-data-text">{{ item.marital.marital_status }}</div>
                         </div>
                     </div>
+                    {%- endfor %}
+                </div>
+                <div class="sheet container">
+                    <div class="sheet-row header">
+                        <div class="sheet-col header">
+                            <b>Job history</b>
+                        </div>
+                        <div class="sheet-col icon">
+                            <a class="sheet-icon" href="{{ url_for('hr.job_history_add', employee_id=employee_id) }}">
+                                <div class="tooltip">
+                                    <span class="tooltiptext">Add job</span>
+                                    <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {%- for item in job_history_list %}
                     <div class="sheet-row">
                         <div class="sheet-label-col">
-                            <div class="sheet-label-text"><b>Status</b></div>
+                            <div class="sheet-label-text"><b>Job {{loop.index}}</b></div>
+                        </div>
+                        <div class="sheet-icon-col">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Delete job</span>
+                                <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_job_history{{ item.job_history_id }}" 
+                                value="{{ url_for('hr.job_history_delete', employee_id=employee_id, job_history_id=item.job_history_id) }}" 
+                                onclick="DeleteFunction('delete_job_history{{ item.job_history_id }}', 'job history')">
+                            </div>
                         </div>
                         <div class="sheet-data-col">
-                            <div class="sheet-data-text">{{ item.status.status_title }}</div>
+                            <div class="sheet-data-text">
+                                <a class="data-link" href="{{ url_for('hr.job_history_edit', employee_id=employee_id, job_history_id=item.job_history_id) }}">
+                                    <div>{{ item.department.department_name }}</div>
+                                    <div>{{ item.job.job_title }}</div>
+                                    <div>{{ item.job_terms.terms }}</div>
+                                </a>
+                                <a class="data-link" href="{{ url_for('hr.job_history_complete', employee_id=employee_id, job_history_id=item.job_history_id) }}">
+                                    <div>{{ item.job_status.status_title }}</div>
+                                    <div>{{ item.start_date}} -> {%- if item.end_date == None %} Now {%- else %} {{ item.end_date}} {%- endif %}</div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     {%- endfor %}
@@ -101,7 +140,11 @@
                             </div>
                         </div>
                         <div class="sheet-data-col">
-                            <div class="sheet-data-text"><a class="data-link" href="{{ url_for('hr.email_edit', employee_id=employee_id, email_id=item.email_id) }}">{{ item.email }}</a></div>
+                            <div class="sheet-data-text">
+                                <a class="data-link" href="{{ url_for('hr.email_edit', employee_id=employee_id, email_id=item.email_id) }}">
+                                    <div>{{ item.email }}</div>
+                                </a>
+                            </div>
                         </div>
                     </div>
                     {%- endfor %}
