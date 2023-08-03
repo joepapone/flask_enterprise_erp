@@ -9,47 +9,66 @@
     <title> Enterprise ERP </title>
 </head>
 <body onload="refresh()">
+    <!-- header -->
+    <div class="header">
+        <div class="title">
+            <a href="{{ url_for('root.about') }}">
+                <h1 class="title">{{ header }}</h1>
+            </a>
+        </div>
+        <div class="image">
+            <a href="{{ url_for('root.home') }}">
+                <img class="image" src="{{ url_for('static', filename='icons/logo.jpg') }}">
+            </a>
+        </div>
+    </div>
     <!-- Navigation Bar -->
-    <ul class="navbar">
-        <li class="left">
-            <div>
-                <a href="{{ url_for('base.home') }}">
-                    <img class="logo" src="{{ url_for('static', filename='icons/logo.jpg') }}"
-                    alt="image" width="50" height="50">
-                </a>
-            </div>
-        </li>
-        <li class="left">
-            <div>
-                <a href="{{ url_for('base.about') }}">
-                    <h1 class="text">{{ header }}</h1>
-                </a>
-            </div>
-        </li>
-        <li class="dropdownbox">
+    <ul class="topnav">
+        <li class="nav-menu left">
             <div class="dropdown">
                 <div>
-                    <img class="avantar" src="{{ url_for('static', filename='icons/user.png') }}"
-                    alt="image" width="30" height="30">
+                    <a href="{{ url_for('root.home') }}">
+                        <img class="image" src="{{ url_for('static', filename='icons/menu.png') }}">
+                    </a>
                 </div>
-                <div class="dropdown-content">
+                <div class="dropdown-content left">
+                    {%- for item in menus %}
+                        <a href="{{ item['link'] }}">{{ item['text'] }}</a>
+                    {%- endfor %}
+                </div>
+            </div>
+        </li>
+        <li class="nav-menu right">
+            <div class="dropdown">
+                <div>
+                    <img class="image avantar" src="{{ url_for('static', filename='icons/user.png') }}">
+                </div>
+                <div class="dropdown-content right">
                     {%- if current_user.is_authenticated %}
-                    <a href="{{ url_for('user.profile') }}"> ❱ Profile</a>
-                    <a href="{{ url_for('auth.logout') }}"> ❱ Logout</a>
+                    <a href="{{ url_for('admin.profile') }}"> ❱ Profile</a>
+                    <a href="{{ url_for('admin.logout') }}"> ❱ Logout</a>
                     {% else %}
-                    <a href="{{ url_for('auth.login') }}"> ❱ Login</a>
+                    <a href="{{ url_for('admin.login') }}"> ❱ Login</a>
                     {%- endif %}
                 </div>
             </div>
         </li>
-        <li class="right">
-            <div class="textbox">
+        <li class="nav-menu right">
+            <div class="user">
                 {%- if current_user.is_authenticated %}
-                <b><pre class="text">Welcome, {{ current_user.user_name }}</pre></b>
+                <b><pre>Welcome, {{ current_user.user_name }}</pre></b>
                 {%- endif %}
             </div>
         </li>
     </ul>
+    <!-- heading -->
+    <div class="heading">
+        <div class="block prefix">
+        </div>
+        <div class="block text">
+            <h1>{{ heading }}</h1>
+        </div>
+    </div>
     <!-- Content -->
     <div id="content" class="content">
         {%- block content %}{% endblock -%}

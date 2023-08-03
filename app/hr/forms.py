@@ -2,11 +2,14 @@ from flask_wtf import FlaskForm
 from wtforms import Form, fields
 from wtforms.validators import ValidationError, InputRequired, Email
 
-from .. import db
-from ..admin.models import Country
 from .models import Title, Gender, Marital, Department, Job, Job_Terms, Job_Status
+from ..admin.models import Country
+from .. import db
 
-# --- Data Validation ---
+
+# ------------------------------------------------
+#    Data Validation
+# ------------------------------------------------
 
 # Validate for length
 def length(min=-1, max=-1):
@@ -54,7 +57,9 @@ def marital_duplicate(form, field):
         raise ValidationError('Marital status already exists')
 
 
-#  --- Data collection and Processing ---
+# ------------------------------------------------
+#    Data collection and Processing
+# ------------------------------------------------
 
 # Get title to populate select field
 def get_title():
@@ -102,7 +107,9 @@ def get_country():
     return item_list
 
 
-# --- Flask Forms ---
+# ------------------------------------------------
+#    Flask Forms
+# ------------------------------------------------
 
 # Gender form attributes
 class GenderForm(FlaskForm):

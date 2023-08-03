@@ -1,0 +1,195 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="row">
+        <div class="col-1 col-s-1">
+        </div>
+        <div class="col-6 col-s-6">
+            {%- for message in get_flashed_messages() %}
+            <div>
+                {%- if "Error" not in message: %}
+                <div class="alert success">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+                {%- if "Error" in message: %}
+                <div class="alert error">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+            </div>
+            {%- endfor %}
+            <div class="sheet-container">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Departments</b>
+                    </div>
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.department_add') }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add department</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {%- for item in department_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-col">
+                        <div class="sheet-label-text"><b></b></div>
+                    </div>
+                    <div class="sheet-icon-col">
+                        <div class="tooltip">
+                            <span class="tooltiptext">Delete department</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_department{{ item.department_id }}" 
+                            value="{{ url_for('hr.department_delete', employee_id=employee_id, department_id=item.department_id) }}" 
+                            onclick="DeleteFunction('delete_department{{ item.department_id }}', 'department')">
+                        </div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.department_edit', employee_id=employee_id, department_id=item.department_id) }}">
+                                <div>{{loop.index}} - {{ item.department_name }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+            </div>
+            <div class="sheet-container">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Jobs</b>
+                    </div>
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.job_add') }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add job</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {%- for item in job_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-col">
+                        <div class="sheet-label-text"><b></b></div>
+                    </div>
+                    <div class="sheet-icon-col">
+                        <div class="tooltip">
+                            <span class="tooltiptext">Delete job</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_job{{ item.job_id }}" 
+                            value="{{ url_for('hr.job_delete', employee_id=employee_id, job_id=item.job_id) }}" 
+                            onclick="DeleteFunction('delete_job{{ item.job_id }}', 'job')">
+                        </div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.job_edit', employee_id=employee_id, job_id=item.job_id) }}">
+                                <div>{{loop.index}} - {{ item.job_title }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+            </div>
+            <div class="sheet-container">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Genders</b>
+                    </div>
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.gender_add') }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add gender</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {%- for item in gender_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-col">
+                        <div class="sheet-label-text"><b></b></div>
+                    </div>
+                    <div class="sheet-icon-col">
+                        <div class="tooltip">
+                            <span class="tooltiptext">Delete gender</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_gender{{ item.gender_id }}" 
+                            value="{{ url_for('hr.gender_delete', employee_id=employee_id, gender_id=item.gender_id) }}" 
+                            onclick="DeleteFunction('delete_gender{{ item.gender_id }}', 'gender')">
+                        </div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.gender_edit', employee_id=employee_id, gender_id=item.gender_id) }}">
+                                <div>{{loop.index}} - {{ item.gender }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+            </div>
+            <div class="sheet-container">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Marital status</b>
+                    </div>
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.marital_add') }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add marital</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {%- for item in marital_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-col">
+                        <div class="sheet-label-text"><b></b></div>
+                    </div>
+                    <div class="sheet-icon-col">
+                        <div class="tooltip">
+                            <span class="tooltiptext">Delete marital</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_marital{{ item.marital_id }}" 
+                            value="{{ url_for('hr.marital_delete', employee_id=employee_id, marital_id=item.marital_id) }}" 
+                            onclick="DeleteFunction('delete_marital{{ item.marital_id }}', 'marital')">
+                        </div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.marital_edit', employee_id=employee_id, marital_id=item.marital_id) }}">
+                                <div>{{loop.index}} - {{ item.marital_status }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+            </div>
+            </div>
+            <div class="col-3 col-s-3 data-container">
+                <div class="image container">
+                    <div class="image-block">
+                        <img src= "{{ url_for('static', filename='icons/user.png') }}">
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div id="id01" class="modal">
+            <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">×</span>
+            <form class="modal-content" action="/action_page.php" method="POST" id='form'>
+                <div class="modal-container">
+                    <h1 id="msg-h1"></h1>
+                    <p id="msg-p"></p>
+                    <div class="clearfix">
+                        <button class="cancelbtn modal-button" type="button" 
+                            onclick="document.getElementById('id01').style.display='none'">Cancel
+                        </button>
+                        <input class="deletebtn modal-button" type="submit" value="Delete" 
+                        onclick="document.getElementById('id01').style.display='none'">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endblock %}

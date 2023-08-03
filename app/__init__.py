@@ -35,13 +35,13 @@ def create_app():
 
 
     # Initialize Flask-Principal
-    from .auth.auth import on_identity_loaded
+    from .admin.auth import on_identity_loaded
     Principal(app)
     identity_loaded.connect(on_identity_loaded, app)
 
 
     # Initialize Flask-Login
-    from .auth.auth import login_manager
+    from .admin.auth import login_manager
     login_manager.init_app(app)
 
 
@@ -63,25 +63,11 @@ def create_app():
     #mail.init_app(app)
 
 
-    # Blueprint for errors routes
-    from .errors.routes import errors, page_not_found, internal_server_error
-    app.register_blueprint(errors)
+    # Blueprint for root routes
+    from .home.routes import root, page_not_found, internal_server_error
+    app.register_blueprint(root)
     app.register_error_handler(404, page_not_found)
     app.register_error_handler(500, internal_server_error)
-
-    # Blueprint for base routes
-    from .home.routes import base
-    app.register_blueprint(base)
-
-    # Blueprint authentication routes
-    from .auth.routes import auth
-    app.register_blueprint(auth)
-    
-    # Blueprint for role and user routes
-    from .role.routes import role
-    app.register_blueprint(role)
-    from .user.routes import user
-    app.register_blueprint(user)
 
     # Blueprint for admin routes
     from .admin.routes import admin
@@ -90,7 +76,6 @@ def create_app():
     # Blueprint for human resources routs
     from .hr.routes import hr
     app.register_blueprint(hr)
-
-
     
     return app
+

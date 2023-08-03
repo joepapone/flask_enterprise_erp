@@ -1,14 +1,18 @@
 {% extends 'home/base.html' %}
     {% block content %}
-        <div class="menu col-2 col-s-2">
-            <a class="menu-link" href="{{ url_for('hr.employee_list') }}"> ❱ Employees</a>
+    <div class="row">
+        <div class="col-1 col-s-1">
         </div>
-        <div class="data col-10 col-s-10">
-            <div class="heading background">
-                <div class="text">
-                    <h1>{{ heading }}</h1>
+        <div class="col-10 col-s-10">
+            {%- for message in get_flashed_messages() %}
+            <div>
+                {%- if "Error" in message: %}
+                <div class="alert error">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
                 </div>
+                {%- endif %}
             </div>
+            {%- endfor %}
             <div class="dash-container">
                 <div class="dash-row">
                     <div class="dash-chart" id="chart1"></div>
@@ -96,4 +100,5 @@
                 </div>
             </div>
         </div>
+    </div>
     {% endblock %}

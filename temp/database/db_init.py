@@ -19,19 +19,22 @@ DROP TABLE IF EXISTS user;
 DROP TABLE IF EXISTS country;
 DROP TABLE IF EXISTS currency;
 DROP TABLE IF EXISTS tax;
-DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS job_history;
+DROP TABLE IF EXISTS job_terms;
+DROP TABLE IF EXISTS job_status;
+DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS department;
-DROP TABLE IF EXISTS department_history;
-DROP TABLE IF EXISTS phone;
-DROP TABLE IF EXISTS email;
-DROP TABLE IF EXISTS employee;
 DROP TABLE IF EXISTS employee_title;
 DROP TABLE IF EXISTS employee_gender;
 DROP TABLE IF EXISTS employee_marital;
-DROP TABLE IF EXISTS employee_terms;
-DROP TABLE IF EXISTS employee_status;
+DROP TABLE IF EXISTS employee_email;
+DROP TABLE IF EXISTS employee_phone;
+DROP TABLE IF EXISTS employee_address;
+DROP TABLE IF EXISTS employee;
+
+DROP TABLE IF EXISTS department_history;
 DROP TABLE IF EXISTS employee_history;
+
 
 -- Role
 CREATE TABLE role (
@@ -54,6 +57,7 @@ VALUES
 ;
 COMMIT;
 
+
 -- User
 CREATE TABLE user (
     user_id INT NOT NULL AUTO_INCREMENT,
@@ -68,6 +72,7 @@ CREATE TABLE user (
     PRIMARY KEY (user_id),
     FOREIGN KEY (role_id) REFERENCES role(role_id)
 );
+
 
 -- Admin user
 INSERT INTO 
@@ -99,6 +104,7 @@ VALUES
 ;
 COMMIT;
 
+
 -- Currency (according ISO 4217)
 CREATE TABLE currency(
     currency_id INT NOT NULL AUTO_INCREMENT,
@@ -115,6 +121,7 @@ VALUES
     ('Pound Sterling', 'GPB', 826)
 ;
 COMMIT;
+
 
 -- Country (according ISO 3166-1 and E.164 codes)
 CREATE TABLE country(
@@ -136,6 +143,7 @@ VALUES
     ('Netherlands', 528, 'NL', '+31', 1)
 ;
 COMMIT;
+
 
 -- Department
 CREATE TABLE department (
@@ -159,15 +167,6 @@ VALUES
 ;
 COMMIT;
 
--- Department history
-CREATE TABLE department_history (
-    event_id INT NOT NULL AUTO_INCREMENT,
-    department_id INT NOT NULL,
-    event_description VARCHAR(150),
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id)
-);
-COMMIT;
 
 -- Job
 CREATE TABLE job (
@@ -191,53 +190,49 @@ VALUES
 ;
 COMMIT;
 
--- Job history
-CREATE TABLE job_history (
-    event_id INT NOT NULL AUTO_INCREMENT,
-    job_id INT NOT NULL,
-    event_description VARCHAR(150),
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id)
-);
-COMMIT;
 
--- Employee Terms
-CREATE TABLE employee_terms (
+-- Job Terms
+CREATE TABLE job_terms (
     terms_id INT NOT NULL AUTO_INCREMENT,
     terms VARCHAR(50),
     PRIMARY KEY (terms_id)
 );
 
 INSERT INTO 
-    employee_terms (terms)
+    job_terms (terms)
 VALUES 
-    ('Full-time contract'),
-    ('Part-time contract'),
-    ('Zero-hour contract'),
-    ('Casual contract'),
-    ('Freelance contract'),
-    ('Executive contract'),
-    ('Fixed-term contract'),
-    ('Non-compete and confientiality contract')
+    ('Full-time'),
+    ('Part-time'),
+    ('Zero-hour'),
+    ('Casual'),
+    ('Freelance'),
+    ('Executive'),
+    ('Fixed-term'),
+    ('Non-compete and confientiality')
 ;
 COMMIT;
 
--- Employee Status
-CREATE TABLE employee_status (
+
+-- Job Status
+CREATE TABLE job_status (
     status_id INT NOT NULL AUTO_INCREMENT,
     status_title VARCHAR(50),
     PRIMARY KEY (status_id)
 );
 
 INSERT INTO 
-    employee_status (status_title)
+    job_status (status_title)
 VALUES 
-    ('Employed'),
+    ('Active'),
+    ('Promoted'),
+    ('Changed job'),
+    ('Changed department'),
     ('Retired'),
     ('Resigned'),
     ('Dismissed')
 ;
 COMMIT;
+
 
 -- Employee title
 CREATE TABLE employee_title (
@@ -255,6 +250,7 @@ VALUES ('Mr.'),
 ;
 COMMIT;
 
+
 -- Employee gender
 CREATE TABLE employee_gender (
     gender_id INT NOT NULL AUTO_INCREMENT,
@@ -268,6 +264,7 @@ VALUES ('Male'),
 ;
 COMMIT;
 
+
 -- Employee marital status
 CREATE TABLE employee_marital (
     marital_id INT NOT NULL AUTO_INCREMENT,
@@ -278,51 +275,69 @@ CREATE TABLE employee_marital (
 INSERT INTO employee_marital (marital_status)
 VALUES ('Single'),
     ('Married'),
-    ('Partnership),
+    ('Partnership'),
     ('Widowed'),
     ('Divorced'),
     ('Separated')
 ;
 COMMIT;
 
+
 -- Employee
 CREATE TABLE employee(
     employee_id INT NOT NULL AUTO_INCREMENT,
+    title_id INT NOT NULL,
     employee_name VARCHAR(50),
     employee_surname VARCHAR(50),
-    department_id INT NOT NULL,
-    job_id INT NOT NULL,
-    terms_id INT NOT NULL,
-    status_id INT NOT NULL,
+    birthdate DATE NOT NULL,
+    gender_id INT NOT NULL,
+    marital_id INT NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (employee_id),
-    FOREIGN KEY (department_id) REFERENCES department(department_id),
-    FOREIGN KEY (job_id) REFERENCES job(job_id),
-    FOREIGN KEY (terms_id) REFERENCES employee_terms(terms_id),
-    FOREIGN KEY (status_id) REFERENCES employee_status(status_id)
+    FOREIGN KEY (title_id) REFERENCES employee_title(title_id),
+    FOREIGN KEY (gender_id) REFERENCES employee_gender(gender_id),
+    FOREIGN KEY (marital_id) REFERENCES employee_marital(marital_id)
 );
 
 INSERT INTO 
-    employee (employee_name, employee_surname, department_id, job_id, terms_id, status_id)
+    employee (title_id, employee_name, employee_surname, birthdate, gender_id, marital_id)
 VALUES 
-    ('José', 'Ferreira', 1, 1, 1, 1),
-    ('Elvira', 'Ferreira', 5, 5, 1, 1)
+    (1, 'José', 'Ferreira', '1983-10-08', 1, 2),
+    (2, 'Elvira', 'Ferreira', '1985-12-27', 2, 2)
 ;
 COMMIT;
 
--- Employee history
-CREATE TABLE employee_history (
-    event_id INT NOT NULL AUTO_INCREMENT,
+
+-- Employee job history
+CREATE TABLE job_history(
+    job_history_id INT NOT NULL AUTO_INCREMENT,
     employee_id INT NOT NULL,
-    event_description VARCHAR(150),
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id)
+    department_id INT NOT NULL,
+    job_id INT NOT NULL,
+    terms_id INT NOT NULL,
+    status_id INT DEFAULT 1 NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    PRIMARY KEY (job_history_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (job_id) REFERENCES job(job_id),
+    FOREIGN KEY (terms_id) REFERENCES job_terms(terms_id),
+    FOREIGN KEY (status_id) REFERENCES job_status(status_id)
 );
+
+INSERT INTO 
+    job_history (employee_id, department_id, job_id, status_id, terms_id, start_date, end_date)
+VALUES 
+    (1, 1, 1, 1, 1, '2022-06-04', '2022-12-31'),
+    (1, 1, 2, 1, 1, '2021-01-01',  NULL)
+;
 COMMIT;
 
+
 -- Email
-CREATE TABLE email(
+CREATE TABLE employee_email(
     email_id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(120),
     label VARCHAR(20),
@@ -334,15 +349,16 @@ CREATE TABLE email(
 );
 
 INSERT INTO 
-    email (employee_id, email, label)
+    employee_email (employee_id, email, label)
 VALUES 
     (1, 'jose.ferreira@gmail.com', 'Work'),
     (2, 'elvira.ferreira@gmail.com', 'Home')
 ;
 COMMIT;
 
+
 -- Phone
-CREATE TABLE phone(
+CREATE TABLE employee_phone(
     phone_id INT NOT NULL AUTO_INCREMENT,
     dial_code CHAR(4) NOT NULL,
     phone_number VARCHAR(50),
@@ -355,12 +371,15 @@ CREATE TABLE phone(
 );
 
 INSERT INTO 
-    phone (employee_id, dial_code, phone_number, label)
+    employee_phone (employee_id, dial_code, phone_number, label)
 VALUES 
-    (1, '+351', '965 140 801','Mobile'),
-    (1, '+351', '965 408 908','Mobile')
+    (1, '+351', '965 140 555','Mobile'),
+    (1, '+351', '965 408 555','Mobile'),
+    (2, '+351', '965 399 555','Mobile'),
+    (2, '+351', '212 166 555','Home')
 ;
 COMMIT;
+
 
 -- Employee address
 CREATE TABLE employee_address(
@@ -382,11 +401,34 @@ CREATE TABLE employee_address(
 INSERT INTO 
     employee_address (employee_id, address1, address2, postal_code, city, state, country_id)
 VALUES 
-    (1, 'Rua Padre Himalaya', 'No.7, R/C Dto.','2830-507', 'Barreiro', 'Setúbal', 1),
-    (2, 'Rua Alfredo da Silava', 'No.25, 1º Dto.', '2830-300', 'Pinhal Novo', 'Setúbal', 1)
+    (1, 'Rua Padre Himalaya', 'No.50','2830-555', 'Barreiro', 'Setúbal', 1),
+    (2, 'Rua Alfredo da Silava', 'No.25, 1º Dto.', '3844-555', 'Pinhal Novo', 'Setúbal', 1)
 ;
 COMMIT;
 
+
+
+-- Department history
+CREATE TABLE department_history (
+    event_id INT NOT NULL AUTO_INCREMENT,
+    department_id INT NOT NULL,
+    event_description VARCHAR(150),
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id)
+);
+COMMIT;
+
+
+
+-- Employee history
+CREATE TABLE employee_history (
+    event_id INT NOT NULL AUTO_INCREMENT,
+    employee_id INT NOT NULL,
+    event_description VARCHAR(150),
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (event_id)
+);
+COMMIT;
 '''
 
 # Create connection to MySQL server

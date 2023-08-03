@@ -1,45 +1,50 @@
 {% extends 'home/base.html' %}
-    {% block content %}    <div class="row">
+    {% block content %}
+    <div class="row">
         <div class="col-1 col-s-1">
         </div>
         <div class="col-5 col-s-5">
-            {%- for message in get_flashed_messages() %}
+            {% with messages = get_flashed_messages() %}
             <div>
-                {%- if "Error" not in message: %}
-                <div class="alert success">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
-                {%- if "Error" in message: %}
+                {% if messages %}
                 <div class="alert error">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ messages[0] }}
                 </div>
                 {%- endif %}
             </div>
-            {%- endfor %}
+            {% endwith %}
             <form action="" method="POST" enctype=multipart/form-data>
                 {{ form.csrf_token }}
-                <div class="form-container">
+                <div class="form-container">                 
                     <div class="form-row {% if form.email.errors %}error{% endif %}">
                         <div class="label-col">
                             <label class="field-label" for="email">{{ form.email.label }}</label>
                         </div>
                         <div class="input-col">
-                            {{ form.email}}
+                            {{ form.email() }}
                             {%- for error in form.email.errors %}
                             {%- if form.email.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                             {%- endfor %}
                         </div>
                     </div>
-                    <div class="form-row {% if form.label.errors %}error{% endif %}">
+                    <div class="form-row {% if form.password.errors %}error{% endif %}">
                         <div class="label-col">
-                            <label class="field-label" for="label">{{ form.label.label }}</label>
+                            <label class="field-label" for="password">{{ form.password.label }}</label>
                         </div>
                         <div class="input-col">
-                            {{ form.label}}
-                            {%- for error in form.label.errors %}
-                            {%- if form.label.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                            {{ form.password() }}
+                            {%- for error in form.password.errors %}
+                            {%- if form.password.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                             {%- endfor %}
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="label-col">
+                            <label class="field-label" for="remember"></label>
+                        </div>
+                        <div class="input-col">
+                            {{ form.remember() }}
+                            <div class="field-label">Remember me</div>
                         </div>
                     </div>
                     <div class="form-row">
