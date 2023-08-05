@@ -1,45 +1,53 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="row">
-        <div class="row">
-            <div class="col-1 col-s-1">
+    <div class="col-6 col-s-6">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" not in message: %}
+            <div class="alert success">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
             </div>
-            <div class="col-6 col-s-6">
-                <div class="page-container">
-                    <div class="page-row-header">
-                        <div class="page-col-header">
-                            <b>{{description}}</b>
-                        </div>
-                    </div>
-                    <div class="page-row">
-                        <div class="page-label-col">
-                            <div class="page-label-text"><b>Name</b></div>
-                        </div>
-                        <div class="page-data-col">
-                            <div class="page-data-text">{{ data['name'] }}</div>
-                        </div>
-                    </div>
-                    <div class="page-row">
-                        <div class="page-label-col">
-                            <div class="page-label-text"><b>Email</b></div>
-                        </div>
-                        <div class="page-data-col">
-                            <div class="page-data-text">{{ data['email'] }}</div>
-                        </div>
-                    </div>
-                    <div class="page-row">
-                        <div class="page-label-col">
-                            <div class="page-label-text"><b>Role</b></div>
-                        </div>
-                        <div class="page-data-col">
-                            <div class="page-data-text">{{ data['role'] }}</div>
-                        </div>
-                    </div>
-                    <div class="page-row">
-                        <div class="page-col">
-                            <img class="page-icon" src="{{ url_for('static', filename='icons/user.png') }}">
-                        </div>
-                    </div>
+            {%- endif %}
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <div class="page-container">
+            <div class="page-row-header">
+                <div class="page-col-header">
+                    <b>{{description}}</b>
+                </div>
+            </div>
+            <div class="page-row">
+                <div class="page-label-col">
+                    <div class="page-label-text"><b>Name</b></div>
+                </div>
+                <div class="page-data-col">
+                    <div class="page-data-text">{{ data['name'] }}</div>
+                </div>
+            </div>
+            <div class="page-row">
+                <div class="page-label-col">
+                    <div class="page-label-text"><b>Email</b></div>
+                </div>
+                <div class="page-data-col">
+                    <div class="page-data-text">{{ data['email'] }}</div>
+                </div>
+            </div>
+            <div class="page-row">
+                <div class="page-label-col">
+                    <div class="page-label-text"><b>Role</b></div>
+                </div>
+                <div class="page-data-col">
+                    <div class="page-data-text">{{ data['role'] }}</div>
+                </div>
+            </div>
+            <div class="page-row">
+                <div class="page-col">
+                    <img class="page-icon" src="{{ url_for('static', filename='icons/user.png') }}">
                 </div>
             </div>
         </div>

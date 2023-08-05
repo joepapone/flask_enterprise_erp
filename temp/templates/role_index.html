@@ -1,0 +1,79 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="row">
+        <div class="col-1 col-s-1">
+            <h1></h1>
+        </div>
+        <div class="col-10 col-s-10">
+            {%- for message in get_flashed_messages() %}
+            <div>
+                {%- if "Error" not in message: %}
+                <div class="alert success">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+                {%- if "Error" in message: %}
+                <div class="alert error">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+            </div>
+            {%- endfor %}
+            <div class="col-4 col-s-4">
+                <div class="sheet-container">
+                    <div class="sheet-row-header">
+                        <div class="sheet-col-header">
+                            <b></b>
+                        </div>
+                        <div class="sheet-col-icon">
+                            <a class="sheet-icon" href="{{ url_for('admin.role_add') }}">
+                                <div class="tooltip">
+                                    <span class="tooltiptext">Add role</span>
+                                    <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                </div>
+                            </a>
+                        </div>
+                    </div>
+                    {%- for item in role_list %}
+                    <div class="sheet-row">
+                        <div class="sheet-label-col">
+                            <div class="sheet-label-text"><b></b></div>
+                        </div>
+                        <div class="sheet-icon-col">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Delete role</span>
+                                <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_role{{ item.role_id }}" 
+                                value="{{ url_for('admin.role_delete', role_id=item.role_id) }}" 
+                                onclick="DeleteFunction('delete_role{{ item.role_id }}', 'role')">
+                            </div>
+                        </div>
+                        <div class="sheet-data-col">
+                            <div class="sheet-data-text">
+                                <a class="data-link" href="{{ url_for('admin.role_edit', role_id=item.role_id) }}">
+                                    <div>{{loop.index}} - {{ item.role_name }}</div>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {%- endfor %}
+                </div>
+            </div>
+        </div>
+        <div id="id01" class="modal">
+            <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">×</span>
+            <form class="modal-content" action="/action_page.php" method="POST" id='form'>
+                <div class="modal-container">
+                    <h1 id="msg-h1"></h1>
+                    <p id="msg-p"></p>
+                    <div class="clearfix">
+                        <button class="cancelbtn modal-button" type="button" 
+                            onclick="document.getElementById('id01').style.display='none'">Cancel
+                        </button>
+                        <input class="deletebtn modal-button" type="submit" value="Delete" 
+                        onclick="document.getElementById('id01').style.display='none'">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    {% endblock %}

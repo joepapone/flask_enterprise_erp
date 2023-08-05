@@ -1,4 +1,4 @@
-from flask import Blueprint, flash, redirect, render_template, url_for, request, current_app
+from flask import Blueprint, flash, redirect, render_template, url_for, current_app, session, request
 from flask_login import login_user, logout_user, login_required, current_user
 from flask_principal import Identity, AnonymousIdentity, Permission, PermissionDenied, RoleNeed, identity_changed
 
@@ -9,6 +9,13 @@ from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data
 from ..config import HEADER
 from .. import db
 
+
+# Set titles
+TITLE_CONFIG='configuration'
+TITLE_USER='user'
+TITLE_ROLE='role'
+
+
 admin = Blueprint('admin', __name__,
                   template_folder='templates',
                   static_folder='static',
@@ -17,12 +24,6 @@ admin = Blueprint('admin', __name__,
 
 # Create a permission with a single Need (RoleNeed)
 admin_permission = Permission(RoleNeed('Admin'))
-
-
-# Set titles
-TITLE_CONFIG='configuration'
-TITLE_USER='user'
-TITLE_ROLE='role'
 
 
 # Permission denied error handler
@@ -39,7 +40,8 @@ def handle_error(e):
 def dashboard():
         # Set html page menus
     menus=[{'link': '/admin/config', 'text': ' ❱ Configurations'},
-           {'link': '/admin/user/list', 'text': ' ❱ Users'}]
+           {'link': '/user/list', 'text': ' ❱ Users'},
+           {'link': '/home', 'text': ' ❰ Back'}]
   
     # Set html page heading
     heading='Admin'
@@ -143,8 +145,8 @@ def logout():
     logout_user()
 
     # Remove session keys set by Flask-Principal
-    #for key in ('identity.name', 'identity.auth_type'):
-    #    db.session.pop(key, None)
+    for key in ('identity.name', 'identity.auth_type'):
+        session.pop(key, None)
 
     # Inform Flask-Principal user is anonymous
     identity_changed.send(current_app._get_current_object(), identity=AnonymousIdentity())
@@ -153,38 +155,21 @@ def logout():
 
 
 # User list
-@admin.route('/admin/user/list')
+@admin.route('/user/list')
 @login_required
 @admin_permission.require()
 def user_list():
     # Set html page menus
-    menus=[{'link': '/admin/dashboard', 'text': ' ❰ Back'},
-           {'link': '/user/role/list', 'text': ' ❱ Roles'}]
-
-    # Set html page heading
-    heading=f'{TITLE_USER.capitalize()}s'
-
-    # Create model instance with query data
-    list = db.session.execute(db.select(User).order_by(User.user_name.asc())).scalars().all()
-
-    return render_template('admin/user_list.html', header=HEADER, menus=menus, heading=heading, list=list)
-
-
-# User index
-@admin.route('/user/index', methods=('GET', 'POST'))
-@login_required
-def user_index():
-    # Set html page menus
     menus=[{'link': '/admin/dashboard', 'text': ' ❰ Back'}]
 
     # Set html page heading
-    heading=f'{TITLE_USER.capitalize()}s'
+    heading=f'{TITLE_USER.capitalize()}s & {TITLE_ROLE.capitalize()}s'
 
     # Create model instance with query data
     user_obj = db.session.execute(db.select(User).order_by(User.user_name.asc())).scalars().all()
     role_obj = db.session.execute(db.select(Role).order_by(Role.role_name.asc())).scalars().all()
 
-    return render_template('admin/user_index.html', header=HEADER, menus=menus, heading=heading, user_list=user_obj, role_list=role_obj)
+    return render_template('admin/user_list.html', header=HEADER, menus=menus, heading=heading, user_list=user_obj, role_list=role_obj)
 
 
 # User add
@@ -192,6 +177,9 @@ def user_index():
 @login_required
 @admin_permission.require()
 def user_add():
+    # Set html page menus
+    menus=[{'link': '/user/list', 'text': '  ❰ Back'}]
+
     # Set html page heading
     heading=f'Add {TITLE_USER}'
 
@@ -200,6 +188,9 @@ def user_add():
     if form.validate_on_submit():
         # Create model instance with query data
         obj = User()
+
+        # Default password
+        obj.password='user'
 
         # Populate object attributes with form data.
         form.populate_obj(obj)
@@ -213,7 +204,7 @@ def user_add():
 
         return redirect(url_for('admin.user_list'))
     
-    return render_template('admin/user_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('admin/user_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # User edit
@@ -221,6 +212,9 @@ def user_add():
 @login_required
 @admin_permission.require()
 def user_edit(user_id):
+    # Set html page menus
+    menus=[{'link': '/user/list', 'text': '  ❰ Back'}]
+    
     # Set html page heading
     heading=f'Edit {TITLE_USER}'
 
@@ -246,7 +240,7 @@ def user_edit(user_id):
 
         return redirect(url_for('admin.user_list'))
 
-    return render_template('admin/user_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('admin/user_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # User delete
@@ -278,7 +272,7 @@ def user_delete(user_id):
 def profile():
     # Set html page menus
     menus=[{'link': '/home', 'text': ' ❱ Home'},
-           {'link': '/user/reset', 'text': ' ❱ Change password'}]
+           {'link': '/user/password', 'text': ' ❱ Change password'}]
 
     # Set html page heading
     heading=f'{TITLE_USER.capitalize()} profile'
@@ -290,8 +284,8 @@ def profile():
     return render_template('admin/profile.html', header=HEADER, menus=menus, heading=heading, description=description, data=data)
 
 
-# User reset
-@admin.route('/user/password_reset', methods=["GET", "POST"])
+# User reset password
+@admin.route('/user/password', methods=["GET", "POST"])
 @login_required
 def password_reset():
     # Set html page menus
@@ -320,27 +314,11 @@ def password_reset():
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_USER.capitalize()} ID: {obj.user_id} - {obj.user_name} password was successfully edited!')
+        flash(f'{TITLE_USER.capitalize()} ID: {obj.user_id} - {obj.user_name} password was successfully changed!')
 
-        return redirect(url_for('root.home'))
+        return redirect(url_for('admin.profile'))
 
-    return render_template('admin/reset.html', header=HEADER, menus=menus, heading=heading, form=form)
-
-
-# Role list
-@admin.route('/user/role/list', methods=('GET', 'POST'))
-@login_required
-def role_list():
-    # Set html page menus
-    menus=[{'link': '/admin/dashboard', 'text': ' ❰ Back'}]
-
-    # Set html page heading
-    heading=f'{TITLE_USER.capitalize()}s'
-
-    # Create model instance with query data
-    role_obj = db.session.execute(db.select(Role).order_by(Role.role_name.asc())).scalars().all()
-
-    return render_template('admin/role_index.html', header=HEADER, menus=menus, heading=heading, role_list=role_obj)
+    return render_template('admin/password.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Role add
@@ -348,6 +326,9 @@ def role_list():
 @login_required
 @admin_permission.require()
 def role_add():
+    # Set html page menus
+    menus=[{'link': '/user/list', 'text': '  ❰ Back'}]
+    
     # Set html page heading
     heading=f'Add {TITLE_ROLE}'
 
@@ -368,16 +349,19 @@ def role_add():
         db.session.commit()
         flash(f'{TITLE_ROLE.capitalize()} ID: {obj.role_id} - {obj.role_name} was successfully added!')
 
-        return redirect(url_for('admin.role_index'))
+        return redirect(url_for('admin.user_list'))
     
-    return render_template('role/role_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('admin/role_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Role edit
-@admin.route('/user/role/edit/<int:id>', methods=('GET', 'POST'))
+@admin.route('/user/role/edit/<int:role_id>', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
 def role_edit(role_id):
+    # Set html page menus
+    menus=[{'link': '/user/list', 'text': '  ❰ Back'}]
+
     # Set html page heading
     heading=f'Edit {TITLE_ROLE}'
 
@@ -388,7 +372,7 @@ def role_edit(role_id):
         # Report result.        
         flash(f'Error - The {TITLE_ROLE} ID: {role_id} was not found!')
 
-        return redirect(url_for('admin.user_index'))
+        return redirect(url_for('admin.user_list'))
 
     # Create form instance and load it with object data
     form = RoleForm(obj=obj)
@@ -401,16 +385,16 @@ def role_edit(role_id):
         db.session.commit() 
         flash(f'{TITLE_ROLE.capitalize()} ID: {obj.role_id} - {obj.role_name} was successfully edited!')
 
-        return redirect(url_for('admin.role_index'))
+        return redirect(url_for('admin.user_list'))
 
-    return render_template('role/role_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('admin/role_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Role delete
-@admin.route('/user/role/delete/<int:id>', methods=('GET', 'POST'))
+@admin.route('/user/role/delete/<int:role_id>', methods=('GET', 'POST'))
 @login_required
 @admin_permission.require()
-def delete(role_id):
+def role_delete(role_id):
     # Create model instance with query data
     obj = db.session.get(Role, role_id)
 
@@ -426,5 +410,5 @@ def delete(role_id):
         db.session.commit()
         flash(f'{TITLE_ROLE.capitalize()} ID: {obj.role_id} - {obj.role_name} was successfully delete!')
 
-    return redirect(url_for('admin.role_index'))
+    return redirect(url_for('admin.user_list'))
 

@@ -44,6 +44,12 @@ def status_duplicate(form, field):
     if item is not None:
         raise ValidationError('Status title already exists')
 
+# Validate title for duplicates
+def title_duplicate(form, field):
+    obj = Gender.query.filter(Title.title_name == field.data).first()
+    if obj is not None:
+        raise ValidationError('Title already exists')
+
 # Validate gender for duplicates
 def gender_duplicate(form, field):
     obj = Gender.query.filter(Gender.gender == field.data).first()
@@ -110,6 +116,11 @@ def get_country():
 # ------------------------------------------------
 #    Flask Forms
 # ------------------------------------------------
+
+# Title form attributes
+class TitleForm(FlaskForm):
+    title_name = fields.StringField(label='Title', validators=[length(min=3, max=50), title_duplicate], description='Title',
+    render_kw={'class': 'field-data', 'placeholder': 'Title..', 'autofocus': ''})
 
 # Gender form attributes
 class GenderForm(FlaskForm):

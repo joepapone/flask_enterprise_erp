@@ -1,103 +1,99 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="row">
-        <div class="col-1 col-s-1">
-        </div>
-        <div class="col-10 col-s-10">
-            {%- for message in get_flashed_messages() %}
-            <div>
-                {%- if "Error" in message: %}
-                <div class="alert error">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
+    <div class="col-10 col-s-10">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
             </div>
-            {%- endfor %}
-            <div class="dash-container">
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart1"></div>
-                    <script>
-                        Plotly.newPlot("chart1", {{ chart1|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart2"></div>
-                    <script>
-                        Plotly.newPlot("chart2", {{ chart2|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart3"></div>
-                    <script>
-                        Plotly.newPlot("chart3", {{ chart3|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart4"></div>
-                    <script>
-                        Plotly.newPlot("chart4", {{ chart4|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart5"></div>
-                    <script>
-                        Plotly.newPlot("chart5", {{ chart5|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart6"></div>
-                    <script>
-                        Plotly.newPlot("chart6", {{ chart6|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart7"></div>
-                    <script>
-                        Plotly.newPlot("chart7", {{ chart7|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart8"></div>
-                    <script>
-                        Plotly.newPlot("chart8", {{ chart8|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart9"></div>
-                    <script>
-                        Plotly.newPlot("chart9", {{ chart9|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart10"></div>
-                    <script>
-                        Plotly.newPlot("chart10", {{ chart10|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart11"></div>
-                    <script>
-                        Plotly.newPlot("chart11", {{ chart11|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart12"></div>
-                    <script>
-                        Plotly.newPlot("chart12", {{ chart12|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart13"></div>
-                    <script>
-                        Plotly.newPlot("chart13", {{ chart13|tojson }} );
-                    </script>
-                </div>
-                <div class="dash-row">
-                    <div class="dash-chart" id="chart14"></div>
-                    <script>
-                        Plotly.newPlot("chart14", {{ chart14|tojson }} );
-                    </script>
-                </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <div class="dash-container">
+            <div class="dash-row">
+                <div class="dash-chart" id="chart1"></div>
+                <script>
+                    Plotly.newPlot("chart1", {{ chart1|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart2"></div>
+                <script>
+                    Plotly.newPlot("chart2", {{ chart2|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart3"></div>
+                <script>
+                    Plotly.newPlot("chart3", {{ chart3|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart4"></div>
+                <script>
+                    Plotly.newPlot("chart4", {{ chart4|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart5"></div>
+                <script>
+                    Plotly.newPlot("chart5", {{ chart5|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart6"></div>
+                <script>
+                    Plotly.newPlot("chart6", {{ chart6|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart7"></div>
+                <script>
+                    Plotly.newPlot("chart7", {{ chart7|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart8"></div>
+                <script>
+                    Plotly.newPlot("chart8", {{ chart8|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart9"></div>
+                <script>
+                    Plotly.newPlot("chart9", {{ chart9|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart10"></div>
+                <script>
+                    Plotly.newPlot("chart10", {{ chart10|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart11"></div>
+                <script>
+                    Plotly.newPlot("chart11", {{ chart11|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart12"></div>
+                <script>
+                    Plotly.newPlot("chart12", {{ chart12|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart13"></div>
+                <script>
+                    Plotly.newPlot("chart13", {{ chart13|tojson }} );
+                </script>
+            </div>
+            <div class="dash-row">
+                <div class="dash-chart" id="chart14"></div>
+                <script>
+                    Plotly.newPlot("chart14", {{ chart14|tojson }} );
+                </script>
             </div>
         </div>
     </div>

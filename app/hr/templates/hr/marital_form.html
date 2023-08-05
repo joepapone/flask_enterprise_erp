@@ -1,44 +1,40 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="row">
-        <div class="col-1 col-s-1">
-        </div>
-        <div class="col-5 col-s-5">
-            {%- for message in get_flashed_messages() %}
-            <div>
-                {%- if "Error" not in message: %}
-                <div class="alert success">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
-                {%- if "Error" in message: %}
-                <div class="alert error">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
+    <div class="col-5 col-s-5">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" not in message: %}
+            <div class="alert success">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
             </div>
-            {%- endfor %}
-            <form action="" method="POST" enctype=multipart/form-data>
-                {{ form.csrf_token }}
-                <div class="form-container">
-                    <div class="form-row {% if form.marital_status.errors %}error{% endif %}">
-                        <div class="label-col">
-                            <label class="field-label" for="marital">{{ form.marital_status.label }}</label>
-                        </div>
-                        <div class="input-col">
-                            {{ form.marital_status}}
-                            {%- for error in form.marital_status.errors %}
-                            {%- if form.marital_status.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                            {%- endfor %}
-                        </div>
+            {%- endif %}
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <form action="" method="POST" enctype=multipart/form-data>
+            {{ form.csrf_token }}
+            <div class="form-container">
+                <div class="form-row {% if form.marital_status.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="marital">{{ form.marital_status.label }}</label>
                     </div>
-                    <div class="form-row">
-                        <div class="submit-col">
-                            <input class="field-submit" type="submit" value="Submit">
-                        </div>
+                    <div class="input-col">
+                        {{ form.marital_status}}
+                        {%- for error in form.marital_status.errors %}
+                        {%- if form.marital_status.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
                     </div>
                 </div>
-            </form>
-        </div>
+                <div class="form-row">
+                    <div class="submit-col">
+                        <input class="field-submit" type="submit" value="Submit">
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
     {% endblock %}

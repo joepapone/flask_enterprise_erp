@@ -1,65 +1,62 @@
 {% extends 'home/base.html' %}
-    {% block content %}    <div class="row">
-        <div class="col-1 col-s-1">
-        </div>
-        <div class="col-5 col-s-5">
-            {%- for message in get_flashed_messages() %}
-            <div>
-                {%- if "Error" not in message: %}
-                <div class="alert success">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
-                {%- if "Error" in message: %}
-                <div class="alert error">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
+    {% block content %}
+    <div class="col-5 col-s-5">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" not in message: %}
+            <div class="alert success">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
             </div>
-            {%- endfor %}
-            <form action="" method="POST" enctype=multipart/form-data>
-                {{ form.csrf_token }}
-                <div class="form-container">
-                    <div class="form-row {% if form.dial_code.errors %}error{% endif %}">
-                        <div class="label-col">
-                            <label class="field-label" for="dial_code">{{ form.dial_code.label }}</label>
-                        </div>
-                        <div class="input-col">
-                            {{ form.dial_code}}
-                            {%- for error in form.dial_code.errors %}
-                            {%- if form.dial_code.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                            {%- endfor %}
-                        </div>
+            {%- endif %}
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <form action="" method="POST" enctype=multipart/form-data>
+            {{ form.csrf_token }}
+            <div class="form-container">
+                <div class="form-row {% if form.dial_code.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="dial_code">{{ form.dial_code.label }}</label>
                     </div>
-                    <div class="form-row {% if form.phone_number.errors %}error{% endif %}">
-                        <div class="label-col">
-                            <label class="field-label" for="phone_number">{{ form.phone_number.label }}</label>
-                        </div>
-                        <div class="input-col">
-                            {{ form.phone_number}}
-                            {%- for error in form.phone_number.errors %}
-                            {%- if form.phone_number.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                            {%- endfor %}
-                        </div>
-                    </div>
-                    <div class="form-row {% if form.label.errors %}error{% endif %}">
-                        <div class="label-col">
-                            <label class="field-label" for="label">{{ form.label.label }}</label>
-                        </div>
-                        <div class="input-col">
-                            {{ form.label}}
-                            {%- for error in form.label.errors %}
-                            {%- if form.label.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                            {%- endfor %}
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="submit-col">
-                            <input class="field-submit" type="submit" value="Submit">
-                        </div>
+                    <div class="input-col">
+                        {{ form.dial_code}}
+                        {%- for error in form.dial_code.errors %}
+                        {%- if form.dial_code.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
                     </div>
                 </div>
-            </form>
-        </div>
+                <div class="form-row {% if form.phone_number.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="phone_number">{{ form.phone_number.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.phone_number}}
+                        {%- for error in form.phone_number.errors %}
+                        {%- if form.phone_number.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.label.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="label">{{ form.label.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.label}}
+                        {%- for error in form.label.errors %}
+                        {%- if form.label.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="submit-col">
+                        <input class="field-submit" type="submit" value="Submit">
+                    </div>
+                </div>
+            </div>
+        </form>
     </div>
     {% endblock %}

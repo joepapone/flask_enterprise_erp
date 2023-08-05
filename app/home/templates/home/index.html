@@ -1,24 +1,24 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="row">
-        <div class="col-1 col-s-1">
+    <div class="col-6 col-s-6">
+        {% with messages = get_flashed_messages() %}
+        <div>
+            {% if messages %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ messages[0] }}
+            </div>
+            {%- endif %}
         </div>
-        <div class="col-6 col-s-6">
-            <div class="page-container">
-                <div class="page-row-header">
-                    <div class="page-col-header">
-                        <b>{{ title }}</b>
-                    </div>
+        {% endwith %}
+        <div>
+            <div class="page-row">
+                <div class="page-col">
+                    <div class="page-text">{{ message }}</div>
                 </div>
-                <div class="page-row">
-                    <div class="page-col">
-                        <div class="page-text">{{ description }}</div>
-                    </div>
-                </div>
-                <div class="page-row">
-                    <div class="page-col">
-                        <img class="page-icon" src="{{ url_for('static', filename='icons/home.png') }}">
-                    </div>
+            </div>
+            <div class="page-row">
+                <div class="page-col">
+                    <img src="{{ url_for('static', filename='icons/logo.png') }}" width="359" height="359 ">
                 </div>
             </div>
         </div>

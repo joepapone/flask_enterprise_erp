@@ -1,4 +1,5 @@
 from flask_wtf import FlaskForm
+from flask_login import current_user
 from wtforms import fields
 from wtforms.validators import Email, InputRequired, ValidationError, EqualTo
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
@@ -56,8 +57,6 @@ class UserForm(FlaskForm):
         render_kw={'class': 'field-data', 'autofocus': ""})
     email = fields.StringField(label='Email', validators=[length(min=3, max=120), Email()], description="User email",
         render_kw={'class': 'field-data', 'placeholder': 'Email..'})
-    password = fields.PasswordField(label='Password', validators=[length(min=3, max=50)], description="User password",
-        render_kw={'class': 'field-data', 'placeholder': 'Password..'})
 
     def validate_email(form, field):
         user = User.query.filter(User.email == field.data).first()
@@ -89,8 +88,21 @@ class LoginForm(FlaskForm):
 
 # Change password form attributes
 class ChangePasswordForm(FlaskForm):
-    password = fields.PasswordField(label='Password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="New password",
+    current = fields.PasswordField(label='Current password', validators=[length(min=3, max=50)], description="Current password",
+    render_kw={'class': 'field-data', 'placeholder': 'Current password..'})
+    password = fields.PasswordField(label='New password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="New password",
     render_kw={'class': 'field-data', 'placeholder': 'New password..'})
-    confirm = fields.PasswordField(label='Password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="Confirm password",
+    confirm = fields.PasswordField(label='Confirm', validators=[length(min=3, max=50), EqualTo('password', message='Passwords must match')], description="Confirm password",
     render_kw={'class': 'field-data', 'placeholder': 'Confirm password..'})
+
+    # Validator will run after all validators have passed
+    def validate_password(form, field):
+        try:
+            user = db.session.get(User, current_user.user_id)
+        except (MultipleResultsFound, NoResultFound):
+            raise ValidationError("Invalid user")
+        if user is None:
+            raise ValidationError("Invalid user")
+        if not user.is_valid_password(form.current.data):
+            raise ValidationError("Invalid password")
 

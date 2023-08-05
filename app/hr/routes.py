@@ -2,21 +2,11 @@ from flask import Blueprint, flash, redirect, render_template, url_for, request,
 from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
 
-from .models import Department, Department_History, Job, Job_Terms, Job_Status, Employee, Job_History, Employee_History, Email, Phone, Address, Gender, Marital
-from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, Job_History_StartForm, Job_History_EndForm,EmailForm, PhoneForm, AddressForm, GenderForm, MaritalForm
+from .models import Department, Department_History, Job, Job_Terms, Job_Status, Employee, Job_History, Employee_History, Email, Phone, Address, Title, Gender, Marital
+from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, Job_History_StartForm, Job_History_EndForm,EmailForm, PhoneForm, AddressForm, TitleForm, GenderForm, MaritalForm
 from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
 from ..config import HEADER
 from .. import db
-
-# Human resources blueprint
-hr = Blueprint('hr', __name__,
-               template_folder='templates',
-               static_folder='static',
-               static_url_path='/static')
-
-
-# Create a permission with a single Need (RoleNeed)
-hr_permission = Permission(RoleNeed('Admin'))
 
 
 # Set titles
@@ -31,24 +21,38 @@ TITLE_EMPLOYEE='empoyee'
 TITLE_EMAIL='email'
 TITLE_PHONE='phone'
 TITLE_ADDRESS='address'
+TITLE_TITLE='title'
 TITLE_GENDER='gender'
 TITLE_MARITAL='maritual status'
+
+
+# Human resources blueprint
+hr = Blueprint('hr', __name__,
+               template_folder='templates',
+               static_folder='static',
+               static_url_path='/static')
+
+
+# Create a permission with a single Need (RoleNeed)
+hr_permission = Permission(RoleNeed('Admin'), RoleNeed('Human Resource Manager'))
 
 
 # Permission denied error handler
 @hr.errorhandler(PermissionDenied)
 def handle_error(e):
     flash('Error - Human resource manager privileges required')
-    return redirect(url_for('hr.dashboard'))
+    return redirect(url_for('root.home'))
 
 
 # Dashboard
 @hr.route('/hr/dashboard')
 @login_required
+@hr_permission.require()
 def dashboard():
     # Set html page menus
     menus=[{'link': '/hr/config', 'text': ' ❱ Configurations'},
-           {'link': '/hr/employee/list', 'text': ' ❱ Employees'}]
+           {'link': '/hr/employee/list', 'text': ' ❱ Employees'},
+           {'link': '/home', 'text': ' ❰ Back'}]
 
     # Set html page heading
     heading='Human Resources (HR)'
@@ -93,6 +97,10 @@ def dashboard():
                            chart9=plot9, chart10=plot10, chart11=plot11, chart12=plot12, chart13=plot13, chart14=plot14)
 
 
+# ------------------------------------------------
+#    Configurations
+# ------------------------------------------------
+
 # Config
 @hr.route('/hr/config', methods=('GET', 'POST'))
 @login_required
@@ -107,15 +115,18 @@ def config():
     # Create model instance with query data
     department_obj = db.session.execute(db.select(Department).order_by(Department.department_name.asc())).scalars().all()
     job_obj = db.session.execute(db.select(Job).order_by(Job.job_title.asc())).scalars().all()
+    status_obj = db.session.execute(db.select(Job_Status)).scalars().all()
+    terms_obj = db.session.execute(db.select(Job_Terms)).scalars().all()
+    title_obj = db.session.execute(db.select(Title)).scalars().all()
     gender_obj = db.session.execute(db.select(Gender).order_by(Gender.gender.asc())).scalars().all()
     marital_obj = db.session.execute(db.select(Marital).order_by(Marital.marital_status.asc())).scalars().all()
 
 
     return render_template('hr/config.html', header=HEADER, menus=menus, heading=heading, department_list=department_obj, job_list=job_obj,
-                           gender_list=gender_obj, marital_list=marital_obj)
+                           status_list=status_obj, terms_list=terms_obj, title_list=title_obj, gender_list=gender_obj, marital_list=marital_obj)
 
 
-# Config department add
+# Department add
 @hr.route('/hr/department/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -142,12 +153,12 @@ def department_add():
         db.session.commit()
         flash(f'{TITLE_DEPARTMENT.capitalize()} ID: {obj.department_id} - {obj.department_name} was successfully added!')
         
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
     
     return render_template('hr/department_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config department edit
+# Department edit
 @hr.route('/hr/department/edit/<int:department_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -164,7 +175,7 @@ def department_edit(department_id):
     if obj == None:
         # Report result.        
         flash(f'Error - The department ID: {department_id} was not found!')
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
 
     # Create form instance and load it with object data
     form = DepartmentForm(obj=obj)
@@ -177,12 +188,12 @@ def department_edit(department_id):
         db.session.commit() 
         flash(f'{TITLE_DEPARTMENT.capitalize()} ID: {obj.department_id} - {obj.department_name} was successfully edited!')
 
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
 
     return render_template('hr/department_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config department delete
+# Department delete
 @hr.route('/hr/department/delete/<int:department_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -209,10 +220,10 @@ def department_delete(department_id):
         db.session.commit()
         flash(f'{TITLE_DEPARTMENT.capitalize()} ID: {obj.department_id} - {obj.department_name} was successfully deleted!')
         
-    return redirect(url_for('hr.config_index'))
+    return redirect(url_for('hr.config'))
 
 
-# Config job add
+# Job add
 @hr.route('/hr/job/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -239,12 +250,12 @@ def job_add():
         db.session.commit()
         flash(f'{TITLE_JOB.capitalize()} ID: {obj.job_id} - {obj.job_title} was successfully added!')
         
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
     
     return render_template('hr/job_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config job edit
+# Job edit
 @hr.route('/hr/job/edit/<int:job_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -261,7 +272,7 @@ def job_edit(job_id):
     if obj == None:
         # Report result.        
         flash(f'Error - The job ID: {job_id} was not found!')
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
 
     # Create form instance and load it with object data
     form = JobForm(obj=obj)
@@ -274,12 +285,12 @@ def job_edit(job_id):
         db.session.commit() 
         flash(f'{TITLE_JOB.capitalize()} ID: {obj.job_id} - {obj.job_title} was successfully edited!')
 
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
 
     return render_template('hr/job_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config job delete
+# Job delete
 @hr.route('/hr/job/delete/<int:job_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -299,10 +310,106 @@ def job_delete(job_id):
         db.session.commit()
         flash(f'{TITLE_JOB.capitalize()} ID: {obj.job_id} - {obj.job_title} was successfully deleted!')
         
-    return redirect(url_for('hr.config_index'))
+    return redirect(url_for('hr.config'))
 
 
-# Config gender add
+# Title add
+@hr.route('/hr/title/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def title_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_TITLE}'
+
+    # Create form instance
+    form = TitleForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Title()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} was successfully added!')
+        
+        return redirect(url_for('hr.config'))
+    
+    return render_template('hr/title_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Title edit
+@hr.route('/hr/title/edit/<int:title_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def title_edit(title_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_TITLE}'
+
+    # Create model instance with query data
+    obj = db.session.get(Title, title_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_TITLE.capitalize()} ID: {obj.title_id}) was not found!')
+        return redirect(url_for('hr.config'))
+
+    # Create form instance and load it with object data
+    form = TitleForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} was successfully edited!')
+
+        return redirect(url_for('hr.config'))
+
+    return render_template('hr/title_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Title delete
+@hr.route('/hr/title/delete/<int:title_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def title_delete(title_id):
+    # Create model instance with query data
+    obj = db.session.get(Title, title_id)
+    # Check for child dependencies
+    child_obj = None #db.session.execute(db.select(Employee).filter_by(title_id=id)).first()
+
+    if obj == None:
+        # Report result
+        flash(f'Error - The gender ID: {obj.title_id}) was not found!')
+    
+    elif child_obj != None:
+        # Report result.
+        flash(f'Error - {TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} cannot be deleted because it has dependencies!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} successfully deleted!')
+        
+    return redirect(url_for('hr.config'))
+
+
+# Gender add
 @hr.route('/hr/gender/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -329,12 +436,12 @@ def gender_add():
         db.session.commit()
         flash(f'{TITLE_GENDER.capitalize()} ID: {obj.gender_id} - {obj.gender} was successfully added!')
         
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
     
     return render_template('hr/gender_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config gender edit
+# Gender edit
 @hr.route('/hr/gender/edit/<int:gender_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -351,7 +458,7 @@ def gender_edit(gender_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_GENDER.capitalize()} ID: {obj.gender_id}) was not found!')
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
 
     # Create form instance and load it with object data
     form = GenderForm(obj=obj)
@@ -364,12 +471,12 @@ def gender_edit(gender_id):
         db.session.commit()
         flash(f'{TITLE_GENDER.capitalize()} ID: {obj.gender_id} - {obj.gender} was successfully edited!')
 
-        return redirect(url_for('hr.config_index'))
+        return redirect(url_for('hr.config'))
 
     return render_template('hr/gender_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config gender delete
+# Gender delete
 @hr.route('/hr/gender/delete/<int:gender_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -395,14 +502,17 @@ def gender_delete(gender_id):
         db.session.commit()
         flash(f'{TITLE_GENDER.capitalize()} ID: {obj.gender_id} - {obj.gender} successfully deleted!')
         
-    return redirect(url_for('hr.config_index'))
+    return redirect(url_for('hr.config'))
 
 
-# Config marital add
+# Marital add
 @hr.route('/hr/marital/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
 def marital_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
     # Set html page heading
     heading=f'Add {TITLE_MARITAL}'
 
@@ -422,16 +532,19 @@ def marital_add():
         db.session.commit()
         flash(f'{TITLE_MARITAL.capitalize()} ID: {obj.marital_id} - {obj.marital_status} was successfully added!')
         
-        return redirect(url_for('hr.marital_list'))
+        return redirect(url_for('hr.config'))
     
-    return render_template('hr/marital_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('hr/marital_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config marital edit
+# Marital edit
 @hr.route('/hr/marital/edit/<int:marital_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
 def marital_edit(marital_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
     # Set html page heading
     heading=f'Edit {TITLE_MARITAL}'
 
@@ -441,7 +554,7 @@ def marital_edit(marital_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_MARITAL.capitalize()} ID: {obj.marital_id}) was not found!')
-        return redirect(url_for('hr.marital_list'))
+        return redirect(url_for('hr.config'))
 
     # Create form instance and load it with object data
     form = MaritalForm(obj=obj)
@@ -454,12 +567,12 @@ def marital_edit(marital_id):
         db.session.commit()
         flash(f'{TITLE_MARITAL.capitalize()} ID: {obj.marital_id} - {obj.marital_status} was successfully edited!')
 
-        return redirect(url_for('hr.marital_list'))
+        return redirect(url_for('hr.config'))
 
-    return render_template('hr/marital_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('hr/marital_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Config mariatial delete
+# Marital delete
 @hr.route('/hr/marital/delete/<int:marital_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -485,34 +598,7 @@ def marital_delete(marital_id):
         db.session.commit()
         flash(f'{TITLE_MARITAL.capitalize()} ID: {obj.marital_id} - {obj.marital_status} successfully deleted!')
         
-    return redirect(url_for('hr.marital_list'))
-
-
-
-# Job history
-@hr.route('/hr/job/history')
-@login_required
-def job_history():
-    # Set html page heading
-    heading=f'{TITLE_JOB_HISTORY}'
-
-    # Create model instance with query data
-    list = db.session.execute(db.select(Job_History)).scalars().all()
-
-    return render_template('hr/job_history.html', header=HEADER, heading=heading, list=list)
-
-
-# Job terms list
-@hr.route('/hr/job/terms/list')
-@login_required
-def terms_list():
-    # Set html page heading
-    heading=TITLE_JOB_TERMS.capitalize()
-
-    # Create model instance with query data
-    list = db.session.execute(db.select(Job_Terms)).scalars().all()
-
-    return render_template('hr/terms_list.html', header=HEADER, heading=heading, list=list)
+    return redirect(url_for('hr.config'))
 
 
 # Job terms add
@@ -520,6 +606,9 @@ def terms_list():
 @login_required
 @hr_permission.require()
 def terms_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
     # Set html page heading
     heading=f'Add {TITLE_JOB_TERMS}'
 
@@ -539,9 +628,9 @@ def terms_add():
         db.session.commit()
         flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} was successfully added!')
         
-        return redirect(url_for('hr.terms_list'))
+        return redirect(url_for('hr.config'))
     
-    return render_template('hr/terms_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('hr/terms_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Job terms edit
@@ -549,6 +638,9 @@ def terms_add():
 @login_required
 @hr_permission.require()
 def terms_edit(terms_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
     # Set html page heading
     heading=f'Edit {TITLE_JOB_TERMS}'
 
@@ -558,7 +650,7 @@ def terms_edit(terms_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_JOB_TERMS.capitalize()} ID: {terms_id} was not found!')
-        return redirect(url_for('hr.terms_list'))
+        return redirect(url_for('hr.config'))
 
     # Create form instance and load it with object data
     form = Job_TermsForm(obj=obj)
@@ -571,9 +663,9 @@ def terms_edit(terms_id):
         db.session.commit()
         flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} was successfully edited!')
 
-        return redirect(url_for('hr.terms_list'))
+        return redirect(url_for('hr.config'))
 
-    return render_template('hr/terms_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('hr/terms_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Job terms delete
@@ -602,20 +694,7 @@ def terms_delete(terms_id):
         db.session.commit()
         flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} successfully deleted!')
         
-    return redirect(url_for('hr.terms_list'))
-
-
-# Job status list
-@hr.route('/hr/job/status/list')
-@login_required
-def status_list():
-    # Set html page heading
-    heading=TITLE_JOB_STATUS.capitalize()
-
-    # Create model instance with query data
-    list = db.session.execute(db.select(Job_Status)).scalars().all()
-
-    return render_template('hr/status_list.html', header=HEADER, heading=heading, list=list)
+    return redirect(url_for('hr.config'))
 
 
 # Job status add
@@ -623,6 +702,9 @@ def status_list():
 @login_required
 @hr_permission.require()
 def status_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
     # Set html page heading
     heading=f'Add {TITLE_JOB_STATUS}'
 
@@ -642,9 +724,9 @@ def status_add():
         db.session.commit()
         flash(f'{TITLE_JOB_STATUS.capitalize()} {obj.status_title} was successfully added!')
         
-        return redirect(url_for('hr.status_list'))
+        return redirect(url_for('hr.config'))
     
-    return render_template('hr/status_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('hr/status_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Job status edit
@@ -652,6 +734,9 @@ def status_add():
 @login_required
 @hr_permission.require()
 def status_edit(status_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
     # Set html page heading
     heading=f'Edit {TITLE_JOB_STATUS}'
 
@@ -661,7 +746,7 @@ def status_edit(status_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_JOB_STATUS.capitalize()} ID: {status_id} was not found!')
-        return redirect(url_for('hr.status_list'))
+        return redirect(url_for('hr.config'))
 
     # Create form instance and load it with object data
     form = Job_StatusForm(obj=obj)
@@ -674,9 +759,9 @@ def status_edit(status_id):
         db.session.commit() 
         flash(f'{TITLE_JOB_STATUS.capitalize()} {obj.status_title} was successfully edited!')
 
-        return redirect(url_for('hr.status_list'))
+        return redirect(url_for('hr.config'))
 
-    return render_template('hr/status_form.html', header=HEADER, heading=heading, form=form)
+    return render_template('hr/status_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
 # Job status delete
@@ -705,10 +790,12 @@ def status_delete(status_id):
         db.session.commit()
         flash(f'{TITLE_JOB_STATUS.capitalize()} {obj.status_title} successfully deleted!')
         
-    return redirect(url_for('hr.status_list'))
+    return redirect(url_for('hr.config'))
 
 
-
+# ------------------------------------------------
+#    Employee
+# ------------------------------------------------
 
 # Employee list
 @hr.route('/hr/employee/list')
@@ -727,11 +814,11 @@ def employee_list():
     return render_template('hr/employee_list.html', header=HEADER, menus=menus, heading=heading, list=list)
 
 
-# Employee index
+# Employee sheet
 @hr.route('/hr/employee/<int:employee_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def employee_index(employee_id):
+def employee_sheet(employee_id):
     # Set html page menus
     menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'}]
 
@@ -747,7 +834,7 @@ def employee_index(employee_id):
 
     print(employee_obj)
 
-    return render_template('hr/employee_index.html', header=HEADER, menus=menus, heading=heading, data_list=employee_obj, job_history_list=job_history_obj,
+    return render_template('hr/employee_sheet.html', header=HEADER, menus=menus, heading=heading, data_list=employee_obj, job_history_list=job_history_obj,
                            email_list=email_obj, phone_list=phone_obj, address_list=address_obj, employee_id=employee_id)
 
 
@@ -795,7 +882,7 @@ def employee_add():
 @hr_permission.require()
 def employee_edit(employee_id):
     # Set html page menus
-    menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'}]
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
 
     # Set html page heading
     heading=f'Edit {TITLE_EMPLOYEE}'
@@ -824,7 +911,7 @@ def employee_edit(employee_id):
         db.session.add(event)
         db.session.commit()
 
-        return redirect(url_for('hr.employee_index', employee_id=employee_id))
+        return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
 
     return render_template('hr/employee_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
@@ -902,7 +989,7 @@ def job_history_add(employee_id):
         db.session.commit()
         flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully added!')
         
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
     
     return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -924,7 +1011,7 @@ def job_history_edit(employee_id, job_history_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
     form = Job_History_StartForm(obj=obj)
@@ -943,7 +1030,7 @@ def job_history_edit(employee_id, job_history_id):
         db.session.commit() 
         flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully edited!')
 
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -968,7 +1055,7 @@ def job_history_delete(employee_id, job_history_id):
         db.session.commit()
         flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} was successfully deleted!')
         
-    return redirect(url_for('hr.employee_index', employee_id=employee_id))
+    return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
 
 
 # Employee job history complete
@@ -988,7 +1075,7 @@ def job_history_complete(employee_id, job_history_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
     form = Job_History_EndForm(obj=obj)
@@ -1001,7 +1088,7 @@ def job_history_complete(employee_id, job_history_id):
         db.session.commit() 
         flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully edited!')
 
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     return render_template('hr/job_history_complete_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1036,7 +1123,7 @@ def email_add(employee_id):
         db.session.commit()
         flash(f'{TITLE_EMAIL.capitalize()} {obj.email} was successfully added!')
 
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
     
     return render_template('hr/email_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1058,7 +1145,7 @@ def email_edit(employee_id, email_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_EMAIL.capitalize()} ID: {email_id} was not found!')
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
     form = EmailForm(obj=obj)
@@ -1071,7 +1158,7 @@ def email_edit(employee_id, email_id):
         db.session.commit() 
         flash(f'{TITLE_EMAIL.capitalize()} {obj.email} was successfully edited!')
 
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     return render_template('hr/email_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1102,7 +1189,7 @@ def email_delete(employee_id, email_id):
         db.session.commit()
         flash(f'{TITLE_EMAIL.capitalize()} {obj.email} successfully deleted!')
         
-    return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
 # Employee phone add
@@ -1135,7 +1222,7 @@ def phone_add(employee_id):
         db.session.commit()
         flash(f'{TITLE_PHONE.capitalize()} {obj.dial_code} {obj.phone_number} was successfully added!')
         
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
     
     return render_template('hr/phone_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1157,7 +1244,7 @@ def phone_edit(employee_id, phone_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_PHONE.capitalize()} ID: {phone_id} was not found!')
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
     form = PhoneForm(obj=obj)
@@ -1170,7 +1257,7 @@ def phone_edit(employee_id, phone_id):
         db.session.commit() 
         flash(f'{TITLE_PHONE.capitalize()} {obj.dial_code} {obj.phone_number} was successfully edited!')
 
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     return render_template('hr/phone_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1201,7 +1288,7 @@ def phone_delete(employee_id, phone_id):
         db.session.commit()
         flash(f'{TITLE_PHONE.capitalize()} {obj.dial_code} {obj.phone_number} successfully deleted!')
         
-    return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
 # Employee address add
@@ -1234,7 +1321,7 @@ def address_add(employee_id):
         db.session.commit()
         flash(f'{TITLE_ADDRESS.capitalize()} ID: {obj.address_id} - {obj.postal_code} {obj.city} was successfully added!')
         
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
     
     return render_template('hr/address_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1256,7 +1343,7 @@ def address_edit(employee_id, address_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_ADDRESS.capitalize()} ID: {address_id} was not found!')
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
     form = AddressForm(obj=obj)
@@ -1269,7 +1356,7 @@ def address_edit(employee_id, address_id):
         db.session.commit() 
         flash(f'{TITLE_ADDRESS.capitalize()} ID: {obj.address_id} - {obj.postal_code} {obj.city} was successfully edited!')
 
-        return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     return render_template('hr/address_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
@@ -1300,7 +1387,7 @@ def address_delete(employee_id, address_id):
         db.session.commit()
         flash(f'{TITLE_ADDRESS.capitalize()} ID: {obj.address_id} - {obj.postal_code} {obj.city} successfully deleted!')
         
-    return redirect(url_for(f'hr.employee_index', employee_id=employee_id))
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
 

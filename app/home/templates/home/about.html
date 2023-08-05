@@ -1,24 +1,16 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="row">
-        <div class="col-1 col-s-1">
-        </div>
-        <div class="col-6 col-s-6">
-            <div class="page-container">
-                <div class="page-row-header">
-                    <div class="page-col-header">
-                        <b>Description</b>
-                    </div>
+    <div class="col-6 col-s-6">
+        <div>
+            <div class="page-row">
+                <div class="page-col">
+                    <div class="page-text"><h3><strong>{{ title }}</strong></h3></div>
+                    <div class="page-text">{{ message }}</div>
                 </div>
-                <div class="page-row">
-                    <div class="page-col">
-                        <div class="page-text">{{description}}</div>
-                    </div>
-                </div>
-                <div class="page-row">
-                    <div class="page-col">
-                        <img class="page-icon" src="{{ url_for('static', filename='icons/home.png') }}">
-                    </div>
+            </div>
+            <div class="page-row">
+                <div class="page-col">
+                    <img src="{{ url_for('static', filename='icons/logo.png') }}" width="359" height="359 ">
                 </div>
             </div>
         </div>

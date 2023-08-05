@@ -14,10 +14,6 @@ class Role(db.Model):
     # Main Fields
     role_id = db.Column(db.Integer, primary_key=True)
     role_name = db.Column(db.String(50), unique=True)
-    
-    def __init__(self, role_id, role_name):
-        self.role_id = role_id
-        self.role_name = role_name
              
     def get_id(self):
         return (self.role_id)

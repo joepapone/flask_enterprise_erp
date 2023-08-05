@@ -1,24 +1,27 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="row">
-        <div class="col-1 col-s-1">
-        </div>
-        <div class="col-10 col-s-10">
-            {%- for message in get_flashed_messages() %}
-            <div>
-                {%- if "Error" not in message: %}
-                <div class="alert success">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
-                {%- if "Error" in message: %}
-                <div class="alert error">
-                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
-                </div>
-                {%- endif %}
+    <div class="col-10 col-s-10">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" not in message: %}
+            <div class="alert success">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
             </div>
-            {%- endfor %}
+            {%- endif %}
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <div class="col-5 col-s-5">
             <div class="table-overflow">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Country settings</b>
+                    </div>
+                </div>
                 <table class="table" id="country">
                     <caption>
                         <div>
@@ -44,6 +47,13 @@
                     </tr>
                     {%- endfor %}
                 </table>
+            </div>
+            <div class="table-overflow">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Currency settings</b>
+                    </div>
+                </div>
                 <table class="table" id="currency">
                     <caption>
                         <div>
@@ -52,9 +62,9 @@
                     </caption>
                     <tr>
                         <th class="center sort" onclick="SortTableTxt('currency', 0)">ID</th>
-                        <th class="left sort" style="width: 50%;" onclick="SortTableTxt('currency', 1)">Currency</th>
-                        <th class="center sort" style="width: 20%;" onclick="SortTableTxt('currency', 1)">Currency Code</th>
-                        <th class="center sort" style="width: 20%;" onclick="SortTableTxt('currency', 1)">Currency No.</th>
+                        <th class="left sort" style="width: 60%;" onclick="SortTableTxt('currency', 1)">Currency</th>
+                        <th class="center sort" style="width: 15%;" onclick="SortTableTxt('currency', 1)">Currency Code</th>
+                        <th class="center sort" style="width: 15%;" onclick="SortTableTxt('currency', 1)">Currency No.</th>
                     </tr>
                     {%- for item in currency %}
                     <tr>
@@ -65,6 +75,17 @@
                     </tr>
                     {%- endfor %}
                 </table>
+            </div>
+        </div>
+        <div class="prefix-col">
+        </div>
+        <div class="col-5 col-s-5">
+            <div class="table-overflow">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Tax settings</b>
+                    </div>
+                </div>
                 <table class="table" id="tax">
                     <caption>
                         <div>
@@ -73,18 +94,18 @@
                     </caption>
                     <tr>
                         <th class="center sort" onclick="SortTableTxt('tax', 0)">ID</th>
-                        <th class="left sort" style="width: 30%;" onclick="SortTableTxt('tax', 1)">Tax</th>
+                        <th class="left sort" style="width: 20%;" onclick="SortTableTxt('tax', 1)">Tax</th>
                         <th class="center sort" style="width: 20%;" onclick="SortTableTxt('tax', 1)">Tax rate</th>
-                        <th class="center sort" style="width: 20%;" onclick="SortTableTxt('tax', 1)">Created</th>
-                        <th class="center sort" style="width: 20%;" onclick="SortTableTxt('tax', 1)">Modified</th>
+                        <th class="center sort" style="width: 25%;" onclick="SortTableTxt('tax', 1)">Created</th>
+                        <th class="center sort" style="width: 25%;" onclick="SortTableTxt('tax', 1)">Modified</th>
                     </tr>
                     {%- for item in tax %}
                     <tr>
                         <td class="id">{{ item.tax_id }}</td>
                         <td class="left">{{ item.tax_description }}</td>
                         <td class="center">{{ item.tax_rate }}</td>
-                        <td class="center">{{ item.created }}</td>
-                        <td class="center">{{ item.modified }}</td>
+                        <td class="center">{{ item.created.strftime('%Y-%m-%d') }}</td>
+                        <td class="center">{{ item.modified.strftime('%Y-%m-%d') }}</td>
                     </tr>
                     {%- endfor %}
                 </table>

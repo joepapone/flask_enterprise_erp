@@ -25,23 +25,24 @@ html {
 }
 
 .header .title {
-  float: left;
+  float: right;
   margin: 0px;
   padding-top: 8px;
   padding-bottom: 7px;
-  padding-left: 40px;
+  padding-left: 12px;
+  margin-right: 12px;
   color: white;
   text-align: center;
 }
 
 .header .image {
-  float: left;
+  float: right;
   width: 50px;
   height: 50px;
   margin-top: 5px;
   margin-bottom: 5px;
-  margin-left: 20px;
-  margin-right: 20px;
+  margin-left: 12px;
+  margin-right: 12px;
   padding: 0px;
 }
 
@@ -58,7 +59,7 @@ html {
   min-height: 60px;
   z-index: 10;
   list-style-type: none;
-  margin-top: 58px;
+  margin-top: 55px;
   padding: 0;
   overflow: hidden;
   background-color: rgb(30, 30, 30);
@@ -116,7 +117,7 @@ html {
   display: none;
   position: fixed;
   min-width: 250px;
-  padding: 10px;
+  padding: 0px;
   background-color: white;
   box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
   z-index: 8;
@@ -168,19 +169,13 @@ html {
   left: 0;
   width: 100%;
   min-height: 60px;
-  z-index: 8;
+  z-index: 6;
   list-style-type: none;
-  margin-top: 120px;
+  margin-top: 115px;
   padding-left: 10px;
   padding-right: 10px;
   overflow: hidden;
   background-color: white;
-}
-
-.heading .block.prefix {
-  display: inline-block;
-  width: 250px;
-  height: 0px;
 }
 
 .heading .block.text {
@@ -225,6 +220,14 @@ html {
   display: table;
   clear: both;
 }
+
+.prefix-col {
+  float: left;
+  width: 8.33%;
+  padding-top: 1px;
+  background-color: white;
+}
+
 
 /* -- Page content -- */
 .page-container{
@@ -299,6 +302,7 @@ html {
   color: rgb(60, 60, 60);
 }
 
+
 /* -- Footer -- */
 .footer {
   background-color: white;
@@ -314,8 +318,9 @@ html {
 [class*="col-"] {
   /* For mobile phones: */
   width: 100%;
-  display: inline-block;
-  position: relative;
+  float: left;
+  padding-left: 5px;
+  padding-right: 5px;
 }
   
 @media only screen and (min-width: 600px) {
@@ -483,6 +488,10 @@ html {
 
 
 /* -- Table --*/
+.table-overflow {
+  overflow: auto;
+}
+
 .table-top {
   table-layout: auto;
   width: 100%;
@@ -527,7 +536,8 @@ html {
 
 .table th.id, td.id{
   width: 5%;
-  text-align: right;
+  min-width: 60px;
+  text-align: center;
 }
 
 .table th.text, td.text {
@@ -552,8 +562,7 @@ html {
 
 .table th.action, td.action{
   width: 5%;
-  padding-left: 10px;
-  padding-right: 10px;
+  min-width: 60px;
   text-align:center;
 }
 
@@ -672,6 +681,20 @@ html {
   float: left;
   width: 50%;
   padding-right: 5px;
+
+}
+
+.sheet-list-col {
+  float: left;
+  width: 75%;
+  padding-right: 5px;
+}
+
+.sheet-tab-col {
+  float: left;
+  width: 5%;
+  padding-top: 2px;
+  margin-right: 5px;
 }
 
 .sheet-icon-col {
@@ -727,7 +750,6 @@ html {
 .tooltip {
   position: relative;
   display: inline-block;
-  z-index: 5;
 }
 
 .tooltip .tooltiptext {
@@ -739,7 +761,7 @@ html {
   border-radius: 6px;
   padding: 5px 0;
   position: absolute;
-  z-index: 1;
+  z-index: 8;
   bottom: 150%;
   left: 50%;
   margin-left: -60px;

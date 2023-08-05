@@ -13,13 +13,12 @@ root = Blueprint('root', __name__,
 # Index page route
 @root.route('/')
 def index():
-    heading = 'Hello,'
-    title = 'Login required!'
-    description = '''Please hover over the icon on the top right hand corner of the page, and click on the login menu.
+    heading = 'Welcome'
+    message = '''Please hover over the icon on the top right hand corner of the page, and click on the login menu.
                      Insert your user name and password to access the ERP Enterprise webserver application.
                   '''
 
-    return render_template('home/index.html', header=HEADER, heading=heading, title=title, description=description)
+    return render_template('home/index.html', header=HEADER, heading=heading, message=message)
 
 
 # Home page route
@@ -31,19 +30,18 @@ def home():
            {'link': '/hr/dashboard', 'text': ' ❱ Human Resources'}]
 
     heading = 'Home'
-    title = f'Hi {current_user.user_name},'
-    description = "It's nice to have you back!."
+    message = f""
     
-    return render_template('home/home.html', header=HEADER, menus=menus, heading=heading, title=title, description=description)
+    return render_template('home/home.html', header=HEADER, menus=menus, heading=heading, message=message)
 
 
 # About page route
 @root.route('/about')
 def about():
     heading = 'About'
-    description = ABOUT_TEXT
+    message = ABOUT_TEXT
 
-    return render_template('home/about.html', header=HEADER, heading=heading, description=description)
+    return render_template('home/about.html', header=HEADER, heading=heading, message=message)
 
 
 # Page not found error route
