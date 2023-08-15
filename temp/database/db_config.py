@@ -7,4 +7,4 @@ DB_DATABASE_NAME = 'business_erp'
 # Application configurations
 ADMIN = 'admin'
 ADMIN_EMAIL = 'admin@gmail.com'
-ADMIN_PW = 'admin'
+ADMIN_PW = 'Xpto=777#'

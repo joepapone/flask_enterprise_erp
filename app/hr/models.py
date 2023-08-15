@@ -15,7 +15,7 @@ class Title(db.Model):
         return (self.title_id)
         
     def __repr__(self):
-        return f'Tilte ({self.title_id}): {self.title_name}'
+        return f'Title ({self.title_id}): {self.title_name}'
 
 # Gender data-model
 class Gender(db.Model):
@@ -84,23 +84,6 @@ class Department(db.Model):
     def __repr__(self):
         return f'Department: {self.department_name} ({self.department_id})'
 
-# Department history data-model
-class Department_History(db.Model):
-    # Table name
-    __tablename__ = 'department_history'
-    # Main Fields
-    event_id = db.Column(db.Integer, primary_key=True)
-    department_id = db.Column(db.Integer, nullable=False)
-    event_description = db.Column(db.String(150))
-    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    
-    def __init__(self, department_id, event_description):
-        self.department_id = department_id
-        self.event_description = event_description
-
-    def __repr__(self):
-        return f'Event: {self.event_description} ({self.event_id})'
-
 # Job data-model
 class Job(db.Model):
     # Table name
@@ -155,9 +138,9 @@ class Job_History(db.Model):
     __tablename__ = 'job_history'
     # Main Fields
     job_history_id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
     department_id = db.Column(db.Integer, db.ForeignKey('department.department_id'), nullable=False)
-    job_id = db.Column(db.Integer, db.ForeignKey('job.job_id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('job.job_id', ondelete='RESTRICT'), nullable=False)
     terms_id = db.Column(db.Integer, db.ForeignKey('job_terms.terms_id'), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey('job_status.status_id'), default=1, nullable=False)
     start_date= db.Column(db.Date, nullable=False)
@@ -183,7 +166,7 @@ class Email(db.Model):
     email_id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(50))
     label = db.Column(db.String(20))
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
     created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     # ForeignKeys
@@ -204,7 +187,7 @@ class Phone(db.Model):
     phone_number = db.Column(db.String(50))
     dial_code = db.Column(db.String(4), nullable=False)
     label = db.Column(db.String(20))
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
     created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     # ForeignKeys
@@ -227,8 +210,8 @@ class Address(db.Model):
     postal_code = db.Column(db.String(50))
     city = db.Column(db.String(50))
     state = db.Column(db.String(50))
-    country_id = db.Column(db.Integer, db.ForeignKey('country.country_id'), nullable=False)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id'), nullable=False)
+    country_id = db.Column(db.Integer, db.ForeignKey('country.country_id', ondelete='CASCADE'), nullable=False)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
     created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     # ForeignKeys
@@ -244,25 +227,4 @@ class Address(db.Model):
             \n{self.postal_code} {self.city}\
             \n{self.state}\
             \n{self.country_id}'
-
-
-
-# Employee history data-model
-class Employee_History(db.Model):
-    # Table name
-    __tablename__ = 'employee_history'
-    # Main Fields
-    event_id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, nullable=False)
-    event_description = db.Column(db.String(150))
-    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    
-    def __init__(self, employee_id, event_description):
-        self.employee_id = employee_id
-        self.event_description = event_description
-    
-    def __repr__(self):
-        return f'Event ({self.event_id}): {self.event_description}'
-
-
 

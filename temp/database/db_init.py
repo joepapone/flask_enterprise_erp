@@ -3,7 +3,8 @@ from db_encrypt import encode, decode
 from db_config import ADMIN, ADMIN_EMAIL, ADMIN_PW
 
 # Encrypt admin password.
-salt, pw_hash = encode(ADMIN_PW)
+admin_salt, admin_password = encode(ADMIN_PW)
+user_salt, user_password = encode('user')
 
 # Create database SQL transaction.
 sql_transact = f'''
@@ -32,9 +33,6 @@ DROP TABLE IF EXISTS employee_phone;
 DROP TABLE IF EXISTS employee_address;
 DROP TABLE IF EXISTS employee;
 
-DROP TABLE IF EXISTS department_history;
-DROP TABLE IF EXISTS employee_history;
-
 
 -- Role
 CREATE TABLE role (
@@ -46,14 +44,18 @@ CREATE TABLE role (
 INSERT INTO 
     role (role_name)
 VALUES 
-    ('Admin'), 
-    ('Production Manager'),
-    ('Production Supervisor'),
-    ('Sales Manager'),
-    ('Salesperson'),
-    ('Procurement Manager'),
+    ('Admin'),
+    ('Financial managment'),
+    ('Accounting'),
     ('Procurement'),
-    ('Accounting')
+    ('Sales management'),
+    ('Sales'),
+    ('Production management'),
+    ('production'),
+    ('Asset management'),
+    ('Maintenance'),
+    ('Human resouce management'),
+    ('Human resorces')
 ;
 COMMIT;
 
@@ -70,7 +72,7 @@ CREATE TABLE user (
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     UNIQUE (email),
     PRIMARY KEY (user_id),
-    FOREIGN KEY (role_id) REFERENCES role(role_id)
+    FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
 );
 
 
@@ -78,7 +80,10 @@ CREATE TABLE user (
 INSERT INTO 
     user (user_name,role_id,email,_salt,_hash) 
 VALUES 
-    ('{ADMIN}',{1},'{ADMIN_EMAIL}',X'{salt}',X'{pw_hash}');
+    ('{ADMIN}',{1},'{ADMIN_EMAIL}',X'{admin_salt}',X'{admin_password}'),
+    ('Joseph Smith', 11, 'joseph.smith@gmail.com', X'{user_salt}', X'{user_password}'),
+    ('Jessica Baker', 12, 'jessica.baker@gmail.com', X'{user_salt}', X'{user_password}')
+;
 COMMIT;
 
 -- Value Added Tax (VAT)
@@ -155,15 +160,12 @@ CREATE TABLE department (
 INSERT INTO 
     department (department_name)
 VALUES 
+    ('Administration'),
+    ('Financial'),
+    ('Sales & Marketing'),
     ('Production'),
-    ('Sales'),
     ('Maintenance'),
-    ('Utility Services'),
-    ('Management'),
-    ('Human Resources'),
-    ('Procurement'),
-    ('Accounting'),
-    ('Administration')
+    ('Human Resources')
 ;
 COMMIT;
 
@@ -177,16 +179,18 @@ CREATE TABLE job (
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (job_id),
-    FOREIGN KEY (department_id) REFERENCES department(department_id)
+    FOREIGN KEY (department_id) REFERENCES department(department_id) ON DELETE CASCADE
 );
 
 INSERT INTO 
     job (department_id, job_title, job_description)
 VALUES 
-    (1,'Cook','Prepare sandwiches and soup'),
-    (2,'Salesman','Order Handling'),
-    (5,'Supervisor','Support production and sales, and monitor store upkeeping'),
-    (5,'Manager','Manage store inventory and financials')
+    (1,'Store manager','Manage financials, inventory and staff'),
+    (3,'Salesman','Order intake and handling'),
+    (3,'Supervisor','Support sales and production, and monitor store upkeeping'),
+    (4,'Cook','Prepare sandwiches and soup'),
+    (4,'Cook assistant','Cleaning dishes, pots and pans, sweeping and mopping floors'),
+    (5,'Maintenance','Check equipment operation and safety')
 ;
 COMMIT;
 
@@ -303,8 +307,11 @@ CREATE TABLE employee(
 INSERT INTO 
     employee (title_id, employee_name, employee_surname, birthdate, gender_id, marital_id)
 VALUES 
-    (1, 'José', 'Ferreira', '1983-10-08', 1, 2),
-    (2, 'Elvira', 'Ferreira', '1985-12-27', 2, 2)
+    (1, 'John', 'Doe', '1983-10-08', 1, 2),
+    (2, 'Janet', 'Smith', '1985-12-27', 2, 1),
+    (2, 'Margaret', 'Thatcher', '1975-12-27', 1, 2),
+    (1, 'Jack', 'Daniels', '1965-12-27', 1, 5),
+    (1, 'Joe', 'Bagger', '1955-12-27', 2, 4)
 ;
 COMMIT;
 
@@ -320,18 +327,22 @@ CREATE TABLE job_history(
     start_date DATE NOT NULL,
     end_date DATE,
     PRIMARY KEY (job_history_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
     FOREIGN KEY (department_id) REFERENCES department(department_id),
     FOREIGN KEY (job_id) REFERENCES job(job_id),
     FOREIGN KEY (terms_id) REFERENCES job_terms(terms_id),
     FOREIGN KEY (status_id) REFERENCES job_status(status_id)
-);
+)
 
 INSERT INTO 
     job_history (employee_id, department_id, job_id, status_id, terms_id, start_date, end_date)
 VALUES 
-    (1, 1, 1, 1, 1, '2022-06-04', '2022-12-31'),
-    (1, 1, 2, 1, 1, '2021-01-01',  NULL)
+    (1, 1, 1, 1, 1, '2020-12-10', NULL),
+    (2, 3, 2, 1, 1, '2020-05-05', NULL),
+    (3, 3, 3, 1, 1, '2023-01-01', NULL),
+    (4, 4, 5, 2, 1, '2022-06-04', '2022-12-31'),
+    (4, 4, 4, 1, 1, '2023-01-01', NULL),
+    (5, 5, 6, 1, 1, '2021-02-14', NULL)
 ;
 COMMIT;
 
@@ -345,14 +356,17 @@ CREATE TABLE employee_email(
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (email_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
 );
 
 INSERT INTO 
     employee_email (employee_id, email, label)
 VALUES 
-    (1, 'jose.ferreira@gmail.com', 'Work'),
-    (2, 'elvira.ferreira@gmail.com', 'Home')
+    (1, 'john.doe@gmail.com', 'Work'),
+    (2, 'janet.smith@gmail.com', 'Home'),
+    (3, 'roger.smith@gmail.com', 'Mobile'),
+    (4, 'jack.daniels@gmail.com', 'Work'),
+    (5, 'mary.popens@gmail.com', 'Home')
 ;
 COMMIT;
 
@@ -367,7 +381,7 @@ CREATE TABLE employee_phone(
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (phone_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
 );
 
 INSERT INTO 
@@ -376,7 +390,10 @@ VALUES
     (1, '+351', '965 140 555','Mobile'),
     (1, '+351', '965 408 555','Mobile'),
     (2, '+351', '965 399 555','Mobile'),
-    (2, '+351', '212 166 555','Home')
+    (3, '+351', '213 234 555','Home'),
+    (4, '+351', '965 898 555','Mobile'),
+    (2, '+351', '214 888 555','Home'),
+    (2, '+351', '223 976 555','Home')
 ;
 COMMIT;
 
@@ -395,40 +412,21 @@ CREATE TABLE employee_address(
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (address_id),
     FOREIGN KEY (country_id) REFERENCES country(country_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id)
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
 );
 
 INSERT INTO 
     employee_address (employee_id, address1, address2, postal_code, city, state, country_id)
 VALUES 
     (1, 'Rua Padre Himalaya', 'No.50','2830-555', 'Barreiro', 'Setúbal', 1),
-    (2, 'Rua Alfredo da Silava', 'No.25, 1º Dto.', '3844-555', 'Pinhal Novo', 'Setúbal', 1)
+    (2, 'Rua Castelo Branco', 'No.1, 1º Dto.', '3844-555', 'Pinhal Novo', 'Setúbal', 1),
+    (3, 'Av. da Liberdade', 'No.25, 1º Dto.', '3844-555', 'Lisboa', 'Lisboa', 1),
+    (4, 'Rua Antero Henriques', 'No.117, 1º Dto.', '3844-555', 'Setúbal', 'Setúbal', 1),
+    (5, 'Rua Bordalo Pinheiro', 'No.3','2830-555', 'Barreiro', 'Lisboa', 1)
 ;
 COMMIT;
 
 
-
--- Department history
-CREATE TABLE department_history (
-    event_id INT NOT NULL AUTO_INCREMENT,
-    department_id INT NOT NULL,
-    event_description VARCHAR(150),
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id)
-);
-COMMIT;
-
-
-
--- Employee history
-CREATE TABLE employee_history (
-    event_id INT NOT NULL AUTO_INCREMENT,
-    employee_id INT NOT NULL,
-    event_description VARCHAR(150),
-    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    PRIMARY KEY (event_id)
-);
-COMMIT;
 '''
 
 # Create connection to MySQL server

@@ -1,8 +1,9 @@
 from flask import Blueprint, flash, redirect, render_template, url_for, request, current_app, jsonify
 from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
+from sqlalchemy.orm import lazyload
 
-from .models import Department, Department_History, Job, Job_Terms, Job_Status, Employee, Job_History, Employee_History, Email, Phone, Address, Title, Gender, Marital
+from .models import Department, Job, Job_Terms, Job_Status, Employee, Job_History, Email, Phone, Address, Title, Gender, Marital
 from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, Job_History_StartForm, Job_History_EndForm,EmailForm, PhoneForm, AddressForm, TitleForm, GenderForm, MaritalForm
 from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
 from ..config import HEADER
@@ -202,15 +203,19 @@ def department_delete(department_id):
     obj = db.session.get(Department, department_id)
 
     # Check for child dependencies
-    child_obj = db.session.execute(db.select(Job).filter_by(department_id=department_id)).first()
+    child_obj = db.session.execute(
+        db.select(Job_History.job_history_id)
+        .join(Department, (Department.department_id == Job_History.department_id) & (Department.department_id == department_id))
+        .join(Job, (Job.job_id == Job_History.job_id))
+        ).all()
 
     if obj == None:
         # Report result
         flash(f'Error - The {TITLE_DEPARTMENT} ID: {department_id} was not found!')
     
-    elif child_obj != None:
+    elif len(child_obj) > 0:
         # Report result
-        flash(f'Error - {TITLE_DEPARTMENT.capitalize()} ID: {obj.department_id} - {obj.department_name} cannot be deleted because it has dependencies!')
+        flash(f'Error - {TITLE_DEPARTMENT.capitalize()} ID: {obj.department_id} - {obj.department_name} cannot be deleted because it has a dependency ({len(child_obj)}) !')
         
     else:
         # Marked for deletion
@@ -219,7 +224,7 @@ def department_delete(department_id):
         # Commit changes to database
         db.session.commit()
         flash(f'{TITLE_DEPARTMENT.capitalize()} ID: {obj.department_id} - {obj.department_name} was successfully deleted!')
-        
+
     return redirect(url_for('hr.config'))
 
 
@@ -298,10 +303,19 @@ def job_delete(job_id):
     # Create model instance with query data
     obj = db.session.get(Job, job_id)
 
+    # Check for child dependencies
+    child_obj = db.session.execute(
+        db.select(Job.job_id).join(Job_History, (Job.job_id == Job_History.job_id) & (Job.job_id == job_id))
+        ).all()
+
     if obj == None:
         # Report result.        
         flash(f'Error - The job ID: {job_id} was not found!')
     
+    elif len(child_obj) > 0:
+        # Report result
+        flash(f'Error - {TITLE_JOB.capitalize()} ID: {obj.job_id} - {obj.job_title} cannot be deleted because it has a dependency ({len(child_obj)}) !')
+
     else:
         # Marked for deletion
         db.session.delete(obj)
@@ -309,6 +323,202 @@ def job_delete(job_id):
         # Commit changes to database
         db.session.commit()
         flash(f'{TITLE_JOB.capitalize()} ID: {obj.job_id} - {obj.job_title} was successfully deleted!')
+        
+    return redirect(url_for('hr.config'))
+
+
+# Job terms add
+@hr.route('/hr/job/terms/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def terms_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_JOB_TERMS}'
+
+    # Create form instance
+    form = Job_TermsForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Job_Terms()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_TERMS.capitalize()} ID: {obj.terms_id} - {obj.terms} was successfully added!')
+        
+        return redirect(url_for('hr.config'))
+    
+    return render_template('hr/terms_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Job terms edit
+@hr.route('/hr/job/terms/edit/<int:terms_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def terms_edit(terms_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_JOB_TERMS}'
+
+    # Create model instance with query data
+    obj = db.session.get(Job_Terms, terms_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_TERMS.capitalize()} ID: {terms_id} was not found!')
+        return redirect(url_for('hr.config'))
+
+    # Create form instance and load it with object data
+    form = Job_TermsForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_TERMS.capitalize()} ID: {obj.terms_id} - {obj.terms} was successfully edited!')
+
+        return redirect(url_for('hr.config'))
+
+    return render_template('hr/terms_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Job terms delete
+@hr.route('/hr/job/terms/delete/<int:terms_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def terms_delete(terms_id):
+    # Create model instance with query data
+    obj = db.session.get(Job_Terms, terms_id)
+    # Check for child dependencies
+    child_obj = db.session.execute(
+        db.select(Job_Terms.terms_id).join(Job_History, (Job_Terms.terms_id == Job_History.terms_id) & (Job_Terms.terms_id == terms_id))
+        ).all()
+
+    if obj == None:
+        # Report result
+        flash(f'Error - The terms ID: {terms_id} was not found!')
+    
+    elif len(child_obj) > 0:
+        # Report result.
+        flash(f'Error - {TITLE_JOB_TERMS.capitalize()} ID: {obj.terms_id} - {obj.terms} cannot be deleted because it has a dependency ({len(child_obj)}) !')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} successfully deleted!')
+        
+    return redirect(url_for('hr.config'))
+
+
+# Job status add
+@hr.route('/hr/job/status/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def status_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_JOB_STATUS}'
+
+    # Create form instance
+    form = Job_StatusForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Job_Status()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.status_title} was successfully added!')
+        
+        return redirect(url_for('hr.config'))
+    
+    return render_template('hr/status_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Job status edit
+@hr.route('/hr/job/status/edit/<int:status_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def status_edit(status_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_JOB_STATUS}'
+
+    # Create model instance with query data
+    obj = db.session.get(Job_Status, status_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} ID: {status_id} was not found!')
+        return redirect(url_for('hr.config'))
+
+    # Create form instance and load it with object data
+    form = Job_StatusForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.status_title} was successfully edited!')
+
+        return redirect(url_for('hr.config'))
+
+    return render_template('hr/status_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Job status delete
+@hr.route('/hr/job/status/delete/<int:status_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def status_delete(status_id):
+    # Create model instance with query data
+    obj = db.session.get(Job_Status, status_id)
+    # Check for child dependencies
+    child_obj = db.session.execute(
+    db.select(Job_Status.status_id).join(Job_History, (Job_Status.status_id == Job_History.status_id) & (Job_Status.status_id == status_id))
+    ).all()
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} ID: {status_id} was not found!')
+    
+    elif len(child_obj) > 0:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} {obj.status_title} cannot be deleted because it has a dependency ({len(child_obj)}) !')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.status_title} successfully deleted!')
         
     return redirect(url_for('hr.config'))
 
@@ -387,16 +597,19 @@ def title_edit(title_id):
 def title_delete(title_id):
     # Create model instance with query data
     obj = db.session.get(Title, title_id)
+
     # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(title_id=id)).first()
+    child_obj = db.session.execute(
+        db.select(Title).join(Employee, (Title.title_id == Employee.title_id) & (Title.title_id == title_id))
+        ).all()
 
     if obj == None:
         # Report result
         flash(f'Error - The gender ID: {obj.title_id}) was not found!')
     
-    elif child_obj != None:
+    elif len(child_obj) > 0:
         # Report result.
-        flash(f'Error - {TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} cannot be deleted because it has dependencies!')
+        flash(f'Error - {TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} cannot be deleted because it has a dependency ({len(child_obj)}) !')
         
     else:
         # Marked for deletion
@@ -484,15 +697,17 @@ def gender_delete(gender_id):
     # Create model instance with query data
     obj = db.session.get(Gender, gender_id)
     # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(gender_id=id)).first()
+    child_obj = db.session.execute(
+        db.select(Gender.gender_id).join(Employee, (Gender.gender_id == Employee.gender_id) & (Gender.gender_id == gender_id))
+        ).all()
 
     if obj == None:
         # Report result
         flash(f'Error - The gender ID: {obj.gender_id}) was not found!')
     
-    elif child_obj != None:
+    elif len(child_obj) > 0:
         # Report result.
-        flash(f'Error - {TITLE_GENDER.capitalize()} ID: {obj.gender_id} - {obj.gender} cannot be deleted because it has dependencies!')
+        flash(f'Error - {TITLE_GENDER.capitalize()} ID: {obj.gender_id} - {obj.gender} cannot be deleted because it has a dependency ({len(child_obj)}) !')
         
     else:
         # Marked for deletion
@@ -580,15 +795,17 @@ def marital_delete(marital_id):
     # Create model instance with query data
     obj = db.session.get(Marital, marital_id)
     # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(marital_id=id)).first()
+    child_obj = db.session.execute(
+        db.select(Marital.marital_id).join(Employee, (Marital.marital_id == Employee.marital_id) & (Marital.marital_id == marital_id))
+        ).all()
 
     if obj == None:
         # Report result
         flash(f'Error - The marital ID: {marital_id} was not found!')
     
-    elif child_obj != None:
+    elif len(child_obj) > 0:
         # Report result.
-        flash(f'Error - {TITLE_MARITAL.capitalize()} ID: {obj.marital_id} - {obj.marital_status} cannot be deleted because it has dependencies!')
+        flash(f'Error - {TITLE_MARITAL.capitalize()} ID: {obj.marital_id} - {obj.marital_status} cannot be deleted because it has a dependency ({len(child_obj)}) !')
         
     else:
         # Marked for deletion
@@ -597,198 +814,6 @@ def marital_delete(marital_id):
         # Commit changes to database
         db.session.commit()
         flash(f'{TITLE_MARITAL.capitalize()} ID: {obj.marital_id} - {obj.marital_status} successfully deleted!')
-        
-    return redirect(url_for('hr.config'))
-
-
-# Job terms add
-@hr.route('/hr/job/terms/add', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def terms_add():
-    # Set html page menus
-    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
-
-    # Set html page heading
-    heading=f'Add {TITLE_JOB_TERMS}'
-
-    # Create form instance
-    form = Job_TermsForm()
-    if form.validate_on_submit():
-        # Create model instance
-        obj = Job_Terms()
-
-        # Populate object attributes with form data.
-        form.populate_obj(obj)
-
-        # Marked for insertion
-        db.session.add(obj)
-
-        # Commit changes to database
-        db.session.commit()
-        flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} was successfully added!')
-        
-        return redirect(url_for('hr.config'))
-    
-    return render_template('hr/terms_form.html', header=HEADER, menus=menus, heading=heading, form=form)
-
-
-# Job terms edit
-@hr.route('/hr/job/terms/edit/<int:terms_id>', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def terms_edit(terms_id):
-    # Set html page menus
-    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
-
-    # Set html page heading
-    heading=f'Edit {TITLE_JOB_TERMS}'
-
-    # Create model instance with query data
-    obj = db.session.get(Job_Terms, terms_id)
-
-    if obj == None:
-        # Report result.        
-        flash(f'Error - {TITLE_JOB_TERMS.capitalize()} ID: {terms_id} was not found!')
-        return redirect(url_for('hr.config'))
-
-    # Create form instance and load it with object data
-    form = Job_TermsForm(obj=obj)
-
-    if form.validate_on_submit():
-        # Populate object attributes with form data
-        form.populate_obj(obj)
-
-        # Commit changes to database
-        db.session.commit()
-        flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} was successfully edited!')
-
-        return redirect(url_for('hr.config'))
-
-    return render_template('hr/terms_form.html', header=HEADER, menus=menus, heading=heading, form=form)
-
-
-# Job terms delete
-@hr.route('/hr/job/terms/delete/<int:terms_id>', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def terms_delete(terms_id):
-    # Create model instance with query data
-    obj = db.session.get(Job_Terms, terms_id)
-    # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(terms_id=id)).first()
-
-    if obj == None:
-        # Report result
-        flash(f'Error - The terms ID: {terms_id} was not found!')
-    
-    elif child_obj != None:
-        # Report result.
-        flash(f'Error - {TITLE_JOB_TERMS.capitalize()} {obj.terms} cannot be deleted because it has dependencies!')
-        
-    else:
-        # Marked for deletion
-        db.session.delete(obj)
-
-        # Commit changes to database
-        db.session.commit()
-        flash(f'{TITLE_JOB_TERMS.capitalize()} {obj.terms} successfully deleted!')
-        
-    return redirect(url_for('hr.config'))
-
-
-# Job status add
-@hr.route('/hr/job/status/add', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def status_add():
-    # Set html page menus
-    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
-
-    # Set html page heading
-    heading=f'Add {TITLE_JOB_STATUS}'
-
-    # Create form instance
-    form = Job_StatusForm()
-    if form.validate_on_submit():
-        # Create model instance
-        obj = Job_Status()
-
-        # Populate object attributes with form data.
-        form.populate_obj(obj)
-
-        # Marked for insertion
-        db.session.add(obj)
-
-        # Commit changes to database
-        db.session.commit()
-        flash(f'{TITLE_JOB_STATUS.capitalize()} {obj.status_title} was successfully added!')
-        
-        return redirect(url_for('hr.config'))
-    
-    return render_template('hr/status_form.html', header=HEADER, menus=menus, heading=heading, form=form)
-
-
-# Job status edit
-@hr.route('/hr/job/status/edit/<int:status_id>', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def status_edit(status_id):
-    # Set html page menus
-    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
-
-    # Set html page heading
-    heading=f'Edit {TITLE_JOB_STATUS}'
-
-    # Create model instance with query data
-    obj = db.session.get(Job_Status, status_id)
-
-    if obj == None:
-        # Report result.        
-        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} ID: {status_id} was not found!')
-        return redirect(url_for('hr.config'))
-
-    # Create form instance and load it with object data
-    form = Job_StatusForm(obj=obj)
-
-    if form.validate_on_submit():
-        # Populate object attributes with form data.
-        form.populate_obj(obj)
-
-        # Commit changes to database
-        db.session.commit() 
-        flash(f'{TITLE_JOB_STATUS.capitalize()} {obj.status_title} was successfully edited!')
-
-        return redirect(url_for('hr.config'))
-
-    return render_template('hr/status_form.html', header=HEADER, menus=menus, heading=heading, form=form)
-
-
-# Job status delete
-@hr.route('/hr/job/status/delete/<int:status_id>', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def status_delete(status_id):
-    # Create model instance with query data
-    obj = db.session.get(Job_Status, status_id)
-    # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(status_id=id)).first()
-
-    if obj == None:
-        # Report result.        
-        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} ID: {status_id} was not found!')
-    
-    elif child_obj != None:
-        # Report result.        
-        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} {obj.status_title} cannot be deleted because it has dependencies!')
-        
-    else:
-        # Marked for deletion
-        db.session.delete(obj)
-
-        # Commit changes to database
-        db.session.commit()
-        flash(f'{TITLE_JOB_STATUS.capitalize()} {obj.status_title} successfully deleted!')
         
     return redirect(url_for('hr.config'))
 
@@ -864,12 +889,7 @@ def employee_add():
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_EMPLOYEE.capitalize()} {obj.employee_name} {obj.employee_surname} was successfully added!')
-
-        # Record history event
-        event = Employee_History(obj.employee_id, f'{TITLE_EMPLOYEE.capitalize()} {obj.employee_name} {obj.employee_surname} was created')
-        db.session.add(event)
-        db.session.commit()
+        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - {obj.employee_name} {obj.employee_surname} was successfully added!')
         
         return redirect(url_for('hr.employee_list'))
     
@@ -904,12 +924,7 @@ def employee_edit(employee_id):
 
         # Commit changes to database
         db.session.commit() 
-        flash(f'{TITLE_EMPLOYEE.capitalize()} {obj.employee_name} {obj.employee_surname} was successfully edited!')
-
-        # Record history event
-        event = Employee_History(obj.employee_id, f'{TITLE_EMPLOYEE.capitalize()} {obj.employee_name} was modified')
-        db.session.add(event)
-        db.session.commit()
+        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - {obj.employee_name} {obj.employee_surname} was successfully edited!')
 
         return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
 
@@ -934,12 +949,7 @@ def employee_delete(employee_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_EMPLOYEE.capitalize()} {obj.employee_name} {obj.employee_surname} successfully deleted!')
-
-        # Record history event
-        event = Employee_History(obj.employee_id, f'{TITLE_EMPLOYEE.capitalize()} {obj.employee_name} {obj.employee_surname} was deleted')
-        db.session.add(event)
-        db.session.commit()
+        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - {obj.employee_name} {obj.employee_surname} successfully deleted!')
         
     return redirect(url_for('hr.employee_list'))
 
@@ -1170,16 +1180,10 @@ def email_edit(employee_id, email_id):
 def email_delete(employee_id, email_id):
     # Create model instance with query data
     obj = db.session.get(Email, email_id)
-    # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(email_id=id)).first()
 
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_EMAIL.capitalize()} ID: {email_id} was not found!')
-    
-    elif child_obj != None:
-        # Report result.        
-        flash(f'Error - {TITLE_EMAIL.capitalize()} {obj.email} cannot be deleted because it has dependencies!')
         
     else:
         # Marked for deletion
@@ -1187,7 +1191,7 @@ def email_delete(employee_id, email_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_EMAIL.capitalize()} {obj.email} successfully deleted!')
+        flash(f'{TITLE_EMAIL.capitalize()} ID: {obj.email_id} - {obj.email} successfully deleted!')
         
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
@@ -1269,16 +1273,10 @@ def phone_edit(employee_id, phone_id):
 def phone_delete(employee_id, phone_id):
     # Create model instance with query data
     obj = db.session.get(Phone, phone_id)
-    # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(phone_id=id)).first()
 
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_PHONE.capitalize()} ID: {phone_id} was not found!')
-    
-    elif child_obj != None:
-        # Report result.        
-        flash(f'Error - {TITLE_PHONE.capitalize()} {obj.dial_code} {obj.phone_number} cannot be deleted because it has dependencies!')
         
     else:
         # Marked for deletion
@@ -1286,7 +1284,7 @@ def phone_delete(employee_id, phone_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_PHONE.capitalize()} {obj.dial_code} {obj.phone_number} successfully deleted!')
+        flash(f'{TITLE_PHONE.capitalize()} ID: {obj.phone_id} - {obj.dial_code} {obj.phone_number} successfully deleted!')
         
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
@@ -1368,16 +1366,10 @@ def address_edit(employee_id, address_id):
 def address_delete(employee_id, address_id):
     # Create model instance with query data
     obj = db.session.get(Address, address_id)
-    # Check for child dependencies
-    child_obj = None #db.session.execute(db.select(Employee).filter_by(address_id=id)).first()
 
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_ADDRESS.capitalize()} ({address_id}) was not found!')
-    
-    elif child_obj != None:
-        # Report result.        
-        flash(f'Error - {TITLE_ADDRESS.capitalize()} ({address_id}) cannot be deleted because it has dependencies!')
 
     else:
         # Marked for deletion
