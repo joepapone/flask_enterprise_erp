@@ -26,9 +26,9 @@
                     <tr>
                         <th class="search">
                             <div class="search-box">
-                                <input class="search-text" user_id="search" name="search" type="text" placeholder="Search user ?"
-                                onkeyup="SearchFunction('user', 1)">
-                                <input class="search-submit" user_id="search_submit" value="submit" type="submit">
+                                <input class="search-text" id="search_user" name="search" type="text" placeholder="Search user ?"
+                                onkeyup="SearchFunction('search_user', 'users', 1)">
+                                <input class="search-submit" id="search_submit" value="submit" type="submit">
                                 <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
                             </div>
                         </th>
@@ -46,10 +46,10 @@
                         </div>
                     </caption>
                     <tr>
-                        <th class="id sort" onclick="SortTableTxt('list', 0)">ID</th>
-                        <th class="left" style="width: 25%;" onclick="SortTableTxt('list', 1)">Name</th>
-                        <th class="left" style="width: 35%;" onclick="SortTableTxt('list', 2)">Email</th>
-                        <th class="left" style="width: 30%;" onclick="SortTableTxt('list', 3)">Role</th>
+                        <th class="id sort" onclick="SortTableTxt('users', 0)">ID</th>
+                        <th class="left" style="width: 25%;" onclick="SortTableTxt('users', 1)">Name</th>
+                        <th class="left" style="width: 35%;" onclick="SortTableTxt('users', 2)">Email</th>
+                        <th class="left" style="width: 30%;" onclick="SortTableTxt('users', 3)">Role</th>
                         <th class="action">Delete</th>
                     </tr>
                     {%- for item in user_list %}
@@ -81,9 +81,9 @@
                     <tr>
                         <th class="search">
                             <div class="search-box">
-                                <input class="search-text" role_id="search" name="search" type="text" placeholder="Search role ?"
-                                onkeyup="SearchFunction('role', 1)">
-                                <input class="search-submit" role_id="search_submit" value="submit" type="submit">
+                                <input class="search-text" id="search_role" name="search" type="text" placeholder="Search role ?"
+                                onkeyup="SearchFunction('search_role', 'roles', 1)">
+                                <input class="search-submit" id="search_submit" value="submit" type="submit">
                                 <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
                             </div>
                         </th>
@@ -101,8 +101,8 @@
                         </div>
                     </caption>
                     <tr>
-                        <th class="id sort" onclick="SortTableTxt('list', 0)">ID</th>
-                        <th class="left" style="width: 80%;" onclick="SortTableTxt('list', 1)">Name</th>
+                        <th class="id sort" onclick="SortTableTxt('roles', 0)">ID</th>
+                        <th class="left" style="width: 80%;" onclick="SortTableTxt('roles', 1)">Name</th>
                         <th class="action">Delete</th>
                     </tr>
                     {%- for item in role_list %}

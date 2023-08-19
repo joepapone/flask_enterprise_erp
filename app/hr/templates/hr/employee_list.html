@@ -20,8 +20,8 @@
                 <tr>
                     <th class="search">
                         <div class="search-box">
-                            <input class="search-text" id="search" name="search" type="text" placeholder="Search employee ?"
-                            onkeyup="SearchFunction('employee', 1)">
+                            <input class="search-text" id="search_employee" name="search" type="text" placeholder="Search employee ?"
+                            onkeyup="SearchFunction('search_employee', 'employees', 1)">
                             <input class="search-submit" id="search_submit" value="submit" type="submit">
                             <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
                         </div>
@@ -40,12 +40,12 @@
                     </div>
                 </caption>
                 <tr>
-                    <th class="center sort" onclick="SortTableTxt('list', 0)">ID</th>
-                    <th class="left sort" style="width: 20%;" onclick="SortTableTxt('list', 1)">Employee</th>
-                    <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Birthdate</th>
-                    <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Gender</th>
-                    <th class="left sort" style="width: 15%;" onclick="SortTableTxt('list', 1)">Marital status</th>
-                    <th class="center sort" style="width: 25%;" onclick="SortTableTxt('list', 1)">Modified</th>
+                    <th class="center sort" onclick="SortTableTxt('employees', 0)">ID</th>
+                    <th class="left sort" style="width: 20%;" onclick="SortTableTxt('employees', 1)">Employee</th>
+                    <th class="left sort" style="width: 15%;" onclick="SortTableTxt('employees', 1)">Birthdate</th>
+                    <th class="left sort" style="width: 15%;" onclick="SortTableTxt('employees', 1)">Gender</th>
+                    <th class="left sort" style="width: 15%;" onclick="SortTableTxt('employees', 1)">Marital status</th>
+                    <th class="center sort" style="width: 25%;" onclick="SortTableTxt('employees', 1)">Modified</th>
                     <th class="action">Delete</th>
                 </tr>
                 {%- for item in list %}

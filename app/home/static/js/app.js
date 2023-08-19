@@ -1,3 +1,75 @@
+// Get the modal
+var modal = document.getElementById('id01');
+
+// When user clicks anywhere outside the modal, it closes
+window.onclick = function(event) {
+    if (event.target == modal) {
+        modal.style.display = "none";
+    }
+}
+
+
+// Submit delete
+function DeleteFunction(input, item) {
+    form_action = document.getElementById(input).value;
+    document.getElementById("form").action = form_action;
+    document.getElementById('id01').style.display='block';
+    document.getElementById('msg-h1').innerHTML='Delete ' + item + '!';
+    document.getElementById('msg-p').innerHTML='Are you sure you want to delete this ' + item + '?';
+}
+
+
+// Select dropdown
+function DropdownFunction(source, destination, route) {
+    let select_source = document.getElementById(source);
+    let select_destination = document.getElementById(destination);
+
+    // Get form source input select value
+    select_id = select_source.value;
+    
+    // Get route response
+    fetch(route + select_id).then(function(response) {
+        // Convert response into json data
+        response.json().then(function(data)  {
+            // Diagnostic console
+            console.table(data);
+
+            // Create destination input select options
+            let optionHTML = '';
+            for (let item of data.list) {
+                optionHTML += '<option value=' + item.id + '>' + item.label + '</option>';
+            }
+            // Update form destination input select
+            select_destination.innerHTML = optionHTML;
+        });
+    });
+}
+
+
+// Search table.
+function SearchFunction(search_input, search_table, row) {
+  // Declare variables
+  var input, filter, table, tr, td, i, txtValue;
+  input = document.getElementById(search_input);
+  filter = input.value.toUpperCase();
+  table = document.getElementById(search_table);
+  tr = table.getElementsByTagName("tr");
+
+  // Loop through all table rows, and hide those who don't match the search query
+  for (i = 0; i < tr.length; i++) {
+    td = tr[i].getElementsByTagName("td")[row];
+    if (td) {
+      txtValue = td.textContent || td.innerText;
+      if (txtValue.toUpperCase().indexOf(filter) > -1) {
+        tr[i].style.display = "";
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+  }
+}
+
+
 // Sort table text.
 function SortTableTxt(sort_table, col) {
     var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
@@ -48,50 +120,6 @@ function SortTableTxt(sort_table, col) {
     }
 }  
 
-// Get the modal
-var modal = document.getElementById('id01');
-
-// When user clicks anywhere outside the modal, it closes
-window.onclick = function(event) {
-    if (event.target == modal) {
-        modal.style.display = "none";
-    }
-}
-
-// Submit delete
-function DeleteFunction(input, item) {
-    form_action = document.getElementById(input).value;
-    document.getElementById("form").action = form_action;
-    document.getElementById('id01').style.display='block';
-    document.getElementById('msg-h1').innerHTML='Delete ' + item + '!';
-    document.getElementById('msg-p').innerHTML='Are you sure you want to delete this ' + item + '?';
-}
-
-// Select dropdown
-function DropdownFunction(source, destination, route) {
-    let select_source = document.getElementById(source);
-    let select_destination = document.getElementById(destination);
-
-    // Get form source input select value
-    select_id = select_source.value;
-    
-    // Get route response
-    fetch(route + select_id).then(function(response) {
-        // Convert response into json data
-        response.json().then(function(data)  {
-            // Diagnostic console
-            console.table(data);
-
-            // Create destination input select options
-            let optionHTML = '';
-            for (let item of data.list) {
-                optionHTML += '<option value=' + item.id + '>' + item.label + '</option>';
-            }
-            // Update form destination input select
-            select_destination.innerHTML = optionHTML;
-        });
-    });
-}
 
 
 
