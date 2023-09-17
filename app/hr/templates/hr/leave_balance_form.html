@@ -1,0 +1,62 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="col-5 col-s-5">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" not in message: %}
+            <div class="alert success">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <form action="" method="POST" enctype=multipart/form-data>
+            {{ form.csrf_token }}
+            <div class="form-container">
+                <div class="form-row {% if form.type_id.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="type_id">{{ form.type_id.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.type_id }}
+                        {%- for error in form.type_id.errors %}
+                        {%- if form.type_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.leave_days.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="leave_days">{{ form.leave_days.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.leave_days }}
+                        {%- for error in form.leave_days.errors %}
+                        {%- if form.leave_days.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.expiry_date.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="expiry_date">{{ form.expiry_date.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.expiry_date }}
+                        {%- for error in form.expiry_date.errors %}
+                        {%- if form.expiry_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="submit-col">
+                        <input class="field-submit" type="submit" value="Submit">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endblock %}

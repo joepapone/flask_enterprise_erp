@@ -3,8 +3,10 @@ from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
 from sqlalchemy.orm import lazyload
 
-from .models import Department, Job, Job_Terms, Job_Status, Employee, Job_History, Email, Phone, Address, Title, Gender, Marital
-from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, Job_History_StartForm, Job_History_EndForm,EmailForm, PhoneForm, AddressForm, TitleForm, GenderForm, MaritalForm
+from .models import Department, Job, Job_Terms, Job_Status, Employee, Job_History, Email, Phone, Address, Title, Gender, Marital,\
+                    Leave_Type, Leave_Balance, Leave_Taken
+from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, Job_History_StartForm, Job_History_EndForm,EmailForm,\
+                    PhoneForm, AddressForm, TitleForm, GenderForm, MaritalForm, Leave_TypeForm, Leave_BalanceForm, Leave_TakenForm
 from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
 from ..config import HEADER
 from .. import db
@@ -25,6 +27,9 @@ TITLE_ADDRESS='address'
 TITLE_TITLE='title'
 TITLE_GENDER='gender'
 TITLE_MARITAL='maritual status'
+TITLE_LEAVE_TYPE='leave type'
+TITLE_LEAVE_BALANCE='leave balance'
+TITLE_LEAVE_TAKEN='leave taken'
 
 
 # Human resources blueprint
@@ -121,10 +126,12 @@ def config():
     title_obj = db.session.execute(db.select(Title)).scalars().all()
     gender_obj = db.session.execute(db.select(Gender).order_by(Gender.gender.asc())).scalars().all()
     marital_obj = db.session.execute(db.select(Marital).order_by(Marital.marital_status.asc())).scalars().all()
+    leave_type_obj = db.session.execute(db.select(Leave_Type).order_by(Leave_Type.type_title.asc())).scalars().all()
 
 
     return render_template('hr/config.html', header=HEADER, menus=menus, heading=heading, department_list=department_obj, job_list=job_obj,
-                           status_list=status_obj, terms_list=terms_obj, title_list=title_obj, gender_list=gender_obj, marital_list=marital_obj)
+                           status_list=status_obj, terms_list=terms_obj, title_list=title_obj, gender_list=gender_obj, marital_list=marital_obj,
+                           leave_type_list=leave_type_obj)
 
 
 # Department add
@@ -818,6 +825,104 @@ def marital_delete(marital_id):
     return redirect(url_for('hr.config'))
 
 
+# Leave type add
+@hr.route('/hr/leave_type/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_type_add():
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_LEAVE_TYPE}'
+
+    # Create form instance
+    form = Leave_TypeForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Leave_Type()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_TYPE.capitalize()} ID: {obj.type_id} - {obj.type_title} was successfully added!')
+        
+        return redirect(url_for('hr.config'))
+    
+    return render_template('hr/leave_type_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Leave type edit
+@hr.route('/hr/leave_type/edit/<int:leave_type_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_type_edit(leave_type_id):
+    # Set html page menus
+    menus=[{'link': '/hr/config', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_LEAVE_TYPE}'
+
+    # Create model instance with query data
+    obj = db.session.get(Leave_Type, leave_type_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_LEAVE_TYPE.capitalize()} ID: {obj.type_id}) was not found!')
+        return redirect(url_for('hr.config'))
+
+    # Create form instance and load it with object data
+    form = Leave_TypeForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_TYPE.capitalize()} ID: {obj.type_id} - {obj.type_title} was successfully edited!')
+
+        return redirect(url_for('hr.config'))
+
+    return render_template('hr/leave_type_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+
+
+# Leave type delete
+@hr.route('/hr/leave_type/delete/<int:leave_type_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_type_delete(leave_type_id):
+    # Create model instance with query data
+    obj = db.session.get(Leave_Type, leave_type_id)
+    # Check for child dependencies
+    child_obj = "" #db.session.execute(
+        #db.select(Leave_Type.type_id).join(Employee, (Leave_Type.type_id == Employee.type_id) & (Leave_Type.type_id == leave_type_id))
+        #).all()
+
+    if obj == None:
+        # Report result
+        flash(f'Error - The leave_type ID: {leave_type_id} was not found!')
+    
+    elif len(child_obj) > 0:
+        # Report result.
+        flash(f'Error - {TITLE_LEAVE_TYPE.capitalize()} ID: {obj.type_id} - {obj.type_title} cannot be deleted because it has a dependency ({len(child_obj)}) !')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_TYPE.capitalize()} ID: {obj.type_id} - {obj.type_title} successfully deleted!')
+        
+    return redirect(url_for('hr.config'))
+
+
 # ------------------------------------------------
 #    Employee
 # ------------------------------------------------
@@ -856,11 +961,12 @@ def employee_sheet(employee_id):
     email_obj = db.session.execute(db.select(Email).where(Email.employee_id == employee_id)).scalars().all()
     phone_obj = db.session.execute(db.select(Phone).where(Phone.employee_id == employee_id)).scalars().all()
     address_obj = db.session.execute(db.select(Address).where(Address.employee_id == employee_id)).scalars().all()
-
-    print(employee_obj)
+    leave_balance_obj = db.session.execute(db.select(Leave_Balance).where(Leave_Balance.employee_id == employee_id)).scalars().all()
+    leave_taken_obj = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.employee_id == employee_id)).scalars().all()
 
     return render_template('hr/employee_sheet.html', header=HEADER, menus=menus, heading=heading, data_list=employee_obj, job_history_list=job_history_obj,
-                           email_list=email_obj, phone_list=phone_obj, address_list=address_obj, employee_id=employee_id)
+                           email_list=email_obj, phone_list=phone_obj, address_list=address_obj, leave_balance_list=leave_balance_obj, 
+                           leave_taken_list=leave_taken_obj, employee_id=employee_id)
 
 
 # Employee add
@@ -964,7 +1070,7 @@ def employee_job(job_id):
     return jsonify({'list': list})
 
 
-# Employee job history add
+# Job history add
 @hr.route('/hr/employee/<int:employee_id>/job_history/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1004,7 +1110,7 @@ def job_history_add(employee_id):
     return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee job history edit
+# Job history edit
 @hr.route('/hr/employee/<int:employee_id>/job_history/edit/<int:job_history_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1045,7 +1151,7 @@ def job_history_edit(employee_id, job_history_id):
     return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee job history delete
+# Job history delete
 @hr.route('/hr/employee/<int:employee_id>/job_history/delete/<int:job_history_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1068,7 +1174,7 @@ def job_history_delete(employee_id, job_history_id):
     return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
 
 
-# Employee job history complete
+# Job history complete
 @hr.route('/hr/employee/<int:employee_id>/job_history/complete/<int:job_history_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1103,7 +1209,7 @@ def job_history_complete(employee_id, job_history_id):
     return render_template('hr/job_history_complete_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee email add
+# Email add
 @hr.route('/hr/employee/<int:employee_id>/email/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1138,7 +1244,7 @@ def email_add(employee_id):
     return render_template('hr/email_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee email edit
+# Email edit
 @hr.route('/hr/employee/<int:employee_id>/email/edit/<int:email_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1173,7 +1279,7 @@ def email_edit(employee_id, email_id):
     return render_template('hr/email_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee email delete
+# Email delete
 @hr.route('/hr/employee/<int:employee_id>/email/delete/<int:email_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1196,7 +1302,7 @@ def email_delete(employee_id, email_id):
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
-# Employee phone add
+# Phone add
 @hr.route('/hr/employee/<int:employee_id>/phone/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1231,7 +1337,7 @@ def phone_add(employee_id):
     return render_template('hr/phone_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee phone edit
+# Phone edit
 @hr.route('/hr/employee/<int:employee_id>/phone/edit/<int:phone_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1266,7 +1372,7 @@ def phone_edit(employee_id, phone_id):
     return render_template('hr/phone_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee phone delete
+# Phone delete
 @hr.route('/hr/employee/<int:employee_id>/phone/delete/<int:phone_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1289,7 +1395,7 @@ def phone_delete(employee_id, phone_id):
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
-# Employee address add
+# Address add
 @hr.route('/hr/employee/<int:employee_id>/address/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1324,7 +1430,7 @@ def address_add(employee_id):
     return render_template('hr/address_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee address edit
+# Address edit
 @hr.route('/hr/employee/<int:employee_id>/address/edit/<int:address_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1359,7 +1465,7 @@ def address_edit(employee_id, address_id):
     return render_template('hr/address_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Employee address delete
+# Address delete
 @hr.route('/hr/employee/<int:employee_id>/address/delete/<int:address_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
@@ -1384,59 +1490,208 @@ def address_delete(employee_id, address_id):
 
 
 
-'''
+# Leave balance add
+@hr.route('/hr/employee/<int:employee_id>/leave_balance/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_balance_add(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
 
-// Department
-let select_department = document.getElementById('department_id');
-let select_job = document.getElementById('job_id');
+    # Set html page heading
+    heading=f'Add {TITLE_LEAVE_BALANCE}'
 
-// Form select department
-select_department.onchange = function() {
-    // Get form select value
-    department_id = select_department.value;
+    # Create form instance
+    form = Leave_BalanceForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Leave_Balance()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
+
+        # Calculate leave balance
+        #obj.leave_taken = 0
+        #obj.leave_balance = float(obj.leave_days)-float(obj.leave_taken)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_BALANCE.capitalize()} ID: {obj.balance_id} was successfully added!')
+        
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
     
-    // Get route response
-    fetch('/hr/employee/department/' + department_id).then(function(response) {
-        // Convert response into json data
-        response.json().then(function(data)  {
-            console.table(data);
-
-            // Create select option HTML
-            let optionHTML = '';
-            for (let job of data.jobs) {
-                optionHTML += '<option value=' + job.id + '>' + job.title + '</option>';
-            }
-            // Update form select
-            select_job.innerHTML = optionHTML;
-        });
-    });
-
-}
-
-                        <div class="form-row {% if form.mobile_phone.errors %}error{% endif %}">
-                            <div class="label-col">
-                                <label class="field-label" for="description">{{ form.mobile_phone.label }}</label>
-                            </div>
-                            <div class="input-col">
-                                {{ form.mobile_phone }}
-                                {%- for error in form.mobile_phone.errors %}
-                                {%- if form.mobile_phone.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                                {%- endfor %}
-                            </div>
-                        </div>
-                        <div class="form-row {% if form.home_phone.errors %}error{% endif %}">
-                            <div class="label-col">
-                                <label class="field-label" for="description">{{ form.home_phone.label }}</label>
-                            </div>
-                            <div class="input-col">
-                                {{ form.home_phone }}
-                                {%- for error in form.home_phone.errors %}
-                                {%- if form.home_phone.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                                {%- endfor %}
-                            </div>
-                        </div>
+    return render_template('hr/leave_balance_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-    print(f' ID: {obj.employee_id }\n Name: {obj.employee_name}\n Department: {obj.department.department_name} \
-          \n Job: {obj.job.job_title}\n')
-'''
+# Leave balance edit
+@hr.route('/hr/employee/<int:employee_id>/leave_balance/edit/<int:balance_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_balance_edit(employee_id, balance_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_LEAVE_BALANCE}'
+
+    # Create model instance with query data
+    obj = db.session.get(Leave_Balance, balance_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_LEAVE_BALANCE.capitalize()} ID: {balance_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = Leave_BalanceForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Calculate leave balance
+        #obj.leave_balance = float(obj.leave_days)-float(obj.leave_taken)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_LEAVE_BALANCE.capitalize()} ID: {obj.balance_id} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/leave_balance_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+# Leave balance delete
+@hr.route('/hr/employee/<int:employee_id>/leave_balance/delete/<int:balance_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_balance_delete(employee_id, balance_id):
+    # Create model instance with query data
+    obj = db.session.get(Leave_Balance, balance_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_LEAVE_BALANCE.capitalize()} ({balance_id}) was not found!')
+
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_BALANCE.capitalize()} ID: {obj.balance_id} was successfully deleted!')
+        
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+
+
+# Leave taken add
+@hr.route('/hr/employee/<int:employee_id>/leave_balance_id/<int:balance_id>/leave_taken/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_taken_add(employee_id, balance_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_LEAVE_TAKEN}'
+
+    # Create form instance
+    form = Leave_TakenForm()
+    if form.validate_on_submit():
+        # Create model instance
+        obj = Leave_Taken()
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
+        obj.balance_id=balance_id
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_TAKEN.capitalize()} ID: {obj.taken_id} was successfully added!')
+        
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+    
+    return render_template('hr/leave_taken_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Leave taken edit
+@hr.route('/hr/employee/<int:employee_id>/leave_balance_id/<int:balance_id>/leave_taken/edit/<int:taken_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_taken_edit(employee_id, balance_id, taken_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_LEAVE_TAKEN}'
+
+    # Create model instance with query data
+    obj = db.session.get(Leave_Taken, taken_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_LEAVE_TAKEN.capitalize()} ID: {taken_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = Leave_TakenForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data
+        form.populate_obj(obj)
+
+        # Get data and sum fields
+        leaves_taken = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.balance_id == balance_id)).scalars().all()
+        sum = 0
+        for i in leaves_taken:
+            sum += i.days()
+
+        print(type(leaves_taken))
+        
+        # Update parante table data
+        obj.leave_balance.leave_taken = sum
+        obj.leave_balance.curr_balance()
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_LEAVE_TAKEN.capitalize()} ID: {obj.taken_id} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/leave_taken_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Leave taken delete
+@hr.route('/hr/employee/<int:employee_id>/taken_taken/delete/<int:taken_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_taken_delete(employee_id, taken_id):
+    # Create model instance with query data
+    obj = db.session.get(Leave_Taken, taken_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_LEAVE_TAKEN.capitalize()} ({taken_id}) was not found!')
+
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_LEAVE_TAKEN.capitalize()} ID: {obj.taken_id} was successfully deleted!')
+        
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+

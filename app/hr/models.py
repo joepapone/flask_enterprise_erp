@@ -45,6 +45,20 @@ class Marital(db.Model):
     def __repr__(self):
         return f'Marital ({self.marital_id}): {self.marital_status}'
 
+# Leave type data-model
+class Leave_Type(db.Model):
+    # Table name
+    __tablename__ = 'leave_type'
+    # Main Fields
+    type_id = db.Column(db.Integer, primary_key=True) 
+    type_title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Leave type ({self.type_id}): {self.type_title}'
+
 # Employee data-model
 class Employee(db.Model):
     # Table name
@@ -227,4 +241,59 @@ class Address(db.Model):
             \n{self.postal_code} {self.city}\
             \n{self.state}\
             \n{self.country_id}'
+
+# Leave balance data-model
+class Leave_Balance(db.Model):
+    # Table name
+    __tablename__ = 'leave_balance'
+    # Main Fields
+    balance_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    type_id = db.Column(db.Integer, db.ForeignKey('leave_type.type_id'), nullable=False)
+    leave_days = db.Column(db.Numeric(5,2), default=0.00)
+    leave_taken = db.Column(db.Numeric(5,2), default=0.00)
+    leave_balance = db.Column(db.Numeric(5,2), default=0.00)
+    expiry_date = db.Column(db.DateTime)
+    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+    leave_type = db.relationship(Leave_Type, foreign_keys=[type_id])
+
+    def curr_balance(self):
+        self.leave_balance = self.leave_days - self.leave_taken
+        return (self.leave_balance)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Leave balance ({self.balance_id})'
+
+
+
+# Leave taken data-model
+class Leave_Taken(db.Model):
+    # Table name
+    __tablename__ = 'leave_taken'
+    # Main Fields
+    taken_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    balance_id = db.Column(db.Integer, db.ForeignKey('leave_balance.balance_id', ondelete='CASCADE'), nullable=False)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+    leave_balance = db.relationship(Leave_Balance, foreign_keys=[balance_id])
+
+    def days(self):
+        count = self.end_date - self.start_date
+        return count.days
+      
+    def get_id(self):
+        return (self.taken_id)
+        
+    def __repr__(self):
+        return f'Leave taken ({self.balance_id})'
+
 

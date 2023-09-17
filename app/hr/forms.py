@@ -1,8 +1,9 @@
 from flask_wtf import FlaskForm
 from wtforms import Form, fields
 from wtforms.validators import ValidationError, InputRequired, Email
+import datetime
 
-from .models import Title, Gender, Marital, Department, Job, Job_Terms, Job_Status
+from .models import Department, Job, Job_Terms, Job_Status, Title, Gender, Marital, Leave_Type, Leave_Taken
 from ..admin.models import Country
 from .. import db
 
@@ -62,6 +63,27 @@ def marital_duplicate(form, field):
     if obj is not None:
         raise ValidationError('Marital status already exists')
 
+# Validate leave type for duplicates
+def leave_type_duplicate(form, field):
+    obj = Leave_Type.query.filter(Leave_Type.type_title == field.data).first()
+    if obj is not None:
+        raise ValidationError('Lease type already exists')
+    
+
+# Validate leave taken for exceeding leave days
+def leave_taken_exceeds(form, field):
+    sum = 0
+    # Get data and sum fields
+    leaves_taken = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.balance_id == 2)).scalars().all()
+    sum = 0
+    for i in leaves_taken:
+        sum += i.days()
+
+    print(leaves_taken[0].leave_balance.leave_days)
+
+    if sum > leaves_taken[0].leave_balance.leave_days:
+        raise ValidationError(f'Set period exceeds {int(leaves_taken[0].leave_balance.leave_days)} leave days')
+
 
 # ------------------------------------------------
 #    Data collection and Processing
@@ -80,6 +102,17 @@ def get_gender():
 # Get marital status to populate select field
 def get_marital():
     item_list = [(item.marital_id, item.marital_status) for item in db.session.scalars(db.select(Marital)).all()]
+    return item_list
+
+# Get leave type to populate select field
+def get_leave_type():
+    item_list = [(item.type_id, item.type_title) for item in db.session.scalars(db.select(Leave_Type)).all()]
+    return item_list
+
+# Get years to populate select field
+def get_years():
+    years = [datetime.datetime.today().year - index for index in range(3)]
+    item_list = [(datetime.datetime(year, 1, 1)) for year in years]
     return item_list
 
 # Get departments to populate select field
@@ -131,6 +164,11 @@ class GenderForm(FlaskForm):
 class MaritalForm(FlaskForm):
     marital_status = fields.StringField(label='Marital status', validators=[length(min=3, max=50), marital_duplicate], description='Marital status',
     render_kw={'class': 'field-data', 'placeholder': 'Marital status..', 'autofocus': ''})
+
+# Leave_Type form attributes
+class Leave_TypeForm(FlaskForm):
+    type_title = fields.StringField(label='Leave type', validators=[length(min=3, max=50), leave_type_duplicate], description='Leave type',
+    render_kw={'class': 'field-data', 'placeholder': 'Leave type..', 'autofocus': ''})
 
 # Employee form attributes
 class EmployeeForm(FlaskForm):
@@ -219,4 +257,26 @@ class AddressForm(FlaskForm):
     render_kw={'class': 'field-data', 'placeholder': 'State..', 'autofocus': ''})
     country_id = fields.SelectField(label='Country', choices=get_country ,validators=[InputRequired()], description='Country',
     render_kw={'class': 'field-data', 'placeholder': 'Country..', 'autofocus': ''})
+
+# Leave balance form attributes
+class Leave_BalanceForm(FlaskForm):
+    type_id = fields.SelectField(label='Leave type', choices=get_leave_type, validators=[InputRequired()], description="Leave type",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+    leave_days  = fields.DecimalField(label='Leave days', validators=[InputRequired()], description='Leave days',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    expiry_date = fields.DateField(label='Expiry date', validators=[InputRequired()], description="Expiry date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+
+
+# Leave taken form attributes
+class Leave_TakenForm(FlaskForm):
+    start_date = fields.DateField(label='Start date', validators=[InputRequired()], description="Start date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+    end_date = fields.DateField(label='End date', validators=[InputRequired()], description="End date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+
+    # Validate for end date less than start date
+    def validate_end_date(form, field):
+        if field.data < form.start_date.data:
+            raise ValidationError("End date must not be earlier than start date.")
 

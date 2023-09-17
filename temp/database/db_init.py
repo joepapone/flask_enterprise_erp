@@ -25,6 +25,9 @@ DROP TABLE IF EXISTS job_terms;
 DROP TABLE IF EXISTS job_status;
 DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS leave_balance;
+DROP TABLE IF EXISTS leave_record;
+DROP TABLE IF EXISTS leave_type;
 DROP TABLE IF EXISTS employee_title;
 DROP TABLE IF EXISTS employee_gender;
 DROP TABLE IF EXISTS employee_marital;
@@ -332,7 +335,7 @@ CREATE TABLE job_history(
     FOREIGN KEY (job_id) REFERENCES job(job_id),
     FOREIGN KEY (terms_id) REFERENCES job_terms(terms_id),
     FOREIGN KEY (status_id) REFERENCES job_status(status_id)
-)
+);
 
 INSERT INTO 
     job_history (employee_id, department_id, job_id, status_id, terms_id, start_date, end_date)
@@ -423,6 +426,66 @@ VALUES
     (3, 'Av. da Liberdade', 'No.25, 1º Dto.', '3844-555', 'Lisboa', 'Lisboa', 1),
     (4, 'Rua Antero Henriques', 'No.117, 1º Dto.', '3844-555', 'Setúbal', 'Setúbal', 1),
     (5, 'Rua Bordalo Pinheiro', 'No.3','2830-555', 'Barreiro', 'Lisboa', 1)
+;
+COMMIT;
+
+
+-- Employee leave type
+CREATE TABLE leave_type (
+    type_id INT NOT NULL AUTO_INCREMENT,
+    type_title VARCHAR(50),
+    PRIMARY KEY (type_id)
+);
+
+INSERT INTO leave_type (type_title)
+VALUES ('Vacation'),
+    ('Compensation Leave'),
+    ('Maternity Leave'),
+    ('Paternity Leave'),
+    ('Family Leave'),
+    ('Sick Leave')
+;
+COMMIT;
+
+
+-- Employee leave balance
+CREATE TABLE leave_balance (
+    balance_id INT NOT NULL AUTO_INCREMENT,
+    employee_id INT,
+    balance_year YEAR,
+    type_id INT,
+    leave_balance DECIMAL(5,2),
+    leave_taken DECIMAL(5,2),
+    leave_remaining DECIMAL(5,2),
+    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (balance_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (type_id) REFERENCES leave_type(type_id)
+);
+
+INSERT INTO leave_balance (employee_id, balance_year, type_id, leave_balance, leave_taken, leave_remaining)
+VALUES (1, '2023', 1, '23.00', '3.00', '20.00'),
+	(1, '2023', 4, '14.00', '0.00', '14.00')
+;
+COMMIT;
+
+
+-- Employee leave record
+CREATE TABLE leave_record (
+    record_id INT NOT NULL AUTO_INCREMENT,
+    employee_id INT,
+    type_id INT,
+    start_date DATETIME,
+    end_date DATETIME,
+    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (record_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (type_id) REFERENCES leave_type(type_id)
+);
+
+INSERT INTO leave_record (employee_id, type_id, start_date, end_date)
+VALUES (1, 1, '2023-02-01', '2023-02-05'),
+(2, 3, '2023-01-15', '2023-04-15')
 ;
 COMMIT;
 

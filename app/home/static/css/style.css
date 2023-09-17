@@ -671,6 +671,24 @@ html {
   padding: 0px;
 }
 
+.sheet-core-data-col {
+  float: left;
+  width: 78%;
+  margin-right: 5px;
+}
+
+.sheet-label-1-col {
+  float: left;
+  width: 37%;
+  margin-right: 5px;
+}
+
+.sheet-image-col {
+  float: left;
+  width: 20%;
+  margin-right: 5px;
+}
+
 .sheet-label-col {
   float: left;
   width: 25%;
@@ -679,7 +697,7 @@ html {
 
 .sheet-data-col {
   float: left;
-  width: 50%;
+  width: 60%;
   padding-right: 5px;
 
 }
