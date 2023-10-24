@@ -259,19 +259,19 @@
                                 <div>- Leave days: {{ item.leave_days }}</div>
                                 <div>- Balance: {{ item.leave_balance }}</div>
                             </a>
-
                             <div class="sheet-row-header">
-                                <div class="sheet-col-header">Taken: {{ item.leave_taken }}</div>
+                                <div class="sheet-col-sub-header">- Taken: {{ item.leave_taken }}</div>
+                                {%- if item.leave_taken < item.leave_days %}
                                 <div>
-                                    <a class="sheet-icon" href="{{ url_for('hr.leave_taken_add', employee_id=employee_id, balance_id=item.balance_id) }}">
+                                    <a class="sheet-col-sub-icon" href="{{ url_for('hr.leave_taken_add', employee_id=employee_id, balance_id=item.balance_id) }}">
                                         <div class="tooltip">
                                             <span class="tooltiptext">Add taken</span>
                                             <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
                                         </div>
                                     </a>
                                 </div>
+                                {%- endif %}
                             </div>
-
                             {%- for child in leave_taken_list %}
                             {%- if child.balance_id == item.balance_id %}
                             <div class="sheet-row">
@@ -279,22 +279,20 @@
                                     <div class="tooltip">
                                         <span class="tooltiptext">Delete taken</span>
                                         <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_leave_taken{{ child.taken_id }}" 
-                                        value="{{ url_for('hr.leave_taken_delete', employee_id=employee_id, taken_id=child.taken_id) }}" 
+                                        value="{{ url_for('hr.leave_taken_delete', employee_id=employee_id, balance_id=item.balance_id, taken_id=child.taken_id) }}" 
                                         onclick="DeleteFunction('delete_leave_taken{{ child.taken_id }}', 'leave taken')">
                                     </div>
                                 </div>
-                                <div class="sheet-data-col">
+                                <div class="sheet-sub-data-col">
                                     <div class="sheet-data-text" >
                                         <a class="data-link" href="{{ url_for('hr.leave_taken_edit', employee_id=employee_id, balance_id=item.balance_id, taken_id=child.taken_id) }}">
-                                            <div>{{ child.start_date.strftime('%Y-%m-%d') }} -> {{ child.end_date.strftime('%Y-%m-%d') }} ({{ child.days() }} days)</div>
+                                            <div>{{ child.start_date.strftime('%Y-%m-%d') }} -> {{ child.end_date.strftime('%Y-%m-%d') }} ({{ child.delta() }} days)</div>
                                         </a>
                                     </div>
                                 </div>
                             </div>
                             {%- endif %}
                             {%- endfor %}
-
-                            
                         </div>
                     </div>
                 </div>

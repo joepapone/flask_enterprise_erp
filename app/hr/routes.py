@@ -145,12 +145,12 @@ def department_add():
     # Set html page heading
     heading=f'Add {TITLE_DEPARTMENT}'
 
+    # Create model instance
+    obj = Department()
+
     # Create form instance
     form = DepartmentForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Department()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -246,12 +246,12 @@ def job_add():
     # Set html page heading
     heading=f'Add {TITLE_JOB}'
 
+    # Create model instance
+    obj = Job()
+
     # Create form instance
     form = JobForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Job()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -345,12 +345,12 @@ def terms_add():
     # Set html page heading
     heading=f'Add {TITLE_JOB_TERMS}'
 
+    # Create model instance
+    obj = Job_Terms()
+
     # Create form instance
     form = Job_TermsForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Job_Terms()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -443,12 +443,12 @@ def status_add():
     # Set html page heading
     heading=f'Add {TITLE_JOB_STATUS}'
 
+    # Create model instance
+    obj = Job_Status()
+
     # Create form instance
     form = Job_StatusForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Job_Status()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -541,12 +541,12 @@ def title_add():
     # Set html page heading
     heading=f'Add {TITLE_TITLE}'
 
+    # Create model instance
+    obj = Title()
+
     # Create form instance
     form = TitleForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Title()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -640,12 +640,12 @@ def gender_add():
     # Set html page heading
     heading=f'Add {TITLE_GENDER}'
 
+    # Create model instance
+    obj = Gender()
+
     # Create form instance
     form = GenderForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Gender()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -738,12 +738,12 @@ def marital_add():
     # Set html page heading
     heading=f'Add {TITLE_MARITAL}'
 
+    # Create model instance
+    obj = Marital()
+
     # Create form instance
     form = MaritalForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Marital()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -836,12 +836,12 @@ def leave_type_add():
     # Set html page heading
     heading=f'Add {TITLE_LEAVE_TYPE}'
 
+    # Create model instance
+    obj = Leave_Type()
+
     # Create form instance
     form = Leave_TypeForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Leave_Type()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -980,13 +980,13 @@ def employee_add():
     # Set html page heading
     heading=f'Add {TITLE_EMPLOYEE}'
 
+    # Create model instance
+    obj = Employee()
+
     # Create form instance
     form = EmployeeForm()
 
     if form.validate_on_submit():
-        # Create model instance
-        obj = Employee()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -1081,6 +1081,9 @@ def job_history_add(employee_id):
     # Set html page heading
     heading=f'Add {TITLE_JOB_HISTORY}'
 
+    # Create model instance
+    obj = Job_History()
+    
     # Create form instance
     form = Job_History_StartForm()
 
@@ -1089,9 +1092,6 @@ def job_history_add(employee_id):
         form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job)).scalars().all()]
 
     if form.validate_on_submit():
-        # Create model instance
-        obj = Job_History()
-
         # Define associated parent object
         obj.employee_id=employee_id
 
@@ -1220,12 +1220,12 @@ def email_add(employee_id):
     # Set html page heading
     heading=f'Add {TITLE_EMAIL}'
 
+    # Create model instance
+    obj = Email()
+
     # Create form instance
     form = EmailForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Email()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -1313,12 +1313,12 @@ def phone_add(employee_id):
     # Set html page heading
     heading=f'Add {TITLE_PHONE}'
 
+    # Create model instance
+    obj = Phone()
+
     # Create form instance
     form = PhoneForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Phone()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -1406,12 +1406,12 @@ def address_add(employee_id):
     # Set html page heading
     heading=f'Add {TITLE_ADDRESS}'
 
+    # Create model instance
+    obj = Address()
+    
     # Create form instance
     form = AddressForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Address()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
@@ -1488,8 +1488,6 @@ def address_delete(employee_id, address_id):
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
-
-
 # Leave balance add
 @hr.route('/hr/employee/<int:employee_id>/leave_balance/add', methods=('GET', 'POST'))
 @login_required
@@ -1501,21 +1499,17 @@ def leave_balance_add(employee_id):
     # Set html page heading
     heading=f'Add {TITLE_LEAVE_BALANCE}'
 
+    # Create model instance
+    obj = Leave_Balance()
+    
     # Create form instance
     form = Leave_BalanceForm()
     if form.validate_on_submit():
-        # Create model instance
-        obj = Leave_Balance()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
         # Define associated parent object
         obj.employee_id=employee_id
-
-        # Calculate leave balance
-        #obj.leave_taken = 0
-        #obj.leave_balance = float(obj.leave_days)-float(obj.leave_taken)
 
         # Marked for insertion
         db.session.add(obj)
@@ -1555,9 +1549,6 @@ def leave_balance_edit(employee_id, balance_id):
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
-        # Calculate leave balance
-        #obj.leave_balance = float(obj.leave_days)-float(obj.leave_taken)
-
         # Commit changes to database
         db.session.commit() 
         flash(f'{TITLE_LEAVE_BALANCE.capitalize()} ID: {obj.balance_id} was successfully edited!')
@@ -1589,7 +1580,6 @@ def leave_balance_delete(employee_id, balance_id):
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
-
 # Leave taken add
 @hr.route('/hr/employee/<int:employee_id>/leave_balance_id/<int:balance_id>/leave_taken/add', methods=('GET', 'POST'))
 @login_required
@@ -1601,18 +1591,34 @@ def leave_taken_add(employee_id, balance_id):
     # Set html page heading
     heading=f'Add {TITLE_LEAVE_TAKEN}'
 
+    # Create model instance
+    obj = Leave_Taken()
+
+    # Create model instance of parent
+    parent_obj = db.session.get(Leave_Balance, balance_id)
+
+    # Query table according to criteria
+    leave_taken = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.balance_id == balance_id)).scalars().all()
+
+    # Calculate remaining leave
+    remaining = parent_obj.leave_days
+    for i in leave_taken:
+        remaining -= i.delta()
+
     # Create form instance
     form = Leave_TakenForm()
+    form.remaining.data = remaining
     if form.validate_on_submit():
-        # Create model instance
-        obj = Leave_Taken()
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
         # Define associated parent object
-        obj.employee_id=employee_id
-        obj.balance_id=balance_id
+        obj.employee_id = employee_id
+        obj.balance_id = balance_id
+
+        # Update parante table data
+        parent_obj.leave_taken += obj.delta()
+        parent_obj.leave_balance = parent_obj.leave_days - parent_obj.leave_taken
 
         # Marked for insertion
         db.session.add(obj)
@@ -1645,24 +1651,27 @@ def leave_taken_edit(employee_id, balance_id, taken_id):
         flash(f'Error - {TITLE_LEAVE_TAKEN.capitalize()} ID: {taken_id} was not found!')
         return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
+    # Create model instance of parent
+    parent_obj = db.session.get(Leave_Balance, balance_id)
+
+    # Query table according to criteria
+    leave_taken = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.balance_id == balance_id, Leave_Taken.taken_id != taken_id)).scalars().all()
+
+    # Calculate remaining leave
+    remaining = parent_obj.leave_days
+    for i in leave_taken:
+        remaining -= i.delta()
+
     # Create form instance and load it with object data
     form = Leave_TakenForm(obj=obj)
-
+    form.remaining.data = remaining
     if form.validate_on_submit():
         # Populate object attributes with form data
         form.populate_obj(obj)
 
-        # Get data and sum fields
-        leaves_taken = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.balance_id == balance_id)).scalars().all()
-        sum = 0
-        for i in leaves_taken:
-            sum += i.days()
-
-        print(type(leaves_taken))
-        
         # Update parante table data
-        obj.leave_balance.leave_taken = sum
-        obj.leave_balance.curr_balance()
+        parent_obj.leave_taken = parent_obj.leave_days - remaining + obj.delta()
+        parent_obj.leave_balance = parent_obj.leave_days - parent_obj.leave_taken
 
         # Commit changes to database
         db.session.commit() 
@@ -1674,12 +1683,15 @@ def leave_taken_edit(employee_id, balance_id, taken_id):
 
 
 # Leave taken delete
-@hr.route('/hr/employee/<int:employee_id>/taken_taken/delete/<int:taken_id>', methods=('GET', 'POST'))
+@hr.route('/hr/employee/<int:employee_id>/leave_balance_id/<int:balance_id>/taken_taken/delete/<int:taken_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def leave_taken_delete(employee_id, taken_id):
+def leave_taken_delete(employee_id, balance_id, taken_id):
     # Create model instance with query data
     obj = db.session.get(Leave_Taken, taken_id)
+
+    # Create model instance of parent
+    parent_obj = db.session.get(Leave_Balance, balance_id)
 
     if obj == None:
         # Report result.        
@@ -1688,6 +1700,10 @@ def leave_taken_delete(employee_id, taken_id):
     else:
         # Marked for deletion
         db.session.delete(obj)
+
+        # Update parante table data
+        parent_obj.leave_taken -= obj.delta()
+        parent_obj.leave_balance = parent_obj.leave_days - parent_obj.leave_taken
 
         # Commit changes to database
         db.session.commit()

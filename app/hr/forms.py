@@ -3,7 +3,7 @@ from wtforms import Form, fields
 from wtforms.validators import ValidationError, InputRequired, Email
 import datetime
 
-from .models import Department, Job, Job_Terms, Job_Status, Title, Gender, Marital, Leave_Type, Leave_Taken
+from .models import Department, Job, Job_Terms, Job_Status, Title, Gender, Marital, Leave_Type, Leave_Balance, Leave_Taken
 from ..admin.models import Country
 from .. import db
 
@@ -69,22 +69,6 @@ def leave_type_duplicate(form, field):
     if obj is not None:
         raise ValidationError('Lease type already exists')
     
-
-# Validate leave taken for exceeding leave days
-def leave_taken_exceeds(form, field):
-    sum = 0
-    # Get data and sum fields
-    leaves_taken = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.balance_id == 2)).scalars().all()
-    sum = 0
-    for i in leaves_taken:
-        sum += i.days()
-
-    print(leaves_taken[0].leave_balance.leave_days)
-
-    if sum > leaves_taken[0].leave_balance.leave_days:
-        raise ValidationError(f'Set period exceeds {int(leaves_taken[0].leave_balance.leave_days)} leave days')
-
-
 # ------------------------------------------------
 #    Data collection and Processing
 # ------------------------------------------------
@@ -267,16 +251,21 @@ class Leave_BalanceForm(FlaskForm):
     expiry_date = fields.DateField(label='Expiry date', validators=[InputRequired()], description="Expiry date",
     render_kw={'class': 'field-data', 'autofocus': ""})
 
-
 # Leave taken form attributes
 class Leave_TakenForm(FlaskForm):
     start_date = fields.DateField(label='Start date', validators=[InputRequired()], description="Start date",
     render_kw={'class': 'field-data', 'autofocus': ""})
     end_date = fields.DateField(label='End date', validators=[InputRequired()], description="End date",
     render_kw={'class': 'field-data', 'autofocus': ""})
+    remaining = fields.DecimalField(label='remaining')
 
     # Validate for end date less than start date
     def validate_end_date(form, field):
-        if field.data < form.start_date.data:
-            raise ValidationError("End date must not be earlier than start date.")
+        # Calculate timespan
+        delta = form.end_date.data - form.start_date.data
+
+        if form.end_date.data < form.start_date.data:
+            raise ValidationError("End date must be greater than start date.")
+        elif form.remaining.data <= delta.days:
+            raise ValidationError(f"Leave time exceeded by {int(delta.days + 1 - form.remaining.data)} day(s).")
 

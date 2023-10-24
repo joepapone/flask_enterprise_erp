@@ -259,7 +259,7 @@ class Leave_Balance(db.Model):
     employee = db.relationship(Employee, foreign_keys=[employee_id])
     leave_type = db.relationship(Leave_Type, foreign_keys=[type_id])
 
-    def curr_balance(self):
+    def leave_remaining(self):
         self.leave_balance = self.leave_days - self.leave_taken
         return (self.leave_balance)
       
@@ -268,8 +268,6 @@ class Leave_Balance(db.Model):
         
     def __repr__(self):
         return f'Leave balance ({self.balance_id})'
-
-
 
 # Leave taken data-model
 class Leave_Taken(db.Model):
@@ -286,14 +284,13 @@ class Leave_Taken(db.Model):
     employee = db.relationship(Employee, foreign_keys=[employee_id])
     leave_balance = db.relationship(Leave_Balance, foreign_keys=[balance_id])
 
-    def days(self):
-        count = self.end_date - self.start_date
-        return count.days
+    def delta(self):
+        delta = self.end_date - self.start_date
+        return delta.days + 1
       
     def get_id(self):
         return (self.taken_id)
         
     def __repr__(self):
         return f'Leave taken ({self.balance_id})'
-
 

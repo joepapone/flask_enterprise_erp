@@ -658,11 +658,18 @@ html {
 .sheet-col-icon {
   float: right;
   width: 30px;
-  margin: 4px;
+  margin: 4px
 }
 
-.sheet-icon {
-  padding: 1px;
+.sheet-col-sub-header {
+  float: left;
+  padding-left: 0px;
+  width: 70%;
+}
+
+.sheet-col-sub-icon {
+  float: right;
+  width: 30px;
 }
 
 .sheet-row {
@@ -699,7 +706,12 @@ html {
   float: left;
   width: 60%;
   padding-right: 5px;
+}
 
+.sheet-sub-data-col {
+  float: left;
+  width: 80%;
+  padding-right: 5px;
 }
 
 .sheet-list-col {
@@ -718,11 +730,11 @@ html {
 .sheet-icon-col {
   float: left;
   width: 30px;
-  padding-right: 5px;
 }
 
 .sheet-icon-col .icon {
-  margin: 5px;
+  margin-top: 5px;
+  margin-left: 6px;
 }
 
 .sheet-label-text {
