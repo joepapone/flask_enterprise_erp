@@ -18,69 +18,14 @@
         <form action="" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <div class="form-container">
-                <div class="form-row {% if form.title_id.errors %}error{% endif %}">
+                <div class="form-row {% if form.status_id.errors %}error{% endif %}">
                     <div class="label-col">
-                        <label class="field-label" for="title_id">{{ form.title_id.label }}</label>
+                        <label class="field-label" for="status_id">{{ form.status_id.label }}</label>
                     </div>
                     <div class="input-col">
-                        {{ form.title_id }}
-                        {%- for error in form.title_id.errors %}
-                        {%- if form.title_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                        {%- endfor %}
-                    </div>
-                </div>
-                <div class="form-row {% if form.employee_name.errors %}error{% endif %}">
-                    <div class="label-col">
-                        <label class="field-label" for="employee_name">{{ form.employee_name.label }}</label>
-                    </div>
-                    <div class="input-col">
-                        {{ form.employee_name }}
-                        {%- for error in form.employee_name.errors %}
-                        {%- if form.employee_name.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                        {%- endfor %}
-                    </div>
-                </div>
-                <div class="form-row {% if form.employee_surname.errors %}error{% endif %}">
-                    <div class="label-col">
-                        <label class="field-label" for="employee_surname">{{ form.employee_surname.label }}</label>
-                    </div>
-                    <div class="input-col">
-                        {{ form.employee_surname }}
-                        {%- for error in form.employee_surname.errors %}
-                        {%- if form.employee_surname.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                        {%- endfor %}
-                    </div>
-                </div>
-                <div class="form-row {% if form.birthdate.errors %}error{% endif %}">
-                    <div class="label-col">
-                        <label class="field-label" for="description">{{ form.birthdate.label }}</label>
-                    </div>
-                    <div class="input-col">
-                        {{ form.birthdate }}
-                        {%- for error in form.birthdate.errors %}
-                        {%- if form.birthdate.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                        {%- endfor %}
-                    </div>
-                </div>
-                <div class="form-row {% if form.gender_id.errors %}error{% endif %}">
-                    <div class="label-col">
-                        <label class="field-label" for="gender_id">{{ form.gender_id.label }}</label>
-                    </div>
-                    <div class="input-col">
-                        {{ form.gender_id }}
-                        {%- for error in form.gender_id.errors %}
-                        {%- if form.gender_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                        {%- endfor %}
-                    </div>
-                </div>
-                <div class="form-row {% if form.marital_id.errors %}error{% endif %}">
-                    <div class="label-col">
-                        <label class="field-label" for="title">{{ form.marital_id.label }}</label>
-                    </div>
-                    <div class="input-col">
-                        {{ form.marital_id }}
-                        {%- for error in form.marital_id.errors %}
-                        {%- if form.marital_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {{ form.status_id }}
+                        {%- for error in form.status_id.errors %}
+                        {%- if form.status_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>

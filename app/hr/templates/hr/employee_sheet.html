@@ -1,4 +1,4 @@
-{% extends 'home/base.html' %}
+{% extends 'home/base.html' %}j
     {% block content %}
     <div class="col-10 col-s-10">
         {%- for message in get_flashed_messages() %}
@@ -21,18 +21,84 @@
                     <div class="sheet-col-header">
                         <b>General information</b>
                     </div>
+                    {%- if employee_info|length == 0 %}
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.employee_info_add', employee_id=employee_id) }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add employee information</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                    {%- endif %}
                 </div>
+                {%- for item in employee_info %}
                 <div class="sheet-row">
                     <div class="sheet-core-data-col">
-                        {%- for item in data_list %}
                         <div class="sheet-row">
-                            <div class="sheet-label-1-col">
+                            <div class="sheet-label-col">
                                 <div class="sheet-label-text"><b>Name</b></div>
+                            </div>
+                            <div class="sheet-icon-col">
+                                <div class="tooltip">
+                                    <span class="tooltiptext">Delete employee information</span>
+                                    <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_citizen{{ item.info_id }}" 
+                                    value="{{ url_for('hr.employee_info_delete', employee_id=employee_id, info_id=item.info_id) }}" 
+                                    onclick="DeleteFunction('delete_citizen{{ item.info_id }}', 'employee information')">
+                                </div>
                             </div>
                             <div class="sheet-data-col">
                                 <div class="sheet-data-text">
-                                    <a class="data-link" href="{{ url_for('hr.employee_edit', employee_id=employee_id) }}">
-                                        <div>{{ item.title.title_name }} {{ item.employee_name }} {{ item.employee_surname }}</div>
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.title.title }} {{ item.given_name }} {{ item.surname }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>Passport Nº</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.passport_no }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>ID Card Nº</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.id_card_no }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>Nationality</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.nationality }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>Place of birth</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.place_of_birth.country_name }}</div>
                                     </a>
                                 </div>
                             </div>
@@ -42,7 +108,11 @@
                                 <div class="sheet-label-text"><b>Birthdate</b></div>
                             </div>
                             <div class="sheet-data-col">
-                                <div class="sheet-data-text">{{ item.birthdate }}</div>
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.birthdate }}</div>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div class="sheet-row">
@@ -50,7 +120,11 @@
                                 <div class="sheet-label-text"><b>Gender</b></div>
                             </div>
                             <div class="sheet-data-col">
-                                <div class="sheet-data-text">{{ item.gender.gender }}</div>
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.gender.gender }}</div>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                         <div class="sheet-row">
@@ -58,16 +132,57 @@
                                 <div class="sheet-label-text"><b>Marital status</b></div>
                             </div>
                             <div class="sheet-data-col">
-                                <div class="sheet-data-text">{{ item.marital.marital_status }}</div>
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.marital.marital_status }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>Tax Identification Nº</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.tin }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>Social Security Nº</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.ssn }}</div>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="sheet-row">
+                            <div class="sheet-label-1-col">
+                                <div class="sheet-label-text"><b>Bank Account Nº</b></div>
+                            </div>
+                            <div class="sheet-data-col">
+                                <div class="sheet-data-text">
+                                    <a class="data-link" href="{{ url_for('hr.employee_info_edit', employee_id=employee_id, info_id=item.info_id) }}">
+                                        <div>{{ item.iban }}</div>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
                     <div class="sheet-image-col">
                         <img src= "{{ url_for('static', filename='icons/user.png') }}" width="150">
                     </div>
-                    {%- endfor %}
                 </div>
+                {%- endfor %}
             </div>
+
             <div class="sheet-container">
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
@@ -98,7 +213,7 @@
                     <div class="sheet-data-col">
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.email_edit', employee_id=employee_id, email_id=item.email_id) }}">
-                                <div>{{ item.email }} - {{ item.label }}</div>
+                                <div>{{ item.email }} ({{ item.label }})</div>
                             </a>
                         </div>
                     </div>
@@ -133,7 +248,7 @@
                     <div class="sheet-data-col">
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.phone_edit', employee_id=employee_id, phone_id=item.phone_id) }}">
-                                <div>({{ item.dial_code }}) {{ item.phone_number }} - {{ item.label }}</div>
+                                <div>({{ item.dial_code }}) {{ item.phone_number }} ({{ item.label }})</div>
                             </a>
                         </div>
                     </div>
@@ -179,8 +294,11 @@
                 </div>
                 {%- endfor %}
             </div>
+
         </div>
+
         <div class="col-6 col-s-6">
+
             <div class="sheet-container">
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
@@ -216,7 +334,7 @@
                                 <div>{{ item.job_terms.terms }}</div>
                             </a>
                             <a class="data-link" href="{{ url_for('hr.job_history_complete', employee_id=employee_id, job_history_id=item.job_history_id) }}">
-                                <div>{{ item.job_status.status_title }}</div>
+                                <div>{{ item.job_status.title }}</div>
                                 <div>{{ item.start_date}} -> {%- if item.end_date == None %} Now {%- else %} {{ item.end_date}} {%- endif %}</div>
                             </a>
                         </div>
@@ -224,6 +342,7 @@
                 </div>
                 {%- endfor %}
             </div>
+
             <div class="sheet-container">
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
@@ -298,6 +417,7 @@
                 </div>
                 {%- endfor %}
             </div>
+
         </div>
     </div>
     <div id="id01" class="modal">

@@ -680,13 +680,6 @@ html {
 
 .sheet-core-data-col {
   float: left;
-  width: 78%;
-  margin-right: 5px;
-}
-
-.sheet-label-1-col {
-  float: left;
-  width: 37%;
   margin-right: 5px;
 }
 
@@ -698,13 +691,19 @@ html {
 
 .sheet-label-col {
   float: left;
-  width: 25%;
+  width: 150px;
+  margin-right: 5px;
+}
+
+.sheet-label-1-col {
+  float: left;
+  width: 180px;
   margin-right: 5px;
 }
 
 .sheet-data-col {
   float: left;
-  width: 60%;
+  max-width: 100%;
   padding-right: 5px;
 }
 
@@ -747,6 +746,21 @@ html {
   padding: 5px;
   font-size: 17px;
   color: rgb(60, 60, 60);
+}
+
+[class*="sheet-core-data-col"] {
+  /* For mobile phones: */
+  width: 100%;
+}
+
+@media only screen and (min-width: 600px) {
+  /* For tablets: */
+  .sheet-core-data-col {width: 100%;}
+}
+
+@media only screen and (min-width: 768px) {
+  /* For desktop: */
+  .sheet-core-data-col {width: 78%;}
 }
 
 .data-link:link, .data-link:visited {

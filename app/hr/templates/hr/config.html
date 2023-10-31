@@ -119,7 +119,7 @@
                     <div class="sheet-list-col">
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.status_edit', employee_id=employee_id, status_id=item.status_id) }}">
-                                <div>{{loop.index}} - {{ item.status_title }}</div>
+                                <div>{{loop.index}} - {{ item.title }}</div>
                             </a>
                         </div>
                     </div>
@@ -193,7 +193,7 @@
                     <div class="sheet-list-col">
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.title_edit', employee_id=employee_id, title_id=item.title_id) }}">
-                                <div>{{loop.index}} - {{ item.title_name }}</div>
+                                <div>{{loop.index}} - {{ item.title }}</div>
                             </a>
                         </div>
                     </div>

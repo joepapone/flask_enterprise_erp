@@ -25,8 +25,8 @@ DROP TABLE IF EXISTS job_terms;
 DROP TABLE IF EXISTS job_status;
 DROP TABLE IF EXISTS job;
 DROP TABLE IF EXISTS department;
+DROP TABLE IF EXISTS leave_taken;
 DROP TABLE IF EXISTS leave_balance;
-DROP TABLE IF EXISTS leave_record;
 DROP TABLE IF EXISTS leave_type;
 DROP TABLE IF EXISTS employee_title;
 DROP TABLE IF EXISTS employee_gender;
@@ -78,8 +78,6 @@ CREATE TABLE user (
     FOREIGN KEY (role_id) REFERENCES role(role_id) ON DELETE CASCADE
 );
 
-
--- Admin user
 INSERT INTO 
     user (user_name,role_id,email,_salt,_hash) 
 VALUES 
@@ -88,6 +86,7 @@ VALUES
     ('Jessica Baker', 12, 'jessica.baker@gmail.com', X'{user_salt}', X'{user_password}')
 ;
 COMMIT;
+
 
 -- Value Added Tax (VAT)
 CREATE TABLE tax(
@@ -126,7 +125,9 @@ INSERT INTO
     currency (currency_name, currency_code, currency_no)
 VALUES 
     ('Euro', 'EUR', 978),
-    ('Pound Sterling', 'GPB', 826)
+    ('Pound Sterling', 'GPB', 826),
+    ('United States Dollar', 'USD', 840),
+    ('South African Rand', 'ZAR', 710)
 ;
 COMMIT;
 
@@ -148,7 +149,9 @@ INSERT INTO
 VALUES 
     ('Portugal', 620, 'PT', '+351', 1),
     ('United Kingdom', 826, 'GB', '+44', 2),
-    ('Netherlands', 528, 'NL', '+31', 1)
+    ('Netherlands', 528, 'NL', '+31', 1),
+    ('United States of America', 840, 'US', '+1', 3),
+    ('South Africa', 710, 'ZA', '+27', 4)
 ;
 COMMIT;
 
@@ -223,12 +226,12 @@ COMMIT;
 -- Job Status
 CREATE TABLE job_status (
     status_id INT NOT NULL AUTO_INCREMENT,
-    status_title VARCHAR(50),
+    title VARCHAR(50),
     PRIMARY KEY (status_id)
 );
 
 INSERT INTO 
-    job_status (status_title)
+    job_status (title)
 VALUES 
     ('Active'),
     ('Promoted'),
@@ -241,15 +244,54 @@ VALUES
 COMMIT;
 
 
+-- Employee Status
+CREATE TABLE employee_status (
+    status_id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(50),
+    PRIMARY KEY (status_id)
+);
+
+INSERT INTO 
+    employee_status (title)
+VALUES 
+    ('Active'),
+    ('Inactive')
+;
+COMMIT;
+
+
+-- Employee
+CREATE TABLE employee(
+    employee_id INT NOT NULL AUTO_INCREMENT,
+    status_id INT DEFAULT 2 NOT NULL,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (employee_id),
+    FOREIGN KEY (status_id) REFERENCES employee_status(status_id)
+);
+
+INSERT INTO 
+    employee (status_id)
+VALUES 
+    (1),
+    (1),
+    (1),
+    (1),
+    (2)
+;
+COMMIT;
+
+
 -- Employee title
 CREATE TABLE employee_title (
     title_id INT NOT NULL AUTO_INCREMENT,
-    title_name VARCHAR(10),
+    title VARCHAR(10),
     PRIMARY KEY (title_id)
 );
 
-INSERT INTO employee_title (title_name)
-VALUES ('Mr.'),
+INSERT INTO employee_title (title)
+VALUES 
+    ('Mr.'),
 	('Mrs.'),
 	('Ms.'),
 	('Dr.'),
@@ -290,62 +332,41 @@ VALUES ('Single'),
 COMMIT;
 
 
--- Employee
-CREATE TABLE employee(
-    employee_id INT NOT NULL AUTO_INCREMENT,
+-- Employee info (IT governance)
+CREATE TABLE employee_info(
+    info_id INT NOT NULL AUTO_INCREMENT,
     title_id INT NOT NULL,
-    employee_name VARCHAR(50),
-    employee_surname VARCHAR(50),
+    given_name VARCHAR(50),
+    surname VARCHAR(50),
+    passport_no VARCHAR(50),
+    id_card_no VARCHAR(50),
+    nationality VARCHAR(50),
+    place_of_birth_id INT NOT NULL,
     birthdate DATE NOT NULL,
     gender_id INT NOT NULL,
     marital_id INT NOT NULL,
+    tin VARCHAR(50),
+    ssn VARCHAR(50),
+    iban VARCHAR(50),
+    employee_id INT NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (employee_id),
+    PRIMARY KEY (info_id),
     FOREIGN KEY (title_id) REFERENCES employee_title(title_id),
+    FOREIGN KEY (place_of_birth_id) REFERENCES country(country_id),
     FOREIGN KEY (gender_id) REFERENCES employee_gender(gender_id),
-    FOREIGN KEY (marital_id) REFERENCES employee_marital(marital_id)
+    FOREIGN KEY (marital_id) REFERENCES employee_marital(marital_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
 );
 
 INSERT INTO 
-    employee (title_id, employee_name, employee_surname, birthdate, gender_id, marital_id)
+    employee_info (employee_id, title_id, given_name, surname, passport_no, id_card_no, nationality, place_of_birth_id, birthdate, gender_id, marital_id, tin, ssn, iban)
 VALUES 
-    (1, 'John', 'Doe', '1983-10-08', 1, 2),
-    (2, 'Janet', 'Smith', '1985-12-27', 2, 1),
-    (2, 'Margaret', 'Thatcher', '1975-12-27', 1, 2),
-    (1, 'Jack', 'Daniels', '1965-12-27', 1, 5),
-    (1, 'Joe', 'Bagger', '1955-12-27', 2, 4)
-;
-COMMIT;
-
-
--- Employee job history
-CREATE TABLE job_history(
-    job_history_id INT NOT NULL AUTO_INCREMENT,
-    employee_id INT NOT NULL,
-    department_id INT NOT NULL,
-    job_id INT NOT NULL,
-    terms_id INT NOT NULL,
-    status_id INT DEFAULT 1 NOT NULL,
-    start_date DATE NOT NULL,
-    end_date DATE,
-    PRIMARY KEY (job_history_id),
-    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
-    FOREIGN KEY (department_id) REFERENCES department(department_id),
-    FOREIGN KEY (job_id) REFERENCES job(job_id),
-    FOREIGN KEY (terms_id) REFERENCES job_terms(terms_id),
-    FOREIGN KEY (status_id) REFERENCES job_status(status_id)
-);
-
-INSERT INTO 
-    job_history (employee_id, department_id, job_id, status_id, terms_id, start_date, end_date)
-VALUES 
-    (1, 1, 1, 1, 1, '2020-12-10', NULL),
-    (2, 3, 2, 1, 1, '2020-05-05', NULL),
-    (3, 3, 3, 1, 1, '2023-01-01', NULL),
-    (4, 4, 5, 2, 1, '2022-06-04', '2022-12-31'),
-    (4, 4, 4, 1, 1, '2023-01-01', NULL),
-    (5, 5, 6, 1, 1, '2021-02-14', NULL)
+    (1, 1, 'John', 'Doe', 'A123456', 'A123456708', 'Portuguese', 1, '1983-10-08', 1, 2, 'A123456789', 'A987654321', 'PT50 0002 0123 1234 5678 9015 4'),
+    (2, 2, 'Janet', 'Smith', 'B123456', 'B123456708', 'British', 2, '1985-12-27', 2, 1, 'B123456789', 'B987654321', 'PT50 0002 0123 1234 5678 9015 4'),
+    (3, 2, 'Margaret', 'Thatcher', 'C123456', 'C123456708', 'British', 2, '1975-12-27', 1, 2, 'C123456789', 'C987654321', 'PT50 0002 0123 1234 5678 9015 4'),
+    (4, 1, 'Jack', 'Daniels', 'D123456', 'D123456708', 'American', 4, '1965-12-27', 1, 5, 'D123456789', 'D987654321', 'PT50 0002 0123 1234 5678 9015 4'),
+    (5, 1, 'Joe', 'Bagger', 'E123456', 'E123456708', 'South African', 5, '1955-12-27', 2, 4, 'E123456789', 'E987654321', 'PT50 0002 0123 1234 5678 9015 4')
 ;
 COMMIT;
 
@@ -367,9 +388,9 @@ INSERT INTO
 VALUES 
     (1, 'john.doe@gmail.com', 'Work'),
     (2, 'janet.smith@gmail.com', 'Home'),
-    (3, 'roger.smith@gmail.com', 'Mobile'),
+    (3, 'margaret.thatcher@gmail.com', 'Home'),
     (4, 'jack.daniels@gmail.com', 'Work'),
-    (5, 'mary.popens@gmail.com', 'Home')
+    (5, 'joe.bagger@gmail.com', 'Home')
 ;
 COMMIT;
 
@@ -430,6 +451,37 @@ VALUES
 COMMIT;
 
 
+-- Employee job history
+CREATE TABLE job_history(
+    job_history_id INT NOT NULL AUTO_INCREMENT,
+    employee_id INT NOT NULL,
+    department_id INT NOT NULL,
+    job_id INT NOT NULL,
+    terms_id INT NOT NULL,
+    status_id INT DEFAULT 1 NOT NULL,
+    start_date DATE NOT NULL,
+    end_date DATE,
+    PRIMARY KEY (job_history_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
+    FOREIGN KEY (department_id) REFERENCES department(department_id),
+    FOREIGN KEY (job_id) REFERENCES job(job_id),
+    FOREIGN KEY (terms_id) REFERENCES job_terms(terms_id),
+    FOREIGN KEY (status_id) REFERENCES job_status(status_id)
+);
+
+INSERT INTO 
+    job_history (employee_id, department_id, job_id, status_id, terms_id, start_date, end_date)
+VALUES 
+    (1, 1, 1, 1, 1, '2020-12-10', NULL),
+    (2, 3, 2, 1, 1, '2020-05-05', NULL),
+    (3, 3, 3, 1, 1, '2023-01-01', NULL),
+    (4, 4, 5, 2, 1, '2022-06-04', '2022-12-31'),
+    (4, 4, 4, 1, 1, '2023-01-01', NULL),
+    (5, 5, 6, 1, 1, '2021-02-14', NULL)
+;
+COMMIT;
+
+
 -- Employee leave type
 CREATE TABLE leave_type (
     type_id INT NOT NULL AUTO_INCREMENT,
@@ -451,41 +503,41 @@ COMMIT;
 -- Employee leave balance
 CREATE TABLE leave_balance (
     balance_id INT NOT NULL AUTO_INCREMENT,
-    employee_id INT,
-    balance_year YEAR,
-    type_id INT,
-    leave_balance DECIMAL(5,2),
-    leave_taken DECIMAL(5,2),
-    leave_remaining DECIMAL(5,2),
+    employee_id INT NOT NULL,
+    type_id INT NOT NULL,
+    leave_days DECIMAL(5,2) DEFAULT 0.00,
+    leave_taken DECIMAL(5,2) DEFAULT 0.00,
+    leave_balance DECIMAL(5,2) DEFAULT 0.00,
+    expiry_date DATETIME,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (balance_id),
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
     FOREIGN KEY (type_id) REFERENCES leave_type(type_id)
 );
 
-INSERT INTO leave_balance (employee_id, balance_year, type_id, leave_balance, leave_taken, leave_remaining)
-VALUES (1, '2023', 1, '23.00', '3.00', '20.00'),
-	(1, '2023', 4, '14.00', '0.00', '14.00')
+INSERT INTO leave_balance (employee_id, type_id, leave_days, leave_taken, leave_balance, expiry_date)
+VALUES (1, 1, 23.00, 3.00, 20.00, '2023-12-31'),
+	(1, 4, 14.00, 0.00, 14.00, '2023-12-31')
 ;
 COMMIT;
 
 
--- Employee leave record
-CREATE TABLE leave_record (
-    record_id INT NOT NULL AUTO_INCREMENT,
-    employee_id INT,
-    type_id INT,
+-- Employee leave taken
+CREATE TABLE leave_taken (
+    taken_id INT NOT NULL AUTO_INCREMENT,
+    employee_id INT NOT NULL,
+    balance_id INT NOT NULL,
     start_date DATETIME,
     end_date DATETIME,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (record_id),
+    PRIMARY KEY (taken_id),
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE,
-    FOREIGN KEY (type_id) REFERENCES leave_type(type_id)
+    FOREIGN KEY (balance_id) REFERENCES leave_balance(balance_id) ON DELETE CASCADE
 );
 
-INSERT INTO leave_record (employee_id, type_id, start_date, end_date)
+INSERT INTO leave_taken (employee_id, balance_id, start_date, end_date)
 VALUES (1, 1, '2023-02-01', '2023-02-05'),
-(2, 3, '2023-01-15', '2023-04-15')
+(1, 2, '2023-01-15', '2023-04-15')
 ;
 COMMIT;
 

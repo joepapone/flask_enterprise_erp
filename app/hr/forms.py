@@ -3,7 +3,7 @@ from wtforms import Form, fields
 from wtforms.validators import ValidationError, InputRequired, Email
 import datetime
 
-from .models import Department, Job, Job_Terms, Job_Status, Title, Gender, Marital, Leave_Type, Leave_Balance, Leave_Taken
+from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Employee, Title, Gender, Marital, Leave_Type, Leave_Balance, Leave_Taken
 from ..admin.models import Country
 from .. import db
 
@@ -41,13 +41,13 @@ def terms_duplicate(form, field):
 
 # Validate status for duplicates
 def status_duplicate(form, field):
-    item = Job_Status.query.filter(Job_Status.status_title == field.data).first()
+    item = Job_Status.query.filter(Job_Status.title == field.data).first()
     if item is not None:
         raise ValidationError('Status title already exists')
 
 # Validate title for duplicates
 def title_duplicate(form, field):
-    obj = Gender.query.filter(Title.title_name == field.data).first()
+    obj = Title.query.filter(Title.title == field.data).first()
     if obj is not None:
         raise ValidationError('Title already exists')
 
@@ -73,9 +73,34 @@ def leave_type_duplicate(form, field):
 #    Data collection and Processing
 # ------------------------------------------------
 
+# Get departments to populate select field
+def get_departments():
+    item_list = [(item.department_id, item.department_name) for item in db.session.scalars(db.select(Department)).all()]
+    # Add null tuple item to first position of list
+    item_list.insert(0, (0,''))
+
+    return item_list
+
+# Get terms to populate select field
+def get_terms():
+    item_list = [(item.terms_id, item.terms) for item in db.session.scalars(db.select(Job_Terms)).all()]
+    return item_list
+
+# Get job status to populate select field
+def get_job_status():
+    item_list = [(item.status_id, item.title) for item in db.session.scalars(db.select(Job_Status)).all()]
+    # Remove first item from list
+    item_list.pop(0)
+    return item_list
+
+# Get employee status to populate select field
+def get_employee_status():
+    item_list = [(item.status_id, item.title) for item in db.session.scalars(db.select(Employee_Status)).all()]
+    return item_list
+
 # Get title to populate select field
 def get_title():
-    item_list = [(item.title_id, item.title_name) for item in db.session.scalars(db.select(Title)).all()]
+    item_list = [(item.title_id, item.title) for item in db.session.scalars(db.select(Title)).all()]
     return item_list
 
 # Get gender to populate select field
@@ -99,26 +124,6 @@ def get_years():
     item_list = [(datetime.datetime(year, 1, 1)) for year in years]
     return item_list
 
-# Get departments to populate select field
-def get_departments():
-    item_list = [(item.department_id, item.department_name) for item in db.session.scalars(db.select(Department)).all()]
-    # Add null tuple item to first position of list
-    item_list.insert(0, (0,''))
-
-    return item_list
-
-# Get terms to populate select field
-def get_terms():
-    item_list = [(item.terms_id, item.terms) for item in db.session.scalars(db.select(Job_Terms)).all()]
-    return item_list
-
-# Get status to populate select field
-def get_status():
-    item_list = [(item.status_id, item.status_title) for item in db.session.scalars(db.select(Job_Status)).all()]
-    # Remove first item from list
-    item_list.pop(0)
-    return item_list
-
 # Get dial code to populate select field
 def get_dial_code():
     item_list = [(item.dial_code) for item in db.session.scalars(db.select(Country)).all()]
@@ -133,41 +138,6 @@ def get_country():
 # ------------------------------------------------
 #    Flask Forms
 # ------------------------------------------------
-
-# Title form attributes
-class TitleForm(FlaskForm):
-    title_name = fields.StringField(label='Title', validators=[length(min=3, max=50), title_duplicate], description='Title',
-    render_kw={'class': 'field-data', 'placeholder': 'Title..', 'autofocus': ''})
-
-# Gender form attributes
-class GenderForm(FlaskForm):
-    gender = fields.StringField(label='Gender', validators=[length(min=3, max=50), gender_duplicate], description='Gender',
-    render_kw={'class': 'field-data', 'placeholder': 'Gender..', 'autofocus': ''})
-
-# Marital form attributes
-class MaritalForm(FlaskForm):
-    marital_status = fields.StringField(label='Marital status', validators=[length(min=3, max=50), marital_duplicate], description='Marital status',
-    render_kw={'class': 'field-data', 'placeholder': 'Marital status..', 'autofocus': ''})
-
-# Leave_Type form attributes
-class Leave_TypeForm(FlaskForm):
-    type_title = fields.StringField(label='Leave type', validators=[length(min=3, max=50), leave_type_duplicate], description='Leave type',
-    render_kw={'class': 'field-data', 'placeholder': 'Leave type..', 'autofocus': ''})
-
-# Employee form attributes
-class EmployeeForm(FlaskForm):
-    title_id = fields.SelectField(label='Title', choices=get_title, validators=[InputRequired()], description='Title',
-    render_kw={'class': 'field-data', 'autofocus': ''})
-    employee_name = fields.StringField(label='Name', validators=[length(min=3, max=50)], description='Name',
-    render_kw={'class': 'field-data', 'placeholder': 'Name..', 'autofocus': ''})
-    employee_surname = fields.StringField(label='Surname', validators=[length(min=3, max=50)], description='Surname',
-    render_kw={'class': 'field-data', 'placeholder': 'Surname..', 'autofocus': ''})
-    birthdate = fields.DateField(label='Birthdate', validators=[InputRequired()], description='Birthdate',
-    render_kw={'class': 'field-data', 'autofocus': ''})
-    gender_id = fields.SelectField(label='Gender', choices=get_gender, validators=[InputRequired()], description='Gender',
-    render_kw={'class': 'field-data', 'autofocus': ''})
-    marital_id = fields.SelectField(label='Marital status', choices=get_marital,validators=[InputRequired()], description='Maritial',
-    render_kw={'class': 'field-data', 'autofocus': ''})
 
 # Department form attributes
 class DepartmentForm(FlaskForm):
@@ -190,8 +160,62 @@ class Job_TermsForm(FlaskForm):
 
 # Job status form attributes
 class Job_StatusForm(FlaskForm):
-    status_title = fields.StringField(label='Status', validators=[length(min=3, max=50), status_duplicate], description='Status',
+    title = fields.StringField(label='Status', validators=[length(min=3, max=50), status_duplicate], description='Status',
     render_kw={'class': 'field-data', 'placeholder': 'Status..', 'autofocus': ''})
+
+# Employee form attributes
+class EmployeeForm(FlaskForm):
+    status_id = fields.SelectField(label='Employee status', choices=get_employee_status, validators=[InputRequired()], description='Employee status',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+
+# Title form attributes
+class TitleForm(FlaskForm):
+    title = fields.StringField(label='Title', validators=[length(min=3, max=50), title_duplicate], description='Title',
+    render_kw={'class': 'field-data', 'placeholder': 'Title..', 'autofocus': ''})
+
+# Gender form attributes
+class GenderForm(FlaskForm):
+    gender = fields.StringField(label='Gender', validators=[length(min=3, max=50), gender_duplicate], description='Gender',
+    render_kw={'class': 'field-data', 'placeholder': 'Gender..', 'autofocus': ''})
+
+# Marital form attributes
+class MaritalForm(FlaskForm):
+    marital_status = fields.StringField(label='Marital status', validators=[length(min=3, max=50), marital_duplicate], description='Marital status',
+    render_kw={'class': 'field-data', 'placeholder': 'Marital status..', 'autofocus': ''})
+
+# Leave_Type form attributes
+class Leave_TypeForm(FlaskForm):
+    type_title = fields.StringField(label='Leave type', validators=[length(min=3, max=50), leave_type_duplicate], description='Leave type',
+    render_kw={'class': 'field-data', 'placeholder': 'Leave type..', 'autofocus': ''})
+
+# Employee info form attributes
+class Employee_InfoForm(FlaskForm):
+    title_id = fields.SelectField(label='Title', choices=get_title, validators=[InputRequired()], description='Title',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    given_name = fields.StringField(label='Given Name', validators=[length(min=3, max=50)], description='Given Name',
+    render_kw={'class': 'field-data', 'placeholder': 'Name..', 'autofocus': ''})
+    surname = fields.StringField(label='Surname', validators=[length(min=3, max=50)], description='Surname',
+    render_kw={'class': 'field-data', 'placeholder': 'Surname..', 'autofocus': ''})
+    passport_no = fields.StringField(label='Passport Nº', validators=[length(min=3, max=50)], description='Passport Nº',
+    render_kw={'class': 'field-data', 'placeholder': 'Passport Nº..', 'autofocus': ''})
+    id_card_no = fields.StringField(label='ID Card Nº', validators=[length(min=3, max=50)], description='ID Card Nº',
+    render_kw={'class': 'field-data', 'placeholder': 'ID Card Nº..', 'autofocus': ''})
+    nationality = fields.StringField(label='Nationality', validators=[length(min=2, max=50)], description='Nationality',
+    render_kw={'class': 'field-data', 'placeholder': 'Nationality..', 'autofocus': ''})
+    place_of_birth_id = fields.SelectField(label='Place of birth', choices=get_country,validators=[InputRequired()], description='Place of birth',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    birthdate = fields.DateField(label='Birthdate', validators=[InputRequired()], description='Birthdate',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    gender_id = fields.SelectField(label='Gender', choices=get_gender, validators=[InputRequired()], description='Gender',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    marital_id = fields.SelectField(label='Marital status', choices=get_marital,validators=[InputRequired()], description='Maritial',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    tin = fields.StringField(label='Tax Identification Nº', validators=[length(min=3, max=50)], description='Tax Identification Nº',
+    render_kw={'class': 'field-data', 'placeholder': 'Tax Identification Nº..', 'autofocus': ''})
+    ssn = fields.StringField(label='Social Security Nº', validators=[length(min=3, max=50)], description='Social Security Nº',                                 
+    render_kw={'class': 'field-data', 'placeholder': 'Social Security Nº..', 'autofocus': ''})
+    iban = fields.StringField(label='Bank Account Nº', validators=[length(min=3, max=50)], description='Bank Account Nº',                                 
+    render_kw={'class': 'field-data', 'placeholder': 'Bank Account Nº..', 'autofocus': ''})
 
 # Job history start form attributes
 class Job_History_StartForm(FlaskForm):
@@ -208,7 +232,7 @@ class Job_History_StartForm(FlaskForm):
 class Job_History_EndForm(FlaskForm):
     end_date = fields.DateField(label='End date', description='End date',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    status_id = fields.SelectField(label='Termination motive', choices=get_status, validators=[InputRequired()], description='Motive',
+    status_id = fields.SelectField(label='Termination motive', choices=get_job_status, validators=[InputRequired()], description='Motive',
     render_kw={'class': 'field-data', 'autofocus': ''})
 
 # Email form attributes

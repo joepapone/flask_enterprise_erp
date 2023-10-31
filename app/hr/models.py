@@ -3,86 +3,6 @@ from datetime import datetime
 from ..admin.models import Country
 
 
-# Title data-model
-class Title(db.Model):
-    # Table name
-    __tablename__ = 'employee_title'
-    # Main Fields
-    title_id = db.Column(db.Integer, primary_key=True) 
-    title_name = db.Column(db.String(50), unique=True)
-      
-    def get_id(self):
-        return (self.title_id)
-        
-    def __repr__(self):
-        return f'Title ({self.title_id}): {self.title_name}'
-
-# Gender data-model
-class Gender(db.Model):
-    # Table name
-    __tablename__ = 'employee_gender'
-    # Main Fields
-    gender_id = db.Column(db.Integer, primary_key=True) 
-    gender = db.Column(db.String(50), unique=True)
-      
-    def get_id(self):
-        return (self.gender_id)
-        
-    def __repr__(self):
-        return f'gender ({self.gender_id}): {self.gender}'
-
-# Marital data-model
-class Marital(db.Model):
-    # Table name
-    __tablename__ = 'employee_marital'
-    # Main Fields
-    marital_id = db.Column(db.Integer, primary_key=True) 
-    marital_status = db.Column(db.String(50), unique=True)
-      
-    def get_id(self):
-        return (self.marital_id)
-        
-    def __repr__(self):
-        return f'Marital ({self.marital_id}): {self.marital_status}'
-
-# Leave type data-model
-class Leave_Type(db.Model):
-    # Table name
-    __tablename__ = 'leave_type'
-    # Main Fields
-    type_id = db.Column(db.Integer, primary_key=True) 
-    type_title = db.Column(db.String(50), unique=True)
-      
-    def get_id(self):
-        return (self.type_id)
-        
-    def __repr__(self):
-        return f'Leave type ({self.type_id}): {self.type_title}'
-
-# Employee data-model
-class Employee(db.Model):
-    # Table name
-    __tablename__ = 'employee'
-    # Main Fields
-    employee_id = db.Column(db.Integer, primary_key=True)
-    title_id = db.Column(db.Integer, db.ForeignKey('employee_title.title_id'), nullable=False)
-    employee_name = db.Column(db.String(50))
-    employee_surname = db.Column(db.String(50))
-    gender_id = db.Column(db.Integer, db.ForeignKey('employee_gender.gender_id'), nullable=False)
-    marital_id = db.Column(db.Integer, db.ForeignKey('employee_marital.marital_id'), nullable=False)
-    birthdate= db.Column(db.Date, nullable=False)
-    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    # ForeignKeys
-    title = db.relationship(Title, foreign_keys=[title_id])
-    gender= db.relationship(Gender, foreign_keys=[gender_id])
-    marital = db.relationship(Marital, foreign_keys=[marital_id])
-      
-    def get_id(self):
-        return (self.employee_id)
-        
-    def __repr__(self):
-        return f'Employee ({self.employee_id}): {self.employee_name} {self.employee_surname}'
 
 # Department data-model
 class Department(db.Model):
@@ -97,7 +17,7 @@ class Department(db.Model):
     
     def __repr__(self):
         return f'Department: {self.department_name} ({self.department_id})'
-
+    
 # Job data-model
 class Job(db.Model):
     # Table name
@@ -138,39 +58,122 @@ class Job_Status(db.Model):
     __tablename__ = 'job_status'
     # Main Fields
     status_id = db.Column(db.Integer, primary_key=True) 
-    status_title = db.Column(db.String(50), unique=True)
+    title = db.Column(db.String(50), unique=True)
       
     def get_id(self):
         return (self.status_id)
         
     def __repr__(self):
-        return f'Status ({self.status_id}): {self.status_title}'
+        return f'Status ({self.status_id}): {self.title}'
 
-# Job history data-model
-class Job_History(db.Model):
+# Employee status data-model
+class Employee_Status(db.Model):
     # Table name
-    __tablename__ = 'job_history'
+    __tablename__ = 'employee_status'
     # Main Fields
-    job_history_id = db.Column(db.Integer, primary_key=True)
-    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
-    department_id = db.Column(db.Integer, db.ForeignKey('department.department_id'), nullable=False)
-    job_id = db.Column(db.Integer, db.ForeignKey('job.job_id', ondelete='RESTRICT'), nullable=False)
-    terms_id = db.Column(db.Integer, db.ForeignKey('job_terms.terms_id'), nullable=False)
-    status_id = db.Column(db.Integer, db.ForeignKey('job_status.status_id'), default=1, nullable=False)
-    start_date= db.Column(db.Date, nullable=False)
-    end_date= db.Column(db.Date, nullable=True)
-    # ForeignKeys
-    employee = db.relationship(Employee, foreign_keys=[employee_id])
-    department = db.relationship(Department, foreign_keys=[department_id])
-    job = db.relationship(Job, foreign_keys=[job_id])
-    job_terms = db.relationship(Job_Terms, foreign_keys=[terms_id])
-    job_status = db.relationship(Job_Status, foreign_keys=[status_id])
+    status_id = db.Column(db.Integer, primary_key=True) 
+    title = db.Column(db.String(50), unique=True)
       
     def get_id(self):
-        return (self.job_history_id)
-    
+        return (self.status_id)
+        
     def __repr__(self):
-        return f'Employee ({self.job_history_id}): {self.employee.employee_name} {self.employee.employee_surname}'
+        return f'Status ({self.status_id}): {self.title}'
+
+# Title data-model
+class Title(db.Model):
+    # Table name
+    __tablename__ = 'employee_title'
+    # Main Fields
+    title_id = db.Column(db.Integer, primary_key=True) 
+    title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.title_id)
+        
+    def __repr__(self):
+        return f'Title ({self.title_id}): {self.title}'
+
+# Gender data-model
+class Gender(db.Model):
+    # Table name
+    __tablename__ = 'employee_gender'
+    # Main Fields
+    gender_id = db.Column(db.Integer, primary_key=True) 
+    gender = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.gender_id)
+        
+    def __repr__(self):
+        return f'gender ({self.gender_id}): {self.gender}'
+
+# Marital data-model
+class Marital(db.Model):
+    # Table name
+    __tablename__ = 'employee_marital'
+    # Main Fields
+    marital_id = db.Column(db.Integer, primary_key=True) 
+    marital_status = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.marital_id)
+        
+    def __repr__(self):
+        return f'Marital ({self.marital_id}): {self.marital_status}'
+
+# Employee data-model
+class Employee(db.Model):
+    # Table name
+    __tablename__ = 'employee'
+    # Main Fields
+    employee_id = db.Column(db.Integer, primary_key=True)
+    status_id = db.Column(db.Integer, db.ForeignKey('employee_status.status_id'), default=1, nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    status = db.relationship(Employee_Status, foreign_keys=[status_id])
+      
+    def get_id(self):
+        return (self.employee_id)
+        
+    def __repr__(self):
+        return f'Employee ({self.employee_id}) - Status: {self.status.title}'
+
+# Employee information data-model
+class Employee_Info(db.Model):
+    # Table name
+    __tablename__ = 'employee_info'
+    # Main Fields
+    info_id = db.Column(db.Integer, primary_key=True)
+    title_id = db.Column(db.Integer, db.ForeignKey('employee_title.title_id'), nullable=False)
+    given_name = db.Column(db.String(50))
+    surname = db.Column(db.String(50))
+    passport_no = db.Column(db.String(50))
+    id_card_no = db.Column(db.String(50))
+    nationality = db.Column(db.String(100))
+    place_of_birth_id = db.Column(db.Integer, db.ForeignKey('country.country_id'), nullable=False)
+    birthdate= db.Column(db.Date, nullable=False)
+    gender_id = db.Column(db.Integer, db.ForeignKey('employee_gender.gender_id'), nullable=False)
+    marital_id = db.Column(db.Integer, db.ForeignKey('employee_marital.marital_id'), nullable=False)
+    tin = db.Column(db.String(50))
+    ssn = db.Column(db.String(50))
+    iban = db.Column(db.String(50))
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    title = db.relationship(Title, foreign_keys=[title_id])
+    place_of_birth = db.relationship(Country, foreign_keys=[place_of_birth_id])
+    gender= db.relationship(Gender, foreign_keys=[gender_id])
+    marital = db.relationship(Marital, foreign_keys=[marital_id])
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+      
+    def get_id(self):
+        return (self.info_id)
+        
+    def __repr__(self):
+        return f'Employee ({self.info_id}): {self.given_name} {self.surname}'
 
 # Email data-model
 class Email(db.Model):
@@ -241,6 +244,46 @@ class Address(db.Model):
             \n{self.postal_code} {self.city}\
             \n{self.state}\
             \n{self.country_id}'
+
+# Job history data-model
+class Job_History(db.Model):
+    # Table name
+    __tablename__ = 'job_history'
+    # Main Fields
+    job_history_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    department_id = db.Column(db.Integer, db.ForeignKey('department.department_id'), nullable=False)
+    job_id = db.Column(db.Integer, db.ForeignKey('job.job_id', ondelete='RESTRICT'), nullable=False)
+    terms_id = db.Column(db.Integer, db.ForeignKey('job_terms.terms_id'), nullable=False)
+    status_id = db.Column(db.Integer, db.ForeignKey('job_status.status_id'), default=1, nullable=False)
+    start_date= db.Column(db.Date, nullable=False)
+    end_date= db.Column(db.Date, nullable=True)
+    # ForeignKeys
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+    department = db.relationship(Department, foreign_keys=[department_id])
+    job = db.relationship(Job, foreign_keys=[job_id])
+    job_terms = db.relationship(Job_Terms, foreign_keys=[terms_id])
+    job_status = db.relationship(Job_Status, foreign_keys=[status_id])
+      
+    def get_id(self):
+        return (self.job_history_id)
+    
+    def __repr__(self):
+        return f'Employee ({self.job_history_id}): {self.employee.employee_name} {self.employee.employee_surname}'
+
+# Leave type data-model
+class Leave_Type(db.Model):
+    # Table name
+    __tablename__ = 'leave_type'
+    # Main Fields
+    type_id = db.Column(db.Integer, primary_key=True) 
+    type_title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Leave type ({self.type_id}): {self.type_title}'
 
 # Leave balance data-model
 class Leave_Balance(db.Model):

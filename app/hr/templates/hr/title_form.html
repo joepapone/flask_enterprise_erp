@@ -18,14 +18,14 @@
         <form action="" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <div class="form-container">
-                <div class="form-row {% if form.title_name.errors %}error{% endif %}">
+                <div class="form-row {% if form.title.errors %}error{% endif %}">
                     <div class="label-col">
-                        <label class="field-label" for="title">{{ form.title_name.label }}</label>
+                        <label class="field-label" for="title">{{ form.title.label }}</label>
                     </div>
                     <div class="input-col">
-                        {{ form.title_name}}
-                        {%- for error in form.title_name.errors %}
-                        {%- if form.title_name.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {{ form.title}}
+                        {%- for error in form.title.errors %}
+                        {%- if form.title.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>

@@ -2,12 +2,14 @@ from flask import Blueprint, flash, redirect, render_template, url_for, request,
 from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
 from sqlalchemy.orm import lazyload
+from datetime import date
 
-from .models import Department, Job, Job_Terms, Job_Status, Employee, Job_History, Email, Phone, Address, Title, Gender, Marital,\
-                    Leave_Type, Leave_Balance, Leave_Taken
-from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, Job_History_StartForm, Job_History_EndForm,EmailForm,\
-                    PhoneForm, AddressForm, TitleForm, GenderForm, MaritalForm, Leave_TypeForm, Leave_BalanceForm, Leave_TakenForm
-from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart, table_chart
+from .models import Department, Job, Job_Terms, Job_Status, Employee_Info, Title, Gender, Marital, Email, Phone, Address,\
+                    Employee, Job_History, Leave_Type, Leave_Balance, Leave_Taken
+from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, TitleForm, GenderForm, MaritalForm, Employee_InfoForm,\
+                   EmailForm, PhoneForm, AddressForm, Job_History_StartForm, Job_History_EndForm, Leave_TypeForm, Leave_BalanceForm, Leave_TakenForm
+from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart,\
+                          table_chart
 from ..config import HEADER
 from .. import db
 
@@ -17,16 +19,17 @@ TITLE_CONFIG='configuration'
 TITLE_DEPARTMENT='department'
 TITLE_DEPARTMENT_HISTORY = 'department history'
 TITLE_JOB='job'
-TITLE_JOB_HISTORY = 'job history'
 TITLE_JOB_TERMS='job terms'
 TITLE_JOB_STATUS='job status'
 TITLE_EMPLOYEE='empoyee'
-TITLE_EMAIL='email'
-TITLE_PHONE='phone'
-TITLE_ADDRESS='address'
 TITLE_TITLE='title'
 TITLE_GENDER='gender'
 TITLE_MARITAL='maritual status'
+TITLE_EMPLOYEE_INFO='employee information'
+TITLE_EMAIL='email'
+TITLE_PHONE='phone'
+TITLE_ADDRESS='address'
+TITLE_JOB_HISTORY = 'job history'
 TITLE_LEAVE_TYPE='leave type'
 TITLE_LEAVE_BALANCE='leave balance'
 TITLE_LEAVE_TAKEN='leave taken'
@@ -457,7 +460,7 @@ def status_add():
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.status_title} was successfully added!')
+        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.title} was successfully added!')
         
         return redirect(url_for('hr.config'))
     
@@ -492,7 +495,7 @@ def status_edit(status_id):
 
         # Commit changes to database
         db.session.commit() 
-        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.status_title} was successfully edited!')
+        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.title} was successfully edited!')
 
         return redirect(url_for('hr.config'))
 
@@ -517,7 +520,7 @@ def status_delete(status_id):
     
     elif len(child_obj) > 0:
         # Report result.        
-        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} {obj.status_title} cannot be deleted because it has a dependency ({len(child_obj)}) !')
+        flash(f'Error - {TITLE_JOB_STATUS.capitalize()} {obj.title} cannot be deleted because it has a dependency ({len(child_obj)}) !')
         
     else:
         # Marked for deletion
@@ -525,7 +528,7 @@ def status_delete(status_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.status_title} successfully deleted!')
+        flash(f'{TITLE_JOB_STATUS.capitalize()} ID: {obj.status_id} - {obj.title} successfully deleted!')
         
     return redirect(url_for('hr.config'))
 
@@ -555,7 +558,7 @@ def title_add():
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} was successfully added!')
+        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title} was successfully added!')
         
         return redirect(url_for('hr.config'))
     
@@ -590,7 +593,7 @@ def title_edit(title_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} was successfully edited!')
+        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title} was successfully edited!')
 
         return redirect(url_for('hr.config'))
 
@@ -616,7 +619,7 @@ def title_delete(title_id):
     
     elif len(child_obj) > 0:
         # Report result.
-        flash(f'Error - {TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} cannot be deleted because it has a dependency ({len(child_obj)}) !')
+        flash(f'Error - {TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title} cannot be deleted because it has a dependency ({len(child_obj)}) !')
         
     else:
         # Marked for deletion
@@ -624,7 +627,7 @@ def title_delete(title_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title_name} successfully deleted!')
+        flash(f'{TITLE_TITLE.capitalize()} ID: {obj.title_id} - {obj.title} successfully deleted!')
         
     return redirect(url_for('hr.config'))
 
@@ -938,8 +941,9 @@ def employee_list():
     # Set html page heading
     heading=f'{TITLE_EMPLOYEE.capitalize()}s'
 
-    # Create model instance with query data
-    list = db.session.execute(db.select(Employee)).scalars().all()
+    # Perform a join query to retrieve data from multiple tables 
+    stmt = db.select(Employee_Info).join(Employee_Info.employee).order_by(Employee.employee_id)
+    list = db.session.execute(stmt).scalars().all()
 
     return render_template('hr/employee_list.html', header=HEADER, menus=menus, heading=heading, list=list)
 
@@ -950,23 +954,24 @@ def employee_list():
 @hr_permission.require()
 def employee_sheet(employee_id):
     # Set html page menus
-    menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'}]
+    menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'},
+           {'link': f'/hr/employee/{employee_id}/leave_history', 'text': ' ❱ Leave history'}]
 
     # Set html page heading
     heading=f'{TITLE_EMPLOYEE.capitalize()} sheet'
 
     # Create model instance with query data
-    employee_obj = db.session.execute(db.select(Employee).where(Employee.employee_id == employee_id)).scalars().all()
-    job_history_obj = db.session.execute(db.select(Job_History).where(Job_History.employee_id == employee_id)).scalars().all()
+    employee_info_obj = db.session.execute(db.select(Employee_Info).where(Employee_Info.employee_id == employee_id)).scalars().all()
     email_obj = db.session.execute(db.select(Email).where(Email.employee_id == employee_id)).scalars().all()
     phone_obj = db.session.execute(db.select(Phone).where(Phone.employee_id == employee_id)).scalars().all()
     address_obj = db.session.execute(db.select(Address).where(Address.employee_id == employee_id)).scalars().all()
-    leave_balance_obj = db.session.execute(db.select(Leave_Balance).where(Leave_Balance.employee_id == employee_id)).scalars().all()
+    job_history_obj = db.session.execute(db.select(Job_History).where(Job_History.employee_id == employee_id)).scalars().all()
+    leave_balance_obj = db.session.execute(db.select(Leave_Balance).where(Leave_Balance.employee_id == employee_id,Leave_Balance.expiry_date >= date.today())).scalars().all()
     leave_taken_obj = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.employee_id == employee_id)).scalars().all()
 
-    return render_template('hr/employee_sheet.html', header=HEADER, menus=menus, heading=heading, data_list=employee_obj, job_history_list=job_history_obj,
-                           email_list=email_obj, phone_list=phone_obj, address_list=address_obj, leave_balance_list=leave_balance_obj, 
-                           leave_taken_list=leave_taken_obj, employee_id=employee_id)
+    return render_template('hr/employee_sheet.html', header=HEADER, menus=menus, heading=heading, employee_id=employee_id, 
+                           employee_info=employee_info_obj, email_list=email_obj, phone_list=phone_obj, address_list=address_obj, 
+                           job_history_list=job_history_obj, leave_balance_list=leave_balance_obj, leave_taken_list=leave_taken_obj)
 
 
 # Employee add
@@ -995,7 +1000,7 @@ def employee_add():
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - {obj.employee_name} {obj.employee_surname} was successfully added!')
+        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id}  - E-{str(obj.employee_id).zfill(7)} was successfully added!')
         
         return redirect(url_for('hr.employee_list'))
     
@@ -1008,7 +1013,7 @@ def employee_add():
 @hr_permission.require()
 def employee_edit(employee_id):
     # Set html page menus
-    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+    menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'}]
 
     # Set html page heading
     heading=f'Edit {TITLE_EMPLOYEE}'
@@ -1019,7 +1024,7 @@ def employee_edit(employee_id):
     if obj == None:
         # Report result.        
         flash(f'Error - {TITLE_EMPLOYEE.capitalize()} ID: {employee_id} was not found!')
-        return redirect(url_for('hr.employee_list'))
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
     form = EmployeeForm(obj=obj)
@@ -1030,11 +1035,11 @@ def employee_edit(employee_id):
 
         # Commit changes to database
         db.session.commit() 
-        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - {obj.employee_name} {obj.employee_surname} was successfully edited!')
+        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - E-{str(obj.employee_id).zfill(7)} was successfully edited!')
 
-        return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
+        return redirect(url_for('hr.employee_list'))
 
-    return render_template('hr/employee_form.html', header=HEADER, menus=menus, heading=heading, form=form)
+    return render_template('hr/employee_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
 # Employee delete
@@ -1055,113 +1060,102 @@ def employee_delete(employee_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - {obj.employee_name} {obj.employee_surname} successfully deleted!')
+        flash(f'{TITLE_EMPLOYEE.capitalize()} ID: {obj.employee_id} - E-{str(obj.employee_id).zfill(7)} successfully deleted!')
         
     return redirect(url_for('hr.employee_list'))
 
 
-# Load job list
-@hr.route('/hr/employee/job/<int:job_id>', methods=('GET', 'POST'))
-@login_required
-def employee_job(job_id):
-    # Create a dictionary with query data
-    list = [{'id': row.job_id, 'label': row.job_title} for row in db.session.execute(db.select(Job).where(Job.department_id == job_id)).scalars().all()]
-
-    return jsonify({'list': list})
-
-
-# Job history add
-@hr.route('/hr/employee/<int:employee_id>/job_history/add', methods=('GET', 'POST'))
+# Employee information add
+@hr.route('/hr/employee/<int:employee_id>/employee_information/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def job_history_add(employee_id):
+def employee_info_add(employee_id):
     # Set html page menus
-    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+    menus=[{'link': f'/hr/employee/{db.session.execute(db.select(Employee_Info).where(Employee_Info.employee_id == employee_id)).scalars().all()}', 'text': ' ❰ Back'}]
 
     # Set html page heading
-    heading=f'Add {TITLE_JOB_HISTORY}'
+    heading=f'Add {TITLE_EMPLOYEE_INFO}'
+
+    # Create model instance with query data
+    obj_query = db.session.execute(db.select(Employee_Info).where(Employee_Info.employee_id == employee_id)).scalars().all()
+
+    # Exit if instance already exists
+    if len(obj_query) != 0:
+        # Report result.        
+        flash(f'Error - {TITLE_EMPLOYEE.capitalize()} ID: {employee_id} already contains {TITLE_EMPLOYEE_INFO} ID: {obj_query[0].info_id}!')
+        return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
 
     # Create model instance
-    obj = Job_History()
-    
-    # Create form instance
-    form = Job_History_StartForm()
+    obj = Employee_Info()
 
-    # Outside to prevent validation erros during POST
-    if request.method == 'POST':
-        form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job)).scalars().all()]
+    # Create form instance
+    form = Employee_InfoForm()
 
     if form.validate_on_submit():
-        # Define associated parent object
-        obj.employee_id=employee_id
-
         # Populate object attributes with form data.
         form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
 
         # Marked for insertion
         db.session.add(obj)
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully added!')
+        flash(f'{TITLE_EMPLOYEE_INFO.capitalize()} ID: {obj.info_id} - {obj.given_name} {obj.surname} was successfully added!')
         
-        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+        return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
     
-    return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+    return render_template('hr/employee_info_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Job history edit
-@hr.route('/hr/employee/<int:employee_id>/job_history/edit/<int:job_history_id>', methods=('GET', 'POST'))
+# Employee information edit
+@hr.route('/hr/employee/<int:employee_id>/employee_information/edit/<int:info_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def job_history_edit(employee_id, job_history_id):
+def employee_info_edit(employee_id, info_id):
     # Set html page menus
     menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
 
     # Set html page heading
-    heading=f'Edit {TITLE_JOB_HISTORY}'
+    heading=f'Edit {TITLE_EMPLOYEE_INFO}'
 
     # Create model instance with query data
-    obj = db.session.get(Job_History, job_history_id)
+    obj = db.session.get(Employee_Info, info_id)
 
     if obj == None:
         # Report result.        
-        flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
+        flash(f'Error - {TITLE_EMPLOYEE_INFO.capitalize()} ID: {info_id} was not found!')
         return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
     # Create form instance and load it with object data
-    form = Job_History_StartForm(obj=obj)
+    form = Employee_InfoForm(obj=obj)
 
-    # Outside to prevent validation erros during POST
-    if request.method == 'POST':
-        form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job)).scalars().all()]
-    else:
-        form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job).where(Job.department_id == obj.department_id)).scalars().all()]
-    
     if form.validate_on_submit():
         # Populate object attributes with form data.
         form.populate_obj(obj)
 
         # Commit changes to database
         db.session.commit() 
-        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully edited!')
+        flash(f'{TITLE_EMPLOYEE_INFO.capitalize()} ID: {obj.info_id} - {obj.given_name} {obj.surname} was successfully edited!')
 
-        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+        return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
 
-    return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+    return render_template('hr/employee_info_form.html', header=HEADER, menus=menus, heading=heading, form=form)
 
 
-# Job history delete
-@hr.route('/hr/employee/<int:employee_id>/job_history/delete/<int:job_history_id>', methods=('GET', 'POST'))
+# Employee information delete
+@hr.route('/hr/employee/<int:employee_id>/employee_information/delete/<int:info_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def job_history_delete(employee_id, job_history_id):
+def employee_info_delete(employee_id, info_id):
     # Create model instance with query data
-    obj = db.session.get(Job_History, job_history_id)
+    obj = db.session.get(Employee_Info, info_id)
 
     if obj == None:
         # Report result.        
-        flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
+        flash(f'Error - {TITLE_EMPLOYEE_INFO.capitalize()} ID: {info_id} was not found!')
     
     else:
         # Marked for deletion
@@ -1169,44 +1163,9 @@ def job_history_delete(employee_id, job_history_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} was successfully deleted!')
+        flash(f'{TITLE_EMPLOYEE_INFO.capitalize()} ID: {obj.info_id} - {obj.given_name} {obj.surname} successfully deleted!')
         
     return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
-
-
-# Job history complete
-@hr.route('/hr/employee/<int:employee_id>/job_history/complete/<int:job_history_id>', methods=('GET', 'POST'))
-@login_required
-@hr_permission.require()
-def job_history_complete(employee_id, job_history_id):
-    # Set html page menus
-    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
-
-    # Set html page heading
-    heading=f'Complete {TITLE_JOB_HISTORY}'
-
-    # Create model instance with query data
-    obj = db.session.get(Job_History, job_history_id)
-
-    if obj == None:
-        # Report result.        
-        flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
-        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
-
-    # Create form instance and load it with object data
-    form = Job_History_EndForm(obj=obj)
-    
-    if form.validate_on_submit():
-        # Populate object attributes with form data.
-        form.populate_obj(obj)
-
-        # Commit changes to database
-        db.session.commit() 
-        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully edited!')
-
-        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
-
-    return render_template('hr/job_history_complete_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
 # Email add
@@ -1488,6 +1447,155 @@ def address_delete(employee_id, address_id):
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
+# Load job list
+@hr.route('/hr/employee/job/<int:job_id>', methods=('GET', 'POST'))
+@login_required
+def employee_job(job_id):
+    # Create a dictionary with query data
+    list = [{'id': row.job_id, 'label': row.job_title} for row in db.session.execute(db.select(Job).where(Job.department_id == job_id)).scalars().all()]
+
+    return jsonify({'list': list})
+
+
+# Job history add
+@hr.route('/hr/employee/<int:employee_id>/job_history/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def job_history_add(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_JOB_HISTORY}'
+
+    # Create model instance
+    obj = Job_History()
+    
+    # Create form instance
+    form = Job_History_StartForm()
+
+    # Outside to prevent validation erros during POST
+    if request.method == 'POST':
+        form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job)).scalars().all()]
+
+    if form.validate_on_submit():
+        # Define associated parent object
+        obj.employee_id=employee_id
+
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully added!')
+        
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+    
+    return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Job history edit
+@hr.route('/hr/employee/<int:employee_id>/job_history/edit/<int:job_history_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def job_history_edit(employee_id, job_history_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_JOB_HISTORY}'
+
+    # Create model instance with query data
+    obj = db.session.get(Job_History, job_history_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = Job_History_StartForm(obj=obj)
+
+    # Outside to prevent validation erros during POST
+    if request.method == 'POST':
+        form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job)).scalars().all()]
+    else:
+        form.job_id.choices = [(row.job_id, row.job_title) for row in db.session.execute(db.select(Job).where(Job.department_id == obj.department_id)).scalars().all()]
+    
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/job_history_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Job history delete
+@hr.route('/hr/employee/<int:employee_id>/job_history/delete/<int:job_history_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def job_history_delete(employee_id, job_history_id):
+    # Create model instance with query data
+    obj = db.session.get(Job_History, job_history_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
+    
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} was successfully deleted!')
+        
+    return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
+
+
+# Job history complete
+@hr.route('/hr/employee/<int:employee_id>/job_history/complete/<int:job_history_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def job_history_complete(employee_id, job_history_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Complete {TITLE_JOB_HISTORY}'
+
+    # Create model instance with query data
+    obj = db.session.get(Job_History, job_history_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_JOB_HISTORY.capitalize()} ID: {job_history_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = Job_History_EndForm(obj=obj)
+    
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_JOB_HISTORY.capitalize()} ID: {obj.job_history_id} - {obj.job.job_title} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/job_history_complete_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
 # Leave balance add
 @hr.route('/hr/employee/<int:employee_id>/leave_balance/add', methods=('GET', 'POST'))
 @login_required
@@ -1710,4 +1818,23 @@ def leave_taken_delete(employee_id, balance_id, taken_id):
         flash(f'{TITLE_LEAVE_TAKEN.capitalize()} ID: {obj.taken_id} was successfully deleted!')
         
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+
+# Leave history
+@hr.route('/hr/employee/<int:employee_id>/leave_history', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def leave_history(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'{TITLE_LEAVE_BALANCE.capitalize()} history'
+
+    # Create model instance with query data
+    leave_balance_obj = db.session.execute(db.select(Leave_Balance).where(Leave_Balance.employee_id == employee_id,Leave_Balance.expiry_date <= date.today())).scalars().all()
+    leave_taken_obj = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.employee_id == employee_id)).scalars().all()
+
+    return render_template('hr/leave_history.html', header=HEADER, menus=menus, heading=heading, leave_balance_list=leave_balance_obj, 
+                           leave_taken_list=leave_taken_obj, employee_id=employee_id)
 
