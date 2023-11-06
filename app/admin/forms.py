@@ -1,6 +1,6 @@
 from flask_wtf import FlaskForm
 from flask_login import current_user
-from wtforms import fields
+from wtforms.fields import StringField, TextAreaField, DecimalField, SelectField, DateField, DateTimeField, BooleanField, PasswordField
 from wtforms.validators import Email, InputRequired, ValidationError, EqualTo
 from sqlalchemy.orm.exc import MultipleResultsFound, NoResultFound
 from .models import User, Role
@@ -46,16 +46,16 @@ def get_roles():
 
 # Role from attributes
 class RoleForm(FlaskForm):
-    role_name = fields.StringField(label='Name', validators=[length(min=3, max=50), duplicate], description="Role name",
+    role_name = StringField(label='Name', validators=[length(min=3, max=50), duplicate], description="Role name",
     render_kw={'class': 'field-data', 'placeholder': 'Name..', 'autofocus': ""})
 
 # User form attributes
 class UserForm(FlaskForm):  
-    user_name = fields.StringField(label='Name', validators=[length(min=3, max=50)], description="User name",
+    user_name = StringField(label='Name', validators=[length(min=3, max=50)], description="User name",
         render_kw={'class': 'field-data', 'placeholder': 'Name..'})
-    role_id = fields.SelectField(label='Role', choices=get_roles ,validators=[InputRequired()], description="User role",
+    role_id = SelectField(label='Role', choices=get_roles ,validators=[InputRequired()], description="User role",
         render_kw={'class': 'field-data', 'autofocus': ""})
-    email = fields.StringField(label='Email', validators=[length(min=3, max=120), Email()], description="User email",
+    email = StringField(label='Email', validators=[length(min=3, max=120), Email()], description="User email",
         render_kw={'class': 'field-data', 'placeholder': 'Email..'})
 
     def validate_email(form, field):
@@ -65,11 +65,11 @@ class UserForm(FlaskForm):
         
 # Login from attributes
 class LoginForm(FlaskForm):
-    email = fields.StringField(label='Email', validators=[InputRequired(), Email()], description="User email",
+    email = StringField(label='Email', validators=[InputRequired(), Email()], description="User email",
         render_kw={'class': 'field-data', 'placeholder': 'Email..', 'autofocus': ""})
-    password = fields.PasswordField(label='Password', validators=[InputRequired()], description="User password",
+    password = PasswordField(label='Password', validators=[InputRequired()], description="User password",
         render_kw={'class': 'field-data', 'placeholder': 'Password..'})
-    remember = fields.BooleanField(label='Remember Me', description="Remember me",
+    remember = BooleanField(label='Remember Me', description="Remember me",
         render_kw={'class': 'field-label', 'type': 'checkbox'})
 
     # Validator will run after all validators have passed
@@ -88,11 +88,11 @@ class LoginForm(FlaskForm):
 
 # Change password form attributes
 class ChangePasswordForm(FlaskForm):
-    current = fields.PasswordField(label='Current password', validators=[length(min=3, max=50)], description="Current password",
+    current = PasswordField(label='Current password', validators=[length(min=3, max=50)], description="Current password",
     render_kw={'class': 'field-data', 'placeholder': 'Current password..'})
-    password = fields.PasswordField(label='New password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="New password",
+    password = PasswordField(label='New password', validators=[length(min=3, max=50), EqualTo('confirm', message='Passwords must match')], description="New password",
     render_kw={'class': 'field-data', 'placeholder': 'New password..'})
-    confirm = fields.PasswordField(label='Confirm', validators=[length(min=3, max=50), EqualTo('password', message='Passwords must match')], description="Confirm password",
+    confirm = PasswordField(label='Confirm', validators=[length(min=3, max=50), EqualTo('password', message='Passwords must match')], description="Confirm password",
     render_kw={'class': 'field-data', 'placeholder': 'Confirm password..'})
 
     # Validator will run after all validators have passed

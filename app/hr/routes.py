@@ -5,9 +5,10 @@ from sqlalchemy.orm import lazyload
 from datetime import date
 
 from .models import Department, Job, Job_Terms, Job_Status, Employee_Info, Title, Gender, Marital, Email, Phone, Address,\
-                    Employee, Job_History, Leave_Type, Leave_Balance, Leave_Taken
+                    Employee, Job_History, Leave_Type, Leave_Balance, Leave_Taken, Salary, Benefit, Clock_Log
 from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, TitleForm, GenderForm, MaritalForm, Employee_InfoForm,\
-                   EmailForm, PhoneForm, AddressForm, Job_History_StartForm, Job_History_EndForm, Leave_TypeForm, Leave_BalanceForm, Leave_TakenForm
+                   EmailForm, PhoneForm, AddressForm, Job_History_StartForm, Job_History_EndForm, Leave_TypeForm, Leave_BalanceForm, Leave_TakenForm,\
+                   SalaryForm, BenefitForm, Clock_LogForm
 from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart,\
                           table_chart
 from ..config import HEADER
@@ -33,6 +34,11 @@ TITLE_JOB_HISTORY = 'job history'
 TITLE_LEAVE_TYPE='leave type'
 TITLE_LEAVE_BALANCE='leave balance'
 TITLE_LEAVE_TAKEN='leave taken'
+TITLE_CLOCK_LOG='clock log'
+
+TITLE_SALARY='salary'
+TITLE_BENEFIT='benefit'
+
 
 
 # Human resources blueprint
@@ -955,6 +961,7 @@ def employee_list():
 def employee_sheet(employee_id):
     # Set html page menus
     menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'},
+           {'link': f'/hr/employee/{employee_id}/clock_log', 'text': ' ❱ Clock log'},
            {'link': f'/hr/employee/{employee_id}/leave_history', 'text': ' ❱ Leave history'}]
 
     # Set html page heading
@@ -969,9 +976,13 @@ def employee_sheet(employee_id):
     leave_balance_obj = db.session.execute(db.select(Leave_Balance).where(Leave_Balance.employee_id == employee_id,Leave_Balance.expiry_date >= date.today())).scalars().all()
     leave_taken_obj = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.employee_id == employee_id)).scalars().all()
 
+    salary_obj = db.session.execute(db.select(Salary).where(Salary.employee_id == employee_id)).scalars().all()
+    benefit_obj = db.session.execute(db.select(Benefit).where(Benefit.employee_id == employee_id)).scalars().all()
+
     return render_template('hr/employee_sheet.html', header=HEADER, menus=menus, heading=heading, employee_id=employee_id, 
                            employee_info=employee_info_obj, email_list=email_obj, phone_list=phone_obj, address_list=address_obj, 
-                           job_history_list=job_history_obj, leave_balance_list=leave_balance_obj, leave_taken_list=leave_taken_obj)
+                           job_history_list=job_history_obj, leave_balance_list=leave_balance_obj, leave_taken_list=leave_taken_obj,
+                           salary_list=salary_obj, benefit_list=benefit_obj)
 
 
 # Employee add
@@ -1837,4 +1848,313 @@ def leave_history(employee_id):
 
     return render_template('hr/leave_history.html', header=HEADER, menus=menus, heading=heading, leave_balance_list=leave_balance_obj, 
                            leave_taken_list=leave_taken_obj, employee_id=employee_id)
+
+
+# Salary add
+@hr.route('/hr/employee/<int:employee_id>/salary/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def salary_add(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_SALARY}'
+
+    # Create model instance
+    obj = Salary()
+
+    # Create model instance with query data
+    obj_query = db.session.execute(db.select(Salary).where(Salary.employee_id == employee_id)).scalars().all()
+
+    # Exit if instance already exists
+    if len(obj_query) != 0:
+        # Report result.        
+        flash(f'Error - {TITLE_EMPLOYEE.capitalize()} ID: {employee_id} already contains {TITLE_SALARY} ID: {obj_query[0].salary_id}!')
+        return redirect(url_for('hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance
+    form = SalaryForm()
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_SALARY.capitalize()} ID: {obj.salary_id} was successfully added!')
+        
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+    
+    return render_template('hr/salary_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Salary edit
+@hr.route('/hr/employee/<int:employee_id>/salary/edit/<int:salary_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def salary_edit(employee_id, salary_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_SALARY}'
+
+    # Create model instance with query data
+    obj = db.session.get(Salary, salary_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_SALARY.capitalize()} ID: {salary_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = SalaryForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_SALARY.capitalize()} ID: {obj.salary_id} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/salary_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Salary delete
+@hr.route('/hr/employee/<int:employee_id>/salary/delete/<int:salary_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def salary_delete(employee_id, salary_id):
+    # Create model instance with query data
+    obj = db.session.get(Salary, salary_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_SALARY.capitalize()} ID: {salary_id} was not found!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_SALARY.capitalize()} ID: {obj.salary_id} successfully deleted!')
+        
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+
+# Benefit add
+@hr.route('/hr/employee/<int:employee_id>/benefit/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def benefit_add(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_BENEFIT}'
+
+    # Create model instance
+    obj = Benefit()
+
+    # Create form instance
+    form = BenefitForm()
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_BENEFIT.capitalize()} ID: {obj.benefit_id} was successfully added!')
+        
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+    
+    return render_template('hr/benefit_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Benefit edit
+@hr.route('/hr/employee/<int:employee_id>/benefit/edit/<int:benefit_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def benefit_edit(employee_id, benefit_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_BENEFIT}'
+
+    # Create model instance with query data
+    obj = db.session.get(Benefit, benefit_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_BENEFIT.capitalize()} ID: {benefit_id} was not found!')
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = BenefitForm(obj=obj)
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_BENEFIT.capitalize()} ID: {obj.benefit_id} was successfully edited!')
+
+        return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+    return render_template('hr/benefit_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Benefit delete
+@hr.route('/hr/employee/<int:employee_id>/benefit/delete/<int:benefit_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def benefit_delete(employee_id, benefit_id):
+    # Create model instance with query data
+    obj = db.session.get(Benefit, benefit_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_BENEFIT.capitalize()} ID: {benefit_id} was not found!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_BENEFIT.capitalize()} ID: {obj.benefit_id} successfully deleted!')
+        
+    return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
+
+
+
+# Clock Log list
+@hr.route('/hr/employee/<int:employee_id>/clock_log')
+@login_required
+@hr_permission.require()
+def clock_log(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'{TITLE_CLOCK_LOG.capitalize()}s'
+
+    # Perform a join query to retrieve data from multiple tables 
+    stmt = db.select(Clock_Log).join(Clock_Log.employee).order_by(Clock_Log.created)
+    list = db.session.execute(stmt).scalars().all()
+
+    return render_template('hr/clock_log_list.html', header=HEADER, menus=menus, heading=heading, list=list, employee_id=employee_id)
+
+
+# Clock_Log add
+@hr.route('/hr/employee/<int:employee_id>/clock_Log/add', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def clock_log_add(employee_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}/clock_log', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Add {TITLE_CLOCK_LOG}'
+
+    # Create model instance
+    obj = Clock_Log()
+
+    # Create form instance
+    form = Clock_LogForm()
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Define associated parent object
+        obj.employee_id=employee_id
+
+        # Marked for insertion
+        db.session.add(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_CLOCK_LOG.capitalize()} ID: {obj.log_id} was successfully added!')
+        
+        return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+    
+    return render_template('hr/clock_log_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Clock_Log edit
+@hr.route('/hr/employee/<int:employee_id>/clock_Log/edit/<int:clock_log_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def clock_log_edit(employee_id, clock_log_id):
+    # Set html page menus
+    menus=[{'link': f'/hr/employee/{employee_id}/clock_log', 'text': ' ❰ Back'}]
+
+    # Set html page heading
+    heading=f'Edit {TITLE_CLOCK_LOG}'
+
+    # Create model instance with query data
+    obj = db.session.get(Clock_Log, clock_log_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_CLOCK_LOG.capitalize()} ID: {clock_log_id} was not found!')
+        return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+
+    # Create form instance and load it with object data
+    form = Clock_LogForm(obj=obj)
+
+    print(f'Created Datetime: {obj.created}')
+
+    if form.validate_on_submit():
+        # Populate object attributes with form data.
+        form.populate_obj(obj)
+
+        # Commit changes to database
+        db.session.commit() 
+        flash(f'{TITLE_CLOCK_LOG.capitalize()} ID: {obj.log_id} was successfully edited!')
+
+        return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+
+    return render_template('hr/clock_log_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+
+
+# Clock_Log delete
+@hr.route('/hr/employee/<int:employee_id>/clock_Log/delete/<int:clock_log_id>', methods=('GET', 'POST'))
+@login_required
+@hr_permission.require()
+def clock_log_delete(employee_id, clock_log_id):
+    # Create model instance with query data
+    obj = db.session.get(Clock_Log, clock_log_id)
+
+    if obj == None:
+        # Report result.        
+        flash(f'Error - {TITLE_CLOCK_LOG.capitalize()} ID: {clock_log_id} was not found!')
+        
+    else:
+        # Marked for deletion
+        db.session.delete(obj)
+
+        # Commit changes to database
+        db.session.commit()
+        flash(f'{TITLE_CLOCK_LOG.capitalize()} ID: {obj.log_id} successfully deleted!')
+        
+    return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
 

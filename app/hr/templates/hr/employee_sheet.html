@@ -182,7 +182,6 @@
                 </div>
                 {%- endfor %}
             </div>
-
             <div class="sheet-container">
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
@@ -294,11 +293,8 @@
                 </div>
                 {%- endfor %}
             </div>
-
         </div>
-
         <div class="col-6 col-s-6">
-
             <div class="sheet-container">
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
@@ -342,7 +338,6 @@
                 </div>
                 {%- endfor %}
             </div>
-
             <div class="sheet-container">
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
@@ -412,6 +407,81 @@
                             </div>
                             {%- endif %}
                             {%- endfor %}
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+            </div>
+
+            <div class="sheet-container">
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b>Earnings</b>
+                    </div>
+                    {%- if salary_list|length == 0 %}
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.salary_add', employee_id=employee_id) }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add salary</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                    {%- endif %}
+                </div>
+                {%- for item in salary_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-col">
+                        <div class="sheet-label-text"><b>Salary / Wage</b></div>
+                    </div>
+                    <div class="sheet-icon-col">
+                        <div class="tooltip">
+                            <span class="tooltiptext">Delete salary</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_salary{{ item.salary_id }}" 
+                            value="{{ url_for('hr.salary_delete', employee_id=employee_id, salary_id=item.salary_id) }}" 
+                            onclick="DeleteFunction('delete_salary{{ item.salary_id }}', 'salary')">
+                        </div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.salary_edit', employee_id=employee_id, salary_id=item.salary_id) }}">
+                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} x {{ item.series }} per {{ item.period.title }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b></b>
+                    </div>
+                    <div class="sheet-col-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.benefit_add', employee_id=employee_id) }}">
+                            <div class="tooltip">
+                                <span class="tooltiptext">Add benefit</span>
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </div>
+                        </a>
+                    </div>
+                </div>
+                {%- for item in benefit_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-col">
+                        <div class="sheet-label-text"><b>Benefit {{loop.index}}</b></div>
+                    </div>
+                    <div class="sheet-icon-col">
+                        <div class="tooltip">
+                            <span class="tooltiptext">Delete benefit</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_benefit{{ item.benefit_id }}" 
+                            value="{{ url_for('hr.benefit_delete', employee_id=employee_id, benefit_id=item.benefit_id) }}" 
+                            onclick="DeleteFunction('delete_benefit{{ item.benefit_id }}', 'benefit')">
+                        </div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.benefit_edit', employee_id=employee_id, benefit_id=item.benefit_id) }}">
+                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} x {{ item.series }} per {{ item.period.title }} ({{ item.benefit_type.title }})</div>
+                            </a>
                         </div>
                     </div>
                 </div>

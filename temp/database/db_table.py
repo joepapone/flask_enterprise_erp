@@ -5,44 +5,153 @@ sql_transact = '''
 USE business_erp;
 
 -- Delete tables
-DROP TABLE IF EXISTS citizen_data;
-DROP TABLE IF EXISTS employee_info;
+DROP TABLE IF EXISTS salary;
+DROP TABLE IF EXISTS benefit;
+DROP TABLE IF EXISTS period;
+DROP TABLE IF EXISTS benefit_type;
+DROP TABLE IF EXISTS clock_log;
+DROP TABLE IF EXISTS clock_event;
 
--- Employee info
-CREATE TABLE employee_info(
-    info_id INT NOT NULL AUTO_INCREMENT,
-    title_id INT NOT NULL,
-    given_name VARCHAR(50),
-    surname VARCHAR(50),
-    passport_no VARCHAR(50),
-    id_card_no VARCHAR(50),
-    nationality VARCHAR(50),
-    place_of_birth_id INT NOT NULL,
-    birthdate DATE NOT NULL,
-    gender_id INT NOT NULL,
-    marital_id INT NOT NULL,
-    tin VARCHAR(50),
-    ssn VARCHAR(50),
-    iban VARCHAR(50),
+
+-- Period
+CREATE TABLE period(
+    period_id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(50),
+    PRIMARY KEY (period_id)
+);
+
+INSERT INTO 
+    period (title)
+VALUES 
+    ('hour'),
+    ('day'),
+    ('week'),
+    ('month'),
+    ('year')
+;
+COMMIT;
+
+
+-- Benefit type
+CREATE TABLE benefit_type(
+    benefit_type_id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(50),
+    PRIMARY KEY (benefit_type_id)
+);
+
+INSERT INTO 
+    benefit_type (title)
+VALUES 
+    ('Commission'),
+    ('Bonus'),
+    ('Performance award'),
+    ('Health insurance'),
+    ('Life insurance'),
+    ('Food and beverage')
+;
+COMMIT;
+
+    
+-- Employee salary
+CREATE TABLE salary(
+    salary_id INT NOT NULL AUTO_INCREMENT,
+    period_id INT NOT NULL,
+    gross_value DECIMAL(10,2) DEFAULT 0,
+    currency_id INT NOT NULL,
     employee_id INT NOT NULL,
     created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    PRIMARY KEY (info_id),
-    FOREIGN KEY (title_id) REFERENCES employee_title(title_id),
-    FOREIGN KEY (place_of_birth_id) REFERENCES country(country_id),
-    FOREIGN KEY (gender_id) REFERENCES employee_gender(gender_id),
-    FOREIGN KEY (marital_id) REFERENCES employee_marital(marital_id),
+    PRIMARY KEY (salary_id),
+    FOREIGN KEY (period_id) REFERENCES period(period_id),
+    FOREIGN KEY (currency_id) REFERENCES currency(currency_id),
     FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
 );
 
 INSERT INTO 
-    employee_info (employee_id, title_id, given_name, surname, passport_no, id_card_no, nationality, place_of_birth_id, birthdate, gender_id, marital_id, tin, ssn, iban)
+    salary (employee_id, period_id, gross_value, currency_id)
 VALUES 
-    (1, 1, 'John', 'Doe', 'A123456', 'A123456708', 'Portuguese', 1, '1983-10-08', 1, 2, 'A123456789', 'A987654321', 'PT50 0002 0123 1234 5678 9015 4'),
-    (2, 2, 'Janet', 'Smith', 'B123456', 'B123456708', 'British', 2, '1985-12-27', 2, 1, 'B123456789', 'B987654321', 'PT50 0002 0123 1234 5678 9015 4'),
-    (3, 2, 'Margaret', 'Thatcher', 'C123456', 'C123456708', 'British', 2, '1975-12-27', 1, 2, 'C123456789', 'C987654321', 'PT50 0002 0123 1234 5678 9015 4'),
-    (4, 1, 'Jack', 'Daniels', 'D123456', 'D123456708', 'American', 4, '1965-12-27', 1, 5, 'D123456789', 'D987654321', 'PT50 0002 0123 1234 5678 9015 4'),
-    (5, 1, 'Joe', 'Bagger', 'E123456', 'E123456708', 'South African', 5, '1955-12-27', 2, 4, 'E123456789', 'E987654321', 'PT50 0002 0123 1234 5678 9015 4')
+    (1, 1, 10.0, 1),
+    (2, 2, 80.5, 1),
+    (3, 3, 200.10, 1),
+    (4, 4, 1500.50, 1),
+    (5, 5, 40000.11, 1)
+;
+COMMIT;
+
+
+-- Employee benefit
+CREATE TABLE benefit(
+    benefit_id INT NOT NULL AUTO_INCREMENT,
+    benefit_type_id INT NOT NULL,
+    period_id INT NOT NULL, 
+    series DECIMAL(10,2) DEFAULT 0,
+    gross_value DECIMAL(10,2) DEFAULT 0,
+    currency_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (benefit_id),
+    FOREIGN KEY (benefit_type_id) REFERENCES benefit_type(benefit_type_id),
+    FOREIGN KEY (period_id) REFERENCES period(period_id),
+    FOREIGN KEY (currency_id) REFERENCES currency(currency_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
+);
+
+INSERT INTO 
+    benefit (employee_id, benefit_type_id, period_id, series, gross_value, currency_id)
+VALUES 
+    (1, 6, 2, 1, 5.00, 1),
+    (1, 2, 1, 1, 0.30, 1),
+    (2, 6, 2, 1, 5.00, 1),
+    (2, 2, 2, 1, 4.00, 1),
+    (3, 6, 2, 1, 5.00, 1),
+    (3, 2, 3, 1, 50.00, 1),
+    (4, 6, 2, 1, 5.00, 1),
+    (4, 2, 3, 1, 100.00, 1),
+    (5, 6, 2, 1, 5.00, 1),
+    (5, 2, 5, 1, 1000.00, 1),
+    (5, 3, 5, 2, 1500.00, 1),
+    (5, 4, 4, 1, 150.00, 1)
+;
+COMMIT;
+
+-- Clock event
+CREATE TABLE clock_event(
+    event_id INT NOT NULL AUTO_INCREMENT,
+    title VARCHAR(50),
+    PRIMARY KEY (event_id)
+);
+
+INSERT INTO 
+    clock_event (title)
+VALUES 
+    ('Clock-in'),
+    ('Clock-out')
+;
+COMMIT;
+
+
+-- Clock log
+CREATE TABLE clock_log(
+    log_id INT NOT NULL AUTO_INCREMENT,
+    event_id INT NOT NULL,
+    employee_id INT NOT NULL,
+    created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    modified TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (log_id),
+    FOREIGN KEY (event_id) REFERENCES clock_event(event_id),
+    FOREIGN KEY (employee_id) REFERENCES employee(employee_id) ON DELETE CASCADE
+);
+
+INSERT INTO 
+    clock_log (event_id, employee_id, created, modified)
+VALUES 
+    (1, 1, '2023-10-01 9:00:00', '2023-10-01 9:00:00'),
+    (2, 1, '2023-10-01 17:00:00', '2023-10-01 17:00:00'),
+    (1, 2, '2023-10-01 9:05:00', '2023-10-01 9:05:00'),
+    (2, 2, '2023-10-01 17:00:00', '2023-10-01 17:00:00'),
+    (1, 3, '2023-10-01 8:55:00', '2023-10-01 8:55:00'),
+    (2, 3, '2023-10-01 17:05:00', '2023-10-01 17:05:00')
 ;
 COMMIT;
 

@@ -1,10 +1,10 @@
 from flask_wtf import FlaskForm
-from wtforms import Form, fields
+from wtforms.fields import StringField, TextAreaField, DecimalField, SelectField, DateField, DateTimeField
 from wtforms.validators import ValidationError, InputRequired, Email
-import datetime
+from datetime import datetime
 
-from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Employee, Title, Gender, Marital, Leave_Type, Leave_Balance, Leave_Taken
-from ..admin.models import Country
+from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Title, Gender, Marital, Leave_Type, Period, Benefit_Type, Clock_Event
+from ..admin.models import Country, Currency
 from .. import db
 
 
@@ -118,6 +118,18 @@ def get_leave_type():
     item_list = [(item.type_id, item.type_title) for item in db.session.scalars(db.select(Leave_Type)).all()]
     return item_list
 
+
+# Get time frame to populate select field
+def get_period():
+    item_list = [(item.period_id,f'per {item.title}') for item in db.session.scalars(db.select(Period)).all()]
+    return item_list
+
+# Get benefit type to populate select field
+def get_benefit_type():
+    item_list = [(item.benefit_type_id, item.title) for item in db.session.scalars(db.select(Benefit_Type)).all()]
+    return item_list
+
+
 # Get years to populate select field
 def get_years():
     years = [datetime.datetime.today().year - index for index in range(3)]
@@ -134,6 +146,16 @@ def get_country():
     item_list = [(item.country_id, item.country_name) for item in db.session.scalars(db.select(Country)).all()]
     return item_list
 
+# Get currency to populate select field
+def get_currency():
+    item_list = [(item.currency_id, f'{item.currency_name} ({item.currency_code})') for item in db.session.scalars(db.select(Currency)).all()]
+    return item_list
+
+# Get clock event to populate select field
+def get_clock_event():
+    item_list = [(item.event_id, item.title) for item in db.session.scalars(db.select(Clock_Event)).all()]
+    return item_list
+
 
 # ------------------------------------------------
 #    Flask Forms
@@ -141,147 +163,147 @@ def get_country():
 
 # Department form attributes
 class DepartmentForm(FlaskForm):
-    department_name = fields.StringField(label='Department', validators=[length(min=3, max=50), department_duplicate], description="Department name",
+    department_name = StringField(label='Department', validators=[length(min=3, max=50), department_duplicate], description="Department name",
     render_kw={'class': 'field-data', 'placeholder': 'Name..', 'autofocus': ""})
 
 # Job form attributes
 class JobForm(FlaskForm):
-    department_id = fields.SelectField(label='Department', choices=get_departments ,validators=[InputRequired()], description="Department",
+    department_id = SelectField(label='Department', choices=get_departments ,validators=[InputRequired()], description="Department",
     render_kw={'class': 'field-data', 'autofocus': ""})
-    job_title = fields.StringField(label='Job titile', validators=[length(min=3, max=50), job_duplicate], description="Job title",
+    job_title = StringField(label='Job titile', validators=[length(min=3, max=50), job_duplicate], description="Job title",
     render_kw={'class': 'field-data', 'placeholder': 'Title..', 'autofocus': ""})
-    job_description = fields.TextAreaField(label='Job description', validators=[length(min=3, max=1000), job_duplicate], description="Job description",
+    job_description = TextAreaField(label='Job description', validators=[length(min=3, max=1000), job_duplicate], description="Job description",
     render_kw={'class': 'field-data', 'rows': 10, 'placeholder': 'Description..', 'autofocus': ""})
 
 # Job terms form attributes
 class Job_TermsForm(FlaskForm):
-    terms = fields.StringField(label='Terms', validators=[length(min=3, max=50), terms_duplicate], description='Terms',
+    terms = StringField(label='Terms', validators=[length(min=3, max=50), terms_duplicate], description='Terms',
     render_kw={'class': 'field-data', 'placeholder': 'Terms..', 'autofocus': ''})
 
 # Job status form attributes
 class Job_StatusForm(FlaskForm):
-    title = fields.StringField(label='Status', validators=[length(min=3, max=50), status_duplicate], description='Status',
+    title = StringField(label='Status', validators=[length(min=3, max=50), status_duplicate], description='Status',
     render_kw={'class': 'field-data', 'placeholder': 'Status..', 'autofocus': ''})
 
 # Employee form attributes
 class EmployeeForm(FlaskForm):
-    status_id = fields.SelectField(label='Employee status', choices=get_employee_status, validators=[InputRequired()], description='Employee status',
+    status_id = SelectField(label='Employee status', choices=get_employee_status, validators=[InputRequired()], description='Employee status',
     render_kw={'class': 'field-data', 'autofocus': ''})
 
 # Title form attributes
 class TitleForm(FlaskForm):
-    title = fields.StringField(label='Title', validators=[length(min=3, max=50), title_duplicate], description='Title',
+    title = StringField(label='Title', validators=[length(min=3, max=50), title_duplicate], description='Title',
     render_kw={'class': 'field-data', 'placeholder': 'Title..', 'autofocus': ''})
 
 # Gender form attributes
 class GenderForm(FlaskForm):
-    gender = fields.StringField(label='Gender', validators=[length(min=3, max=50), gender_duplicate], description='Gender',
+    gender = StringField(label='Gender', validators=[length(min=3, max=50), gender_duplicate], description='Gender',
     render_kw={'class': 'field-data', 'placeholder': 'Gender..', 'autofocus': ''})
 
 # Marital form attributes
 class MaritalForm(FlaskForm):
-    marital_status = fields.StringField(label='Marital status', validators=[length(min=3, max=50), marital_duplicate], description='Marital status',
+    marital_status = StringField(label='Marital status', validators=[length(min=3, max=50), marital_duplicate], description='Marital status',
     render_kw={'class': 'field-data', 'placeholder': 'Marital status..', 'autofocus': ''})
 
 # Leave_Type form attributes
 class Leave_TypeForm(FlaskForm):
-    type_title = fields.StringField(label='Leave type', validators=[length(min=3, max=50), leave_type_duplicate], description='Leave type',
+    type_title = StringField(label='Leave type', validators=[length(min=3, max=50), leave_type_duplicate], description='Leave type',
     render_kw={'class': 'field-data', 'placeholder': 'Leave type..', 'autofocus': ''})
 
 # Employee info form attributes
 class Employee_InfoForm(FlaskForm):
-    title_id = fields.SelectField(label='Title', choices=get_title, validators=[InputRequired()], description='Title',
+    title_id = SelectField(label='Title', choices=get_title, validators=[InputRequired()], description='Title',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    given_name = fields.StringField(label='Given Name', validators=[length(min=3, max=50)], description='Given Name',
+    given_name = StringField(label='Given Name', validators=[length(min=3, max=50)], description='Given Name',
     render_kw={'class': 'field-data', 'placeholder': 'Name..', 'autofocus': ''})
-    surname = fields.StringField(label='Surname', validators=[length(min=3, max=50)], description='Surname',
+    surname = StringField(label='Surname', validators=[length(min=3, max=50)], description='Surname',
     render_kw={'class': 'field-data', 'placeholder': 'Surname..', 'autofocus': ''})
-    passport_no = fields.StringField(label='Passport Nº', validators=[length(min=3, max=50)], description='Passport Nº',
+    passport_no = StringField(label='Passport Nº', validators=[length(min=3, max=50)], description='Passport Nº',
     render_kw={'class': 'field-data', 'placeholder': 'Passport Nº..', 'autofocus': ''})
-    id_card_no = fields.StringField(label='ID Card Nº', validators=[length(min=3, max=50)], description='ID Card Nº',
+    id_card_no = StringField(label='ID Card Nº', validators=[length(min=3, max=50)], description='ID Card Nº',
     render_kw={'class': 'field-data', 'placeholder': 'ID Card Nº..', 'autofocus': ''})
-    nationality = fields.StringField(label='Nationality', validators=[length(min=2, max=50)], description='Nationality',
+    nationality = StringField(label='Nationality', validators=[length(min=2, max=50)], description='Nationality',
     render_kw={'class': 'field-data', 'placeholder': 'Nationality..', 'autofocus': ''})
-    place_of_birth_id = fields.SelectField(label='Place of birth', choices=get_country,validators=[InputRequired()], description='Place of birth',
+    place_of_birth_id = SelectField(label='Place of birth', choices=get_country,validators=[InputRequired()], description='Place of birth',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    birthdate = fields.DateField(label='Birthdate', validators=[InputRequired()], description='Birthdate',
+    birthdate = DateField(label='Birthdate', validators=[InputRequired()], description='Birthdate',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    gender_id = fields.SelectField(label='Gender', choices=get_gender, validators=[InputRequired()], description='Gender',
+    gender_id = SelectField(label='Gender', choices=get_gender, validators=[InputRequired()], description='Gender',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    marital_id = fields.SelectField(label='Marital status', choices=get_marital,validators=[InputRequired()], description='Maritial',
+    marital_id = SelectField(label='Marital status', choices=get_marital,validators=[InputRequired()], description='Maritial',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    tin = fields.StringField(label='Tax Identification Nº', validators=[length(min=3, max=50)], description='Tax Identification Nº',
+    tin = StringField(label='Tax Identification Nº', validators=[length(min=3, max=50)], description='Tax Identification Nº',
     render_kw={'class': 'field-data', 'placeholder': 'Tax Identification Nº..', 'autofocus': ''})
-    ssn = fields.StringField(label='Social Security Nº', validators=[length(min=3, max=50)], description='Social Security Nº',                                 
+    ssn = StringField(label='Social Security Nº', validators=[length(min=3, max=50)], description='Social Security Nº',                                 
     render_kw={'class': 'field-data', 'placeholder': 'Social Security Nº..', 'autofocus': ''})
-    iban = fields.StringField(label='Bank Account Nº', validators=[length(min=3, max=50)], description='Bank Account Nº',                                 
+    iban = StringField(label='Bank Account Nº', validators=[length(min=3, max=50)], description='Bank Account Nº',                                 
     render_kw={'class': 'field-data', 'placeholder': 'Bank Account Nº..', 'autofocus': ''})
 
 # Job history start form attributes
 class Job_History_StartForm(FlaskForm):
-    department_id = fields.SelectField(label='Department', choices=get_departments, validators=[InputRequired()], description="Department",
+    department_id = SelectField(label='Department', choices=get_departments, validators=[InputRequired()], description="Department",
     render_kw={'class': 'field-data', 'autofocus': ""})
-    job_id = fields.SelectField(label='Job', coerce=int, validators=[InputRequired()], description='Job',
+    job_id = SelectField(label='Job', coerce=int, validators=[InputRequired()], description='Job',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    terms_id = fields.SelectField(label='Terms', choices=get_terms, validators=[InputRequired()], description='Terms',
+    terms_id = SelectField(label='Terms', choices=get_terms, validators=[InputRequired()], description='Terms',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    start_date = fields.DateField(label='Start date', format='%Y-%m-%d', validators=[InputRequired()], description='Start date',
+    start_date = DateField(label='Start date', format='%Y-%m-%d', validators=[InputRequired()], description='Start date',
     render_kw={'class': 'field-data', 'autofocus': ''})
 
 # Job history end form attributes
 class Job_History_EndForm(FlaskForm):
-    end_date = fields.DateField(label='End date', description='End date',
+    end_date = DateField(label='End date', description='End date',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    status_id = fields.SelectField(label='Termination motive', choices=get_job_status, validators=[InputRequired()], description='Motive',
+    status_id = SelectField(label='Termination motive', choices=get_job_status, validators=[InputRequired()], description='Motive',
     render_kw={'class': 'field-data', 'autofocus': ''})
 
 # Email form attributes
 class EmailForm(FlaskForm):
-    email = fields.StringField(label='Email', validators=[length(min=3, max=120), Email()], description='Email',
+    email = StringField(label='Email', validators=[length(min=3, max=120), Email()], description='Email',
     render_kw={'class': 'field-data', 'placeholder': 'Email..', 'autofocus': ''})
-    label = fields.SelectField(label='Label', choices=['Home','Work'], validators=[length(min=3, max=20)], description='Lable',
+    label = SelectField(label='Label', choices=['Home','Work'], validators=[length(min=3, max=20)], description='Lable',
     render_kw={'class': 'field-data', 'placeholder': 'Email..', 'autofocus': ''})
 
 # Phone form attributes
 class PhoneForm(FlaskForm):
-    dial_code = fields.SelectField(label='Dial code', choices=get_dial_code ,validators=[InputRequired()], description='Dial code',
+    dial_code = SelectField(label='Dial code', choices=get_dial_code ,validators=[InputRequired()], description='Dial code',
     render_kw={'class': 'field-data', 'placeholder': 'Dial code..', 'autofocus': ''})
-    phone_number = fields.StringField(label='Phone number', validators=[length(min=3, max=50)], description='Phone number',
+    phone_number = StringField(label='Phone number', validators=[length(min=3, max=50)], description='Phone number',
     render_kw={'class': 'field-data', 'placeholder': 'Phone number..', 'autofocus': ''})
-    label = fields.SelectField(label='Label', choices=['Home','Work','Mobile'], validators=[length(min=3, max=20)], description='Lable',
+    label = SelectField(label='Label', choices=['Home','Work','Mobile'], validators=[length(min=3, max=20)], description='Lable',
     render_kw={'class': 'field-data', 'placeholder': 'Email..', 'autofocus': ''})
 
 # Address form attributes
 class AddressForm(FlaskForm):
-    address1 = fields.StringField(label='Address line 1', validators=[length(min=0, max=50)], description='Address1',
+    address1 = StringField(label='Address line 1', validators=[length(min=0, max=50)], description='Address1',
     render_kw={'class': 'field-data', 'placeholder': 'Address line 1..', 'autofocus': ''})
-    address2 = fields.StringField(label='Address line 2', validators=[length(min=0, max=50)], description='Address2',
+    address2 = StringField(label='Address line 2', validators=[length(min=0, max=50)], description='Address2',
     render_kw={'class': 'field-data', 'placeholder': 'Address line 2..', 'autofocus': ''})
-    postal_code = fields.StringField(label='Postal code', validators=[length(min=0, max=50)], description='Postal code',
+    postal_code = StringField(label='Postal code', validators=[length(min=0, max=50)], description='Postal code',
     render_kw={'class': 'field-data', 'placeholder': 'Postal code..', 'autofocus': ''})
-    city = fields.StringField(label='City', validators=[length(min=0, max=50)], description='City',
+    city = StringField(label='City', validators=[length(min=0, max=50)], description='City',
     render_kw={'class': 'field-data', 'placeholder': 'City..', 'autofocus': ''})
-    state = fields.StringField(label='State', validators=[length(min=0, max=50)], description='State',
+    state = StringField(label='State', validators=[length(min=0, max=50)], description='State',
     render_kw={'class': 'field-data', 'placeholder': 'State..', 'autofocus': ''})
-    country_id = fields.SelectField(label='Country', choices=get_country ,validators=[InputRequired()], description='Country',
+    country_id = SelectField(label='Country', choices=get_country ,validators=[InputRequired()], description='Country',
     render_kw={'class': 'field-data', 'placeholder': 'Country..', 'autofocus': ''})
 
 # Leave balance form attributes
 class Leave_BalanceForm(FlaskForm):
-    type_id = fields.SelectField(label='Leave type', choices=get_leave_type, validators=[InputRequired()], description="Leave type",
+    type_id = SelectField(label='Leave type', choices=get_leave_type, validators=[InputRequired()], description="Leave type",
     render_kw={'class': 'field-data', 'autofocus': ""})
-    leave_days  = fields.DecimalField(label='Leave days', validators=[InputRequired()], description='Leave days',
+    leave_days  = DecimalField(label='Leave days', validators=[InputRequired()], description='Leave days',
     render_kw={'class': 'field-data', 'autofocus': ''})
-    expiry_date = fields.DateField(label='Expiry date', validators=[InputRequired()], description="Expiry date",
+    expiry_date = DateField(label='Expiry date', validators=[InputRequired()], description="Expiry date",
     render_kw={'class': 'field-data', 'autofocus': ""})
 
 # Leave taken form attributes
 class Leave_TakenForm(FlaskForm):
-    start_date = fields.DateField(label='Start date', validators=[InputRequired()], description="Start date",
+    start_date = DateField(label='Start date', validators=[InputRequired()], description="Start date",
     render_kw={'class': 'field-data', 'autofocus': ""})
-    end_date = fields.DateField(label='End date', validators=[InputRequired()], description="End date",
+    end_date = DateField(label='End date', validators=[InputRequired()], description="End date",
     render_kw={'class': 'field-data', 'autofocus': ""})
-    remaining = fields.DecimalField(label='remaining')
+    remaining = DecimalField(label='remaining')
 
     # Validate for end date less than start date
     def validate_end_date(form, field):
@@ -292,4 +314,38 @@ class Leave_TakenForm(FlaskForm):
             raise ValidationError("End date must be greater than start date.")
         elif form.remaining.data <= delta.days:
             raise ValidationError(f"Leave time exceeded by {int(delta.days + 1 - form.remaining.data)} day(s).")
+
+
+
+# Salary form attributes
+class SalaryForm(FlaskForm):
+    period_id = SelectField(label='Period', choices=get_period ,validators=[InputRequired()], description='Period',
+    render_kw={'class': 'field-data', 'placeholder': 'Period..', 'autofocus': ''})
+    gross_value = DecimalField(label='Gross value', validators=[InputRequired()], description='Gross value',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    currency_id = SelectField(label='Currency', choices=get_currency ,validators=[InputRequired()], description='Currency',
+    render_kw={'class': 'field-data', 'placeholder': 'Currency..', 'autofocus': ''})
+
+# Benefit form attributes
+class BenefitForm(FlaskForm):
+    period_id = SelectField(label='Period', choices=get_period ,validators=[InputRequired()], description='Period',
+    render_kw={'class': 'field-data', 'placeholder': 'Period..', 'autofocus': ''})
+    benefit_type_id = SelectField(label='Benefit type', choices=get_benefit_type ,validators=[InputRequired()], description='Benefit type',
+    render_kw={'class': 'field-data', 'placeholder': 'Benefit type..', 'autofocus': ''})
+    series  = DecimalField(label='Number of times', validators=[InputRequired()], description='Number of times',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    gross_value  = DecimalField(label='Gross value', validators=[InputRequired()], description='Gross value',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    currency_id = SelectField(label='Currency', choices=get_currency ,validators=[InputRequired()], description='Currency',
+    render_kw={'class': 'field-data', 'placeholder': 'Currency..', 'autofocus': ''})
+
+# Clock log form attributes
+class Clock_LogForm(FlaskForm):
+    event_id = SelectField(label='Clock event', choices=get_clock_event ,validators=[InputRequired()], description='Clock event',
+    render_kw={'class': 'field-data', 'placeholder': 'Clock event..', 'autofocus': ''})
+    created = DateTimeField(label='Created', validators=[InputRequired()], description="Created",
+    render_kw={'class': 'field-data', 'placeholder': 'YYYY-MM-DH HH:MM:SS..', 'autofocus': ""})
+
+
+
 

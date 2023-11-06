@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS department;
 DROP TABLE IF EXISTS leave_taken;
 DROP TABLE IF EXISTS leave_balance;
 DROP TABLE IF EXISTS leave_type;
+DROP TABLE IF EXISTS employee_info;
 DROP TABLE IF EXISTS employee_title;
 DROP TABLE IF EXISTS employee_gender;
 DROP TABLE IF EXISTS employee_marital;
@@ -35,6 +36,7 @@ DROP TABLE IF EXISTS employee_email;
 DROP TABLE IF EXISTS employee_phone;
 DROP TABLE IF EXISTS employee_address;
 DROP TABLE IF EXISTS employee;
+DROP TABLE IF EXISTS employee_status;
 
 
 -- Role
@@ -118,16 +120,17 @@ CREATE TABLE currency(
     currency_name VARCHAR(50),
     currency_code CHAR(3) NOT NULL,
     currency_no INT NOT NULL,
+    currency_symbol VARCHAR(10) NOT NULL,
     PRIMARY KEY (currency_id)
 );
 
 INSERT INTO 
-    currency (currency_name, currency_code, currency_no)
+    currency (currency_name, currency_code, currency_no, currency_symbol)
 VALUES 
-    ('Euro', 'EUR', 978),
-    ('Pound Sterling', 'GPB', 826),
-    ('United States Dollar', 'USD', 840),
-    ('South African Rand', 'ZAR', 710)
+    ('Euro', 'EUR', 978, '€'),
+    ('Pound Sterling', 'GPB', 826, '£'),
+    ('United States Dollar', 'USD', 840, '$'),
+    ('South African Rand', 'ZAR', 710, 'R')
 ;
 COMMIT;
 
@@ -291,7 +294,7 @@ CREATE TABLE employee_title (
 
 INSERT INTO employee_title (title)
 VALUES 
-    ('Mr.'),
+	('Mr.'),
 	('Mrs.'),
 	('Ms.'),
 	('Dr.'),

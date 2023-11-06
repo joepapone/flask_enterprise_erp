@@ -22,7 +22,6 @@ class Role(db.Model):
         #return f'Role ({self.role_id}): {self.role_name}'
         return self.role_name
 
-
 # User data-model
 class User(UserMixin, db.Model):
     # Table name
@@ -87,7 +86,6 @@ class User(UserMixin, db.Model):
     level    = IntegerField('User Level', [validators.NumberRange(min=0, max=10)])
     '''
 
-
 # Currency data-model
 class Currency(db.Model):
     # Table name
@@ -97,13 +95,13 @@ class Currency(db.Model):
     currency_name = db.Column(db.String(50))
     currency_code = db.Column(db.String(3), nullable=False)
     currency_no = db.Column(db.Integer, nullable=False)
+    currency_symbol = db.Column(db.String(10), nullable=False)
     
     def get_id(self):
         return (self.currency_id)
     
     def __repr__(self):
         return f'Currency: {self.currency_code} ({self.currency_id})'
-
 
 # Country data-model
 class Country(db.Model):
@@ -124,7 +122,6 @@ class Country(db.Model):
     
     def __repr__(self):
         return f'Country: {self.country_name} ({self.country_id})'
-
 
 # Tax data-model
 class Tax(db.Model):

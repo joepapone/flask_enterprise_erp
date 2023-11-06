@@ -1,8 +1,6 @@
-from .. import db
 from datetime import datetime
-from ..admin.models import Country
-
-
+from ..admin.models import Country, Currency
+from .. import db
 
 # Department data-model
 class Department(db.Model):
@@ -336,4 +334,119 @@ class Leave_Taken(db.Model):
         
     def __repr__(self):
         return f'Leave taken ({self.balance_id})'
+
+
+
+# Period data-model
+class Period(db.Model):
+    # Table name
+    __tablename__ = 'period'
+    # Main Fields
+    period_id = db.Column(db.Integer, primary_key=True) 
+    title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Period ({self.period_id}): {self.title}'
+
+# Benefit type data-model
+class Benefit_Type(db.Model):
+    # Table name
+    __tablename__ = 'benefit_type'
+    # Main Fields
+    benefit_type_id = db.Column(db.Integer, primary_key=True) 
+    title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Benefit type ({self.benefit_type_id}): {self.title}'
+
+# Salary data-model
+class Salary(db.Model):
+    # Table name
+    __tablename__ = 'salary'
+    # Main Fields
+    salary_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    period_id = db.Column(db.Integer, db.ForeignKey('period.period_id'), nullable=False)
+    gross_value = db.Column(db.Numeric(10,2), default=0.00)
+    currency_id = db.Column(db.Integer, db.ForeignKey('currency.currency_id'), nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+    period = db.relationship(Period, foreign_keys=[period_id])
+    currency = db.relationship(Currency, foreign_keys=[currency_id])
+      
+    def get_id(self):
+        return (self.salary_id )
+        
+    def __repr__(self):
+        return f'Salary ({self.salary_id})'
+    
+# Benefit data-model
+class Benefit(db.Model):
+    # Table name
+    __tablename__ = 'benefit'
+    # Main Fields
+    benefit_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    period_id = db.Column(db.Integer, db.ForeignKey('period.period_id'), nullable=False)
+    benefit_type_id = db.Column(db.Integer, db.ForeignKey('benefit_type.benefit_type_id'), nullable=False)
+    series = db.Column(db.Numeric(10,2), default=1.00)
+    gross_value = db.Column(db.Numeric(10,2), default=0.00)
+    currency_id = db.Column(db.Integer, db.ForeignKey('currency.currency_id'), nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+    period = db.relationship(Period, foreign_keys=[period_id])
+    benefit_type = db.relationship(Benefit_Type, foreign_keys=[benefit_type_id])
+    currency = db.relationship(Currency, foreign_keys=[currency_id])
+      
+    def get_id(self):
+        return (self.benefit_id )
+        
+    def __repr__(self):
+        return f'Benefit ({self.benefit_id})'
+
+
+
+# Clock eventdata-model
+class Clock_Event(db.Model):
+    # Table name
+    __tablename__ = 'clock_event'
+    # Main Fields
+    event_id = db.Column(db.Integer, primary_key=True) 
+    title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Clock event: {self.title} ({self.event_id})'
+
+# Clock log data-model
+class Clock_Log(db.Model):
+    # Table name
+    __tablename__ = 'clock_log'
+    # Main Fields
+    log_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey('clock_event.event_id'), nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    employee = db.relationship(Employee, foreign_keys=[employee_id])
+    clock_event = db.relationship(Clock_Event, foreign_keys=[event_id])
+      
+    def get_id(self):
+        return (self.benefit_id )
+        
+    def __repr__(self):
+        return f'Clock log ({self.benefit_id})'
 

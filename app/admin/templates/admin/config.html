@@ -62,9 +62,10 @@
                     </caption>
                     <tr>
                         <th class="center sort" onclick="SortTableTxt('currency', 0)">ID</th>
-                        <th class="left sort" style="width: 60%;" onclick="SortTableTxt('currency', 1)">Currency</th>
+                        <th class="left sort" style="width: 45%;" onclick="SortTableTxt('currency', 1)">Currency</th>
                         <th class="center sort" style="width: 15%;" onclick="SortTableTxt('currency', 1)">Currency Code</th>
                         <th class="center sort" style="width: 15%;" onclick="SortTableTxt('currency', 1)">Currency No.</th>
+                        <th class="center sort" style="width: 15%;" onclick="SortTableTxt('currency', 1)">Currency Symbol</th>
                     </tr>
                     {%- for item in currency %}
                     <tr>
@@ -72,6 +73,7 @@
                         <td class="left">{{ item.currency_name }}</td>
                         <td class="center">{{ item.currency_code }}</td>
                         <td class="center">{{ item.currency_no }}</td>
+                        <td class="center">{{ item.currency_symbol }}</td>
                     </tr>
                     {%- endfor %}
                 </table>
