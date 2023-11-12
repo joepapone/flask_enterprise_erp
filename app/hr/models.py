@@ -1,6 +1,7 @@
 from datetime import datetime
 from ..admin.models import Country, Currency
 from .. import db
+from .hr import work_hours, work_time
 
 # Department data-model
 class Department(db.Model):
@@ -335,8 +336,6 @@ class Leave_Taken(db.Model):
     def __repr__(self):
         return f'Leave taken ({self.balance_id})'
 
-
-
 # Period data-model
 class Period(db.Model):
     # Table name
@@ -350,20 +349,6 @@ class Period(db.Model):
         
     def __repr__(self):
         return f'Period ({self.period_id}): {self.title}'
-
-# Benefit type data-model
-class Benefit_Type(db.Model):
-    # Table name
-    __tablename__ = 'benefit_type'
-    # Main Fields
-    benefit_type_id = db.Column(db.Integer, primary_key=True) 
-    title = db.Column(db.String(50), unique=True)
-      
-    def get_id(self):
-        return (self.type_id)
-        
-    def __repr__(self):
-        return f'Benefit type ({self.benefit_type_id}): {self.title}'
 
 # Salary data-model
 class Salary(db.Model):
@@ -381,13 +366,36 @@ class Salary(db.Model):
     employee = db.relationship(Employee, foreign_keys=[employee_id])
     period = db.relationship(Period, foreign_keys=[period_id])
     currency = db.relationship(Currency, foreign_keys=[currency_id])
-      
+
+    def get_work_hours(self, work_log):      
+        return work_hours(work_log)
+    
+    def get_work_time(self, work_log):      
+        return work_time(work_log, self.period_id)
+    
+    def get_amount(self, work_log):      
+        return work_time(work_log, self.period_id) * self.gross_value
+              
     def get_id(self):
-        return (self.salary_id )
+        return (self.salary_id)
         
     def __repr__(self):
         return f'Salary ({self.salary_id})'
-    
+
+# Benefit type data-model
+class Benefit_Type(db.Model):
+    # Table name
+    __tablename__ = 'benefit_type'
+    # Main Fields
+    benefit_type_id = db.Column(db.Integer, primary_key=True) 
+    title = db.Column(db.String(50), unique=True)
+      
+    def get_id(self):
+        return (self.type_id)
+        
+    def __repr__(self):
+        return f'Benefit type ({self.benefit_type_id}): {self.title}'
+
 # Benefit data-model
 class Benefit(db.Model):
     # Table name
@@ -407,46 +415,34 @@ class Benefit(db.Model):
     period = db.relationship(Period, foreign_keys=[period_id])
     benefit_type = db.relationship(Benefit_Type, foreign_keys=[benefit_type_id])
     currency = db.relationship(Currency, foreign_keys=[currency_id])
-      
+
+    def get_amount(self, work_log):      
+        return work_time(work_log, self.period_id) * self.gross_value
+
     def get_id(self):
         return (self.benefit_id )
         
     def __repr__(self):
         return f'Benefit ({self.benefit_id})'
 
-
-
-# Clock eventdata-model
-class Clock_Event(db.Model):
+# Time log data-model
+class Time_Log(db.Model):
     # Table name
-    __tablename__ = 'clock_event'
-    # Main Fields
-    event_id = db.Column(db.Integer, primary_key=True) 
-    title = db.Column(db.String(50), unique=True)
-      
-    def get_id(self):
-        return (self.type_id)
-        
-    def __repr__(self):
-        return f'Clock event: {self.title} ({self.event_id})'
-
-# Clock log data-model
-class Clock_Log(db.Model):
-    # Table name
-    __tablename__ = 'clock_log'
+    __tablename__ = 'time_log'
     # Main Fields
     log_id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
-    event_id = db.Column(db.Integer, db.ForeignKey('clock_event.event_id'), nullable=False)
-    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
-    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    start_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    end_time = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     # ForeignKeys
     employee = db.relationship(Employee, foreign_keys=[employee_id])
-    clock_event = db.relationship(Clock_Event, foreign_keys=[event_id])
-      
+
+    def delta(self):
+        delta = self.end_time - self.start_time
+        return delta
+    
     def get_id(self):
-        return (self.benefit_id )
+        return (self.log_id )
         
     def __repr__(self):
-        return f'Clock log ({self.benefit_id})'
-
+        return f'Time log ({self.log_id})'

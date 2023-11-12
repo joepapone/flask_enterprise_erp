@@ -414,9 +414,31 @@
             </div>
 
             <div class="sheet-container">
+
+                {%- for item in salary_list %}
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
                         <b>Earnings</b>
+                    </div>
+                </div>
+                <div class="sheet-row">
+                    <div class="sheet-label-1-col">
+                        <div class="sheet-label-text"><b>Work time</b></div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
+                                <div>{{ "%.2f" % item.get_work_hours(time_log_list) }} hour {%- if item.get_work_hours(time_log_list) > 1 %}s{%- endif %}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+
+                
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b></b>
                     </div>
                     {%- if salary_list|length == 0 %}
                     <div class="sheet-col-icon">
@@ -445,12 +467,15 @@
                     <div class="sheet-data-col">
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.salary_edit', employee_id=employee_id, salary_id=item.salary_id) }}">
-                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} x {{ item.series }} per {{ item.period.title }}</div>
+                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} {{ item.series }} per {{ item.period.title }}</div>
+                                <div>Sub-total = {{ "%.2f" % item.get_amount(time_log_list) }} {{ item.currency.currency_symbol }} </div>
                             </a>
                         </div>
                     </div>
                 </div>
                 {%- endfor %}
+
+
                 <div class="sheet-row-header">
                     <div class="sheet-col-header">
                         <b></b>
@@ -481,11 +506,55 @@
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.benefit_edit', employee_id=employee_id, benefit_id=item.benefit_id) }}">
                                 <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} x {{ item.series }} per {{ item.period.title }} ({{ item.benefit_type.title }})</div>
+                                <div>Sub-total = {{ "%.2f" % item.get_amount(time_log_list) }} {{ item.currency.currency_symbol }} </div>
                             </a>
                         </div>
                     </div>
                 </div>
                 {%- endfor %}
+
+                <div class="sheet-row-header">
+                    <div class="sheet-col-header">
+                        <b></b>
+                    </div>
+                </div>
+                <div class="sheet-row">
+                    <div class="sheet-label-1-col">
+                        <div class="sheet-label-text"><b>Total earnings</b></div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
+                                <div>{{ total.earnings }} {{ total.currency }} </div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="sheet-row">
+                    <div class="sheet-label-1-col">
+                        <div class="sheet-label-text"><b>Total taxes</b></div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
+                                <div>{{ total.taxes }} {{ total.currency }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="sheet-row">
+                    <div class="sheet-label-1-col">
+                        <div class="sheet-label-text"><b>Total</b></div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
+                                <div>{{ total.earnings - total.taxes }} {{ total.currency }}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
             </div>
 
         </div>

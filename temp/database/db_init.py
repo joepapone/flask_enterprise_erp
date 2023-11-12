@@ -8,9 +8,10 @@ user_salt, user_password = encode('user')
 
 # Create database SQL transaction.
 sql_transact = f'''
--- Create database business_erp 
+-- Delete database business_erp  
 DROP DATABASE IF EXISTS business_erp;
 
+-- Create database business_erp 
 CREATE DATABASE business_erp;
 USE business_erp;
 
@@ -374,7 +375,7 @@ VALUES
 COMMIT;
 
 
--- Email
+-- Employee email
 CREATE TABLE employee_email(
     email_id INT NOT NULL AUTO_INCREMENT,
     email VARCHAR(120),
@@ -398,7 +399,7 @@ VALUES
 COMMIT;
 
 
--- Phone
+-- Employee phone
 CREATE TABLE employee_phone(
     phone_id INT NOT NULL AUTO_INCREMENT,
     dial_code CHAR(4) NOT NULL,

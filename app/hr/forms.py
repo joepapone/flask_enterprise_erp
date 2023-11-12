@@ -1,9 +1,9 @@
 from flask_wtf import FlaskForm
-from wtforms.fields import StringField, TextAreaField, DecimalField, SelectField, DateField, DateTimeField
+from wtforms.fields import StringField, TextAreaField, DecimalField, SelectField, DateField, DateTimeField, DateTimeLocalField
 from wtforms.validators import ValidationError, InputRequired, Email
 from datetime import datetime
 
-from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Title, Gender, Marital, Leave_Type, Period, Benefit_Type, Clock_Event
+from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Title, Gender, Marital, Leave_Type, Period, Benefit_Type
 from ..admin.models import Country, Currency
 from .. import db
 
@@ -118,7 +118,6 @@ def get_leave_type():
     item_list = [(item.type_id, item.type_title) for item in db.session.scalars(db.select(Leave_Type)).all()]
     return item_list
 
-
 # Get time frame to populate select field
 def get_period():
     item_list = [(item.period_id,f'per {item.title}') for item in db.session.scalars(db.select(Period)).all()]
@@ -129,11 +128,18 @@ def get_benefit_type():
     item_list = [(item.benefit_type_id, item.title) for item in db.session.scalars(db.select(Benefit_Type)).all()]
     return item_list
 
-
 # Get years to populate select field
 def get_years():
-    years = [datetime.datetime.today().year - index for index in range(3)]
-    item_list = [(datetime.datetime(year, 1, 1)) for year in years]
+    years = [datetime.today().year - index for index in range(5)]
+    item_list = [(year, year) for year in years]
+
+    return item_list
+
+# Get months to populate select field
+def get_months():
+    months = [index + 1 for index in range(12)]
+    item_list = [(month, datetime(2023, month, 1).strftime('%B')) for month in months]
+    
     return item_list
 
 # Get dial code to populate select field
@@ -149,11 +155,6 @@ def get_country():
 # Get currency to populate select field
 def get_currency():
     item_list = [(item.currency_id, f'{item.currency_name} ({item.currency_code})') for item in db.session.scalars(db.select(Currency)).all()]
-    return item_list
-
-# Get clock event to populate select field
-def get_clock_event():
-    item_list = [(item.event_id, item.title) for item in db.session.scalars(db.select(Clock_Event)).all()]
     return item_list
 
 
@@ -315,8 +316,6 @@ class Leave_TakenForm(FlaskForm):
         elif form.remaining.data <= delta.days:
             raise ValidationError(f"Leave time exceeded by {int(delta.days + 1 - form.remaining.data)} day(s).")
 
-
-
 # Salary form attributes
 class SalaryForm(FlaskForm):
     period_id = SelectField(label='Period', choices=get_period ,validators=[InputRequired()], description='Period',
@@ -339,13 +338,18 @@ class BenefitForm(FlaskForm):
     currency_id = SelectField(label='Currency', choices=get_currency ,validators=[InputRequired()], description='Currency',
     render_kw={'class': 'field-data', 'placeholder': 'Currency..', 'autofocus': ''})
 
-# Clock log form attributes
-class Clock_LogForm(FlaskForm):
-    event_id = SelectField(label='Clock event', choices=get_clock_event ,validators=[InputRequired()], description='Clock event',
-    render_kw={'class': 'field-data', 'placeholder': 'Clock event..', 'autofocus': ''})
-    created = DateTimeField(label='Created', validators=[InputRequired()], description="Created",
+# Time log form attributes
+class Time_LogForm(FlaskForm):
+    start_time = DateTimeLocalField(label='Start time', validators=[InputRequired()], description="Start time",
+    render_kw={'class': 'field-data', 'placeholder': 'YYYY-MM-DH HH:MM:SS..', 'autofocus': ""})
+    end_time = DateTimeLocalField(label='End time', validators=[InputRequired()], description="End time",
     render_kw={'class': 'field-data', 'placeholder': 'YYYY-MM-DH HH:MM:SS..', 'autofocus': ""})
 
-
+# Year month form attributes
+class Year_MonthForm(FlaskForm):
+    year = SelectField(label='Year', choices=get_years, description='Year',
+    render_kw={'class': 'field-data', 'placeholder': 'Year..', 'autofocus': ''})
+    month = SelectField(label='Month', choices=get_months, description='Month',
+    render_kw={'class': 'field-data', 'placeholder': 'Month..', 'autofocus': ''})
 
 

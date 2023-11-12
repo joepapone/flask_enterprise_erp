@@ -2,13 +2,15 @@ from flask import Blueprint, flash, redirect, render_template, url_for, request,
 from flask_login import login_required
 from flask_principal import RoleNeed, Permission, PermissionDenied
 from sqlalchemy.orm import lazyload
-from datetime import date
+from sqlalchemy import func, extract
+from datetime import datetime, date
 
 from .models import Department, Job, Job_Terms, Job_Status, Employee_Info, Title, Gender, Marital, Email, Phone, Address,\
-                    Employee, Job_History, Leave_Type, Leave_Balance, Leave_Taken, Salary, Benefit, Clock_Log
+                    Employee, Job_History, Leave_Type, Leave_Balance, Leave_Taken, Salary, Benefit, Time_Log
 from .forms import DepartmentForm, JobForm, Job_TermsForm, Job_StatusForm, EmployeeForm, TitleForm, GenderForm, MaritalForm, Employee_InfoForm,\
                    EmailForm, PhoneForm, AddressForm, Job_History_StartForm, Job_History_EndForm, Leave_TypeForm, Leave_BalanceForm, Leave_TakenForm,\
-                   SalaryForm, BenefitForm, Clock_LogForm
+                   SalaryForm, BenefitForm, Time_LogForm, Year_MonthForm
+from .hr import YearMonth, EarningsTaxes, total_amount
 from ..home.charts import angular_gauge, bullet_gauge, double_bullet_gauge, data_cards, line_chart, area_chart, bar_chart, stack_bar_chart, pie_chart,\
                           table_chart
 from ..config import HEADER
@@ -34,7 +36,7 @@ TITLE_JOB_HISTORY = 'job history'
 TITLE_LEAVE_TYPE='leave type'
 TITLE_LEAVE_BALANCE='leave balance'
 TITLE_LEAVE_TAKEN='leave taken'
-TITLE_CLOCK_LOG='clock log'
+TITLE_TIME_LOG='time log'
 
 TITLE_SALARY='salary'
 TITLE_BENEFIT='benefit'
@@ -959,31 +961,80 @@ def employee_list():
 @login_required
 @hr_permission.require()
 def employee_sheet(employee_id):
-    # Set html page menus
+    # Current data
+    today = date.today()
+
     menus=[{'link': '/hr/employee/list', 'text': ' ❰ Back'},
-           {'link': f'/hr/employee/{employee_id}/clock_log', 'text': ' ❱ Clock log'},
+           {'link': f'/hr/employee/{employee_id}/time_log/{today.year}/{today.month}', 'text': ' ❱ Time log'},
            {'link': f'/hr/employee/{employee_id}/leave_history', 'text': ' ❱ Leave history'}]
 
     # Set html page heading
     heading=f'{TITLE_EMPLOYEE.capitalize()} sheet'
 
     # Create model instance with query data
-    employee_info_obj = db.session.execute(db.select(Employee_Info).where(Employee_Info.employee_id == employee_id)).scalars().all()
-    email_obj = db.session.execute(db.select(Email).where(Email.employee_id == employee_id)).scalars().all()
-    phone_obj = db.session.execute(db.select(Phone).where(Phone.employee_id == employee_id)).scalars().all()
-    address_obj = db.session.execute(db.select(Address).where(Address.employee_id == employee_id)).scalars().all()
-    job_history_obj = db.session.execute(db.select(Job_History).where(Job_History.employee_id == employee_id)).scalars().all()
-    leave_balance_obj = db.session.execute(db.select(Leave_Balance).where(Leave_Balance.employee_id == employee_id,Leave_Balance.expiry_date >= date.today())).scalars().all()
-    leave_taken_obj = db.session.execute(db.select(Leave_Taken).where(Leave_Taken.employee_id == employee_id)).scalars().all()
+    employee_info_obj = db.session.execute(db
+                                           .select(Employee_Info)
+                                           .where(Employee_Info.employee_id == employee_id)
+                                           ).scalars().all()
+    
+    email_obj = db.session.execute(db
+                                   .select(Email)
+                                   .where(Email.employee_id == employee_id)
+                                   ).scalars().all()
+    
+    phone_obj = db.session.execute(db
+                                   .select(Phone)
+                                   .where(Phone.employee_id == employee_id)
+                                   ).scalars().all()
+    
+    address_obj = db.session.execute(db
+                                     .select(Address)
+                                     .where(Address.employee_id == employee_id)
+                                     ).scalars().all()
+    
+    job_history_obj = db.session.execute(db
+                                         .select(Job_History)
+                                         .where(Job_History.employee_id == employee_id)
+                                         ).scalars().all()
+    
+    leave_balance_obj = db.session.execute(db
+                                           .select(Leave_Balance)
+                                           .where(Leave_Balance.employee_id == employee_id, Leave_Balance.expiry_date >= date.today())
+                                           ).scalars().all()
+    
+    leave_taken_obj = db.session.execute(db
+                                         .select(Leave_Taken)
+                                         .where(Leave_Taken.employee_id == employee_id)
+                                         ).scalars().all()
 
-    salary_obj = db.session.execute(db.select(Salary).where(Salary.employee_id == employee_id)).scalars().all()
-    benefit_obj = db.session.execute(db.select(Benefit).where(Benefit.employee_id == employee_id)).scalars().all()
+    salary_obj = db.session.execute(db
+                                    .select(Salary)
+                                    .where(Salary.employee_id == employee_id)
+                                    ).scalars().all()
+    
+    benefit_obj = db.session.execute(db
+                                     .select(Benefit)
+                                     .where(Benefit.employee_id == employee_id)
+                                     ).scalars().all()
+    
+    time_log_obj = db.session.execute(db
+                                      .select(Time_Log)
+                                      .where(Time_Log.employee_id==employee_id)
+                                      .filter(extract('year', Time_Log.start_time) == date.today().year, extract('month', Time_Log.start_time) == date.today().month)
+                                      ).scalars().all()
+    
+    total_obj = total_amount(salary_obj, benefit_obj, time_log_obj)
+
+    print(f"Today: {date.today().strftime('%Y-%m')}")
+
 
     return render_template('hr/employee_sheet.html', header=HEADER, menus=menus, heading=heading, employee_id=employee_id, 
                            employee_info=employee_info_obj, email_list=email_obj, phone_list=phone_obj, address_list=address_obj, 
                            job_history_list=job_history_obj, leave_balance_list=leave_balance_obj, leave_taken_list=leave_taken_obj,
-                           salary_list=salary_obj, benefit_list=benefit_obj)
+                           salary_list=salary_obj, benefit_list=benefit_obj, time_log_list=time_log_obj, year=today.year, month=today.month,
+                           total=total_obj)
 
+    
 
 # Employee add
 @hr.route('/hr/employee/add', methods=('GET', 'POST'))
@@ -2045,41 +2096,60 @@ def benefit_delete(employee_id, benefit_id):
     return redirect(url_for(f'hr.employee_sheet', employee_id=employee_id))
 
 
-
-# Clock Log list
-@hr.route('/hr/employee/<int:employee_id>/clock_log')
+# Time Log
+@hr.route('/hr/employee/<int:employee_id>/time_log/<int:year>/<int:month>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def clock_log(employee_id):
+def time_log(employee_id, year, month):
     # Set html page menus
     menus=[{'link': f'/hr/employee/{employee_id}', 'text': ' ❰ Back'}]
 
     # Set html page heading
-    heading=f'{TITLE_CLOCK_LOG.capitalize()}s'
+    heading=f'{TITLE_TIME_LOG.capitalize()}s'
+
+    # Create object instance
+    obj = YearMonth(year, month)
+
+    # Create form instance and load it with object data
+    form = Year_MonthForm(obj=obj)
 
     # Perform a join query to retrieve data from multiple tables 
-    stmt = db.select(Clock_Log).join(Clock_Log.employee).order_by(Clock_Log.created)
-    list = db.session.execute(stmt).scalars().all()
+    list = db.session.execute(db
+                              .select(Time_Log)
+                              .join(Time_Log.employee)
+                              .where(Time_Log.employee_id==employee_id)
+                              .filter(extract('year', Time_Log.start_time) == year, extract('month', Time_Log.start_time) == month)
+                              .order_by(Time_Log.start_time)
+                              ).scalars().all()
 
-    return render_template('hr/clock_log_list.html', header=HEADER, menus=menus, heading=heading, list=list, employee_id=employee_id)
+    if request.method == 'POST':
+        year = form.year.data
+        month = form.month.data
+
+        return redirect(url_for(f'hr.time_log', employee_id=employee_id, year=year, month=month))
+
+    return render_template('hr/time_log_list.html', header=HEADER, menus=menus, heading=heading, list=list, form=form, employee_id=employee_id)
 
 
-# Clock_Log add
+# Time Log add
 @hr.route('/hr/employee/<int:employee_id>/clock_Log/add', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def clock_log_add(employee_id):
+def time_log_add(employee_id):
     # Set html page menus
-    menus=[{'link': f'/hr/employee/{employee_id}/clock_log', 'text': ' ❰ Back'}]
+    menus=[{'link': f'/hr/employee/{employee_id}/time_log', 'text': ' ❰ Back'}]
 
     # Set html page heading
-    heading=f'Add {TITLE_CLOCK_LOG}'
+    heading=f'Add {TITLE_TIME_LOG}'
+
+    # Current data
+    today = date.today()
 
     # Create model instance
-    obj = Clock_Log()
+    obj = Time_Log()
 
     # Create form instance
-    form = Clock_LogForm()
+    form = Time_LogForm()
     if form.validate_on_submit():
         # Populate object attributes with form data.
         form.populate_obj(obj)
@@ -2092,36 +2162,37 @@ def clock_log_add(employee_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_CLOCK_LOG.capitalize()} ID: {obj.log_id} was successfully added!')
+        flash(f'{TITLE_TIME_LOG.capitalize()} ID: {obj.log_id} was successfully added!')
         
-        return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+        return redirect(url_for(f'hr.time_log', employee_id=employee_id, year=today.year, month=today.month))
     
-    return render_template('hr/clock_log_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+    return render_template('hr/time_log_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Clock_Log edit
-@hr.route('/hr/employee/<int:employee_id>/clock_Log/edit/<int:clock_log_id>', methods=('GET', 'POST'))
+# Time Log edit
+@hr.route('/hr/employee/<int:employee_id>/clock_Log/edit/<int:log_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def clock_log_edit(employee_id, clock_log_id):
+def time_log_edit(employee_id, log_id):
     # Set html page menus
-    menus=[{'link': f'/hr/employee/{employee_id}/clock_log', 'text': ' ❰ Back'}]
+    menus=[{'link': f'/hr/employee/{employee_id}/time_log', 'text': ' ❰ Back'}]
 
     # Set html page heading
-    heading=f'Edit {TITLE_CLOCK_LOG}'
+    heading=f'Edit {TITLE_TIME_LOG}'
+
+    # Current data
+    today = date.today()
 
     # Create model instance with query data
-    obj = db.session.get(Clock_Log, clock_log_id)
+    obj = db.session.get(Time_Log, log_id)
 
     if obj == None:
         # Report result.        
-        flash(f'Error - {TITLE_CLOCK_LOG.capitalize()} ID: {clock_log_id} was not found!')
-        return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+        flash(f'Error - {TITLE_TIME_LOG.capitalize()} ID: {log_id} was not found!')
+        return redirect(url_for(f'hr.time_log', employee_id=employee_id))
 
     # Create form instance and load it with object data
-    form = Clock_LogForm(obj=obj)
-
-    print(f'Created Datetime: {obj.created}')
+    form = Time_LogForm(obj=obj)
 
     if form.validate_on_submit():
         # Populate object attributes with form data.
@@ -2129,24 +2200,27 @@ def clock_log_edit(employee_id, clock_log_id):
 
         # Commit changes to database
         db.session.commit() 
-        flash(f'{TITLE_CLOCK_LOG.capitalize()} ID: {obj.log_id} was successfully edited!')
+        flash(f'{TITLE_TIME_LOG.capitalize()} ID: {obj.log_id} was successfully edited!')
 
-        return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+        return redirect(url_for(f'hr.time_log', employee_id=employee_id, year=today.year, month=today.month))
 
-    return render_template('hr/clock_log_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
+    return render_template('hr/time_log_form.html', header=HEADER, menus=menus, heading=heading, form=form, employee_id=employee_id)
 
 
-# Clock_Log delete
-@hr.route('/hr/employee/<int:employee_id>/clock_Log/delete/<int:clock_log_id>', methods=('GET', 'POST'))
+# Time Log  delete
+@hr.route('/hr/employee/<int:employee_id>/clock_Log/delete/<int:log_id>', methods=('GET', 'POST'))
 @login_required
 @hr_permission.require()
-def clock_log_delete(employee_id, clock_log_id):
+def time_log_delete(employee_id, log_id):
+    # Current data
+    today = date.today()
+    
     # Create model instance with query data
-    obj = db.session.get(Clock_Log, clock_log_id)
+    obj = db.session.get(Time_Log, log_id)
 
     if obj == None:
         # Report result.        
-        flash(f'Error - {TITLE_CLOCK_LOG.capitalize()} ID: {clock_log_id} was not found!')
+        flash(f'Error - {TITLE_TIME_LOG.capitalize()} ID: {log_id} was not found!')
         
     else:
         # Marked for deletion
@@ -2154,7 +2228,7 @@ def clock_log_delete(employee_id, clock_log_id):
 
         # Commit changes to database
         db.session.commit()
-        flash(f'{TITLE_CLOCK_LOG.capitalize()} ID: {obj.log_id} successfully deleted!')
+        flash(f'{TITLE_TIME_LOG.capitalize()} ID: {obj.log_id} successfully deleted!')
         
-    return redirect(url_for(f'hr.clock_log', employee_id=employee_id))
+    return redirect(url_for(f'hr.time_log', employee_id=employee_id, year=today.year, month=today.month))
 
