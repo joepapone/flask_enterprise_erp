@@ -17,12 +17,12 @@
         {%- endfor %}
         <div class="col-6 col-s-6">
             <div class="sheet-container">
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
                         <b>General information</b>
                     </div>
                     {%- if employee_info|length == 0 %}
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.employee_info_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add employee information</span>
@@ -183,15 +183,15 @@
                 {%- endfor %}
             </div>
             <div class="sheet-container">
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
                         <b>Contact information</b>
                     </div>
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.email_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add email</span>
-                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add_white.png') }}">
                             </div>
                         </a>
                     </div>
@@ -218,11 +218,11 @@
                     </div>
                 </div>
                 {%- endfor %}
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header">
+                    <div class="sheet-header-title">
                         <b></b>
                     </div>
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.phone_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add phone</span>
@@ -253,11 +253,11 @@
                     </div>
                 </div>
                 {%- endfor %}
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header">
+                    <div class="sheet-header-title">
                         <b></b>
                     </div>
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.address_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add address</span>
@@ -296,15 +296,15 @@
         </div>
         <div class="col-6 col-s-6">
             <div class="sheet-container">
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
                         <b>Job history</b>
                     </div>
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.job_history_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add job</span>
-                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add_white.png') }}">
                             </div>
                         </a>
                     </div>
@@ -339,15 +339,15 @@
                 {%- endfor %}
             </div>
             <div class="sheet-container">
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
                         <b>Leave</b>
                     </div>
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.leave_balance_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add leave</span>
-                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add_white.png') }}">
                             </div>
                         </a>
                     </div>
@@ -373,11 +373,11 @@
                                 <div>- Leave days: {{ item.leave_days }}</div>
                                 <div>- Balance: {{ item.leave_balance }}</div>
                             </a>
-                            <div class="sheet-row-header">
-                                <div class="sheet-col-sub-header">- Taken: {{ item.leave_taken }}</div>
+                            <div class="sheet-header">
+                                <div class="sheet-sub-header">- Taken: {{ item.leave_taken }}</div>
                                 {%- if item.leave_taken < item.leave_days %}
                                 <div>
-                                    <a class="sheet-col-sub-icon" href="{{ url_for('hr.leave_taken_add', employee_id=employee_id, balance_id=item.balance_id) }}">
+                                    <a class="sheet-sub-header-icon" href="{{ url_for('hr.leave_taken_add', employee_id=employee_id, balance_id=item.balance_id) }}">
                                         <div class="tooltip">
                                             <span class="tooltiptext">Add taken</span>
                                             <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
@@ -412,40 +412,17 @@
                 </div>
                 {%- endfor %}
             </div>
-
             <div class="sheet-container">
-
-                {%- for item in salary_list %}
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
-                        <b>Earnings</b>
-                    </div>
-                </div>
-                <div class="sheet-row">
-                    <div class="sheet-label-1-col">
-                        <div class="sheet-label-text"><b>Work time</b></div>
-                    </div>
-                    <div class="sheet-data-col">
-                        <div class="sheet-data-text">
-                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
-                                <div>{{ "%.2f" % item.get_work_hours(time_log_list) }} hour {%- if item.get_work_hours(time_log_list) > 1 %}s{%- endif %}</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                {%- endfor %}
-
-                
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
-                        <b></b>
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
+                        <b>Salary</b>
                     </div>
                     {%- if salary_list|length == 0 %}
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.salary_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add salary</span>
-                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add_white.png') }}">
                             </div>
                         </a>
                     </div>
@@ -454,7 +431,7 @@
                 {%- for item in salary_list %}
                 <div class="sheet-row">
                     <div class="sheet-label-col">
-                        <div class="sheet-label-text"><b>Salary / Wage</b></div>
+                        <div class="sheet-label-text"><b>Salary</b></div>
                     </div>
                     <div class="sheet-icon-col">
                         <div class="tooltip">
@@ -467,96 +444,64 @@
                     <div class="sheet-data-col">
                         <div class="sheet-data-text">
                             <a class="data-link" href="{{ url_for('hr.salary_edit', employee_id=employee_id, salary_id=item.salary_id) }}">
-                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} {{ item.series }} per {{ item.period.title }}</div>
-                                <div>Sub-total = {{ "%.2f" % item.get_amount(time_log_list) }} {{ item.currency.currency_symbol }} </div>
+                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} / month</div>
                             </a>
                         </div>
                     </div>
                 </div>
                 {%- endfor %}
-
-
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                {%- for item in salary_list %}
+                <div class="sheet-row">
+                    <div class="sheet-label-1-col">
+                        <div class="sheet-label-text"><b>Attendance</b></div>
+                    </div>
+                    <div class="sheet-data-col">
+                        <div class="sheet-data-text">
+                            <a class="data-link" href="{{ url_for('hr.attendance_log', employee_id=employee_id, year=year, month=month) }}">
+                                <div>{{ "%.2f" % item.get_work_hours(attendance_log_list) }} hour {%- if item.get_work_hours(attendance_log_list) > 1 %}s{%- endif %}</div>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                {%- endfor %}
+                <div class="sheet-header">
+                    <div class="sheet-header-title">
                         <b></b>
                     </div>
-                    <div class="sheet-col-icon">
-                        <a class="sheet-icon" href="{{ url_for('hr.benefit_add', employee_id=employee_id) }}">
+                    <div class="sheet-header-icon">
+                        <a class="sheet-icon" href="{{ url_for('hr.allowance_add', employee_id=employee_id) }}">
                             <div class="tooltip">
-                                <span class="tooltiptext">Add benefit</span>
+                                <span class="tooltiptext">Add allowance</span>
                                 <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
                             </div>
                         </a>
                     </div>
                 </div>
-                {%- for item in benefit_list %}
+                {%- for item in allowance_list %}
                 <div class="sheet-row">
                     <div class="sheet-label-col">
-                        <div class="sheet-label-text"><b>Benefit {{loop.index}}</b></div>
+                        <div class="sheet-label-text"><b>Allowance {{loop.index}}</b></div>
                     </div>
                     <div class="sheet-icon-col">
                         <div class="tooltip">
-                            <span class="tooltiptext">Delete benefit</span>
-                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_benefit{{ item.benefit_id }}" 
-                            value="{{ url_for('hr.benefit_delete', employee_id=employee_id, benefit_id=item.benefit_id) }}" 
-                            onclick="DeleteFunction('delete_benefit{{ item.benefit_id }}', 'benefit')">
+                            <span class="tooltiptext">Delete allowance</span>
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete_allowance{{ item.allowance_id }}" 
+                            value="{{ url_for('hr.allowance_delete', employee_id=employee_id, allowance_id=item.allowance_id) }}" 
+                            onclick="DeleteFunction('delete_allowance{{ item.allowance_id }}', 'allowance')">
                         </div>
                     </div>
                     <div class="sheet-data-col">
                         <div class="sheet-data-text">
-                            <a class="data-link" href="{{ url_for('hr.benefit_edit', employee_id=employee_id, benefit_id=item.benefit_id) }}">
-                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} x {{ item.series }} per {{ item.period.title }} ({{ item.benefit_type.title }})</div>
-                                <div>Sub-total = {{ "%.2f" % item.get_amount(time_log_list) }} {{ item.currency.currency_symbol }} </div>
+                            <a class="data-link" href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">
+                                <div>{{ item.allowance_type.title }}</div>
+                                <div>{{ item.gross_value }} {{ item.currency.currency_symbol }} / {{ item.period.title }}</div>
+                                <div>{{ item.start_date}} to {{ item.end_date }} </div>
                             </a>
                         </div>
                     </div>
                 </div>
                 {%- endfor %}
-
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
-                        <b></b>
-                    </div>
-                </div>
-                <div class="sheet-row">
-                    <div class="sheet-label-1-col">
-                        <div class="sheet-label-text"><b>Total earnings</b></div>
-                    </div>
-                    <div class="sheet-data-col">
-                        <div class="sheet-data-text">
-                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
-                                <div>{{ total.earnings }} {{ total.currency }} </div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="sheet-row">
-                    <div class="sheet-label-1-col">
-                        <div class="sheet-label-text"><b>Total taxes</b></div>
-                    </div>
-                    <div class="sheet-data-col">
-                        <div class="sheet-data-text">
-                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
-                                <div>{{ total.taxes }} {{ total.currency }}</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                <div class="sheet-row">
-                    <div class="sheet-label-1-col">
-                        <div class="sheet-label-text"><b>Total</b></div>
-                    </div>
-                    <div class="sheet-data-col">
-                        <div class="sheet-data-text">
-                            <a class="data-link" href="{{ url_for('hr.time_log', employee_id=employee_id, year=year, month=month) }}">
-                                <div>{{ total.earnings - total.taxes }} {{ total.currency }}</div>
-                            </a>
-                        </div>
-                    </div>
-                </div>
-                
             </div>
-
         </div>
     </div>
     <div id="id01" class="modal">

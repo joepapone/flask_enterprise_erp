@@ -1,6 +1,6 @@
 {% extends 'home/base.html' %}
     {% block content %}
-    <div class="col-6 col-s-6">
+    <div class="col-10 col-s-10">
         {% with messages = get_flashed_messages() %}
         <div>
             {% if messages %}
@@ -9,16 +9,18 @@
             </div>
             {%- endif %}
         </div>
-        {% endwith %}
-        <div>
-            <div class="page-row">
-                <div class="page-col">
-                    <div class="page-text"><h3>{{ message }}</h3></div>
+        {% endwith %}  
+        <div class="sheet-container">
+            <div class="sheet-row">
+                <div class="sheet-data-col">
+                    <div class="sheet-data-text">{{ message }}</div>
                 </div>
             </div>
-            <div class="page-row">
-                <div class="page-col">
-                    <img src="{{ url_for('static', filename='icons/erp.png') }}" width="401" height="336 ">
+            <div class="sheet-row">
+                <div class="sheet-image-col">
+                    <div class="sheet-image">
+                        <img src="{{ url_for('static', filename='icons/erp.png') }}" width="401" height="336 ">
+                    </div>
                 </div>
             </div>
         </div>

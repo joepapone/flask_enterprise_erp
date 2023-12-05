@@ -18,14 +18,14 @@
         <form action="" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <div class="form-container">
-                <div class="form-row {% if form.benefit_type_id.errors %}error{% endif %}">
+                <div class="form-row {% if form.allowance_type_id.errors %}error{% endif %}">
                     <div class="label-col">
-                        <label class="field-label" for="benefit_type_id">{{ form.benefit_type_id.label }}</label>
+                        <label class="field-label" for="allowance_type_id">{{ form.allowance_type_id.label }}</label>
                     </div>
                     <div class="input-col">
-                        {{ form.benefit_type_id }}
-                        {%- for error in form.benefit_type_id.errors %}
-                        {%- if form.benefit_type_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {{ form.allowance_type_id }}
+                        {%- for error in form.allowance_type_id.errors %}
+                        {%- if form.allowance_type_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>
@@ -37,17 +37,6 @@
                         {{ form.period_id }}
                         {%- for error in form.period_id.errors %}
                         {%- if form.period_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
-                        {%- endfor %}
-                    </div>
-                </div>
-                <div class="form-row {% if form.series.errors %}error{% endif %}">
-                    <div class="label-col">
-                        <label class="field-label" for="series">{{ form.series.label }}</label>
-                    </div>
-                    <div class="input-col">
-                        {{ form.series }}
-                        {%- for error in form.series.errors %}
-                        {%- if form.series.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>
@@ -70,6 +59,28 @@
                         {{ form.currency_id }}
                         {%- for error in form.currency_id.errors %}
                         {%- if form.currency_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.start_date.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="start_date">{{ form.start_date.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.start_date }}
+                        {%- for error in form.start_date.errors %}
+                        {%- if form.start_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.end_date.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="end_date">{{ form.end_date.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.end_date }}
+                        {%- for error in form.end_date.errors %}
+                        {%- if form.end_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>

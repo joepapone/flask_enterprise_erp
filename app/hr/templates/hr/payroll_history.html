@@ -1,0 +1,101 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="col-11 col-s-11">
+        <div class="col-7 col-s-7" style="margin-right: 50px;">
+            {%- for message in get_flashed_messages() %}
+            <div>
+                {%- if "Error" not in message: %}
+                <div class="alert success">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+                {%- if "Error" in message: %}
+                <div class="alert error">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+            </div>
+            {%- endfor %}
+            <div class="table-overflow">
+                <table class="table-top">
+                    <tr>
+                        <th class="search">
+                            <div class="search-box">
+                                <input class="search-text" id="search_payroll" name="search" type="text" placeholder="Search payroll ?"
+                                onkeyup="SearchFunction('search_payroll', 'payroll', 1)">
+                                <input class="search-submit" id="search_submit" value="submit" type="submit">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
+                            </div>
+                        </th>
+                    </tr>
+                </table>
+                <table class="table" id="payroll">
+                    <caption>
+                        <div>
+                            Count: {{list|length}}
+                        </div>
+                    </caption>
+                    <tr>
+                        <th class="center sort" style="width: 11%;" onclick="SortTableTxt('payroll', 1)">Start date</th>
+                        <th class="center sort" style="width: 11%;" onclick="SortTableTxt('payroll', 2)">End date</th>
+                        <th class="left sort" style="width: 24%;" onclick="SortTableTxt('payroll', 3)">Employee</th>
+                        <th class="center sort" style="width: 11%;" onclick="SortTableTxt('payroll', 4)">Gross income</th>
+                        <th class="center sort" style="width: 11%;" onclick="SortTableTxt('payroll', 5)">Adjustment</th>
+                        <th class="center sort" style="width: 11%;" onclick="SortTableTxt('payroll', 6)">Income tax</th>
+                        <th class="center sort" style="width: 11%;" onclick="SortTableTxt('payroll', 7)">Net income</th>
+                    </tr>
+                    {%- for item in list %}
+                    <tr>
+                        <td class="center">{{ item.start_date }}</td>
+                        <td class="center">{{ item.end_date }}</td>
+                        <td class="left">{{ item.employee.given_name }} {{ item.employee.surname }}</td>
+                        <td class="right">{{ item.gross_income }}</td>
+                        <td class="right">{{ item.adjustment }}</td>
+                        <td class="right">{{ item.income_tax }}</td>
+                        <td class="right">{{ item.net_income }}</td>
+                    </tr>
+                    {%- endfor %}
+                </table>
+            </div>
+        </div>
+        <div class="col-3 col-s-3">
+            <div class="sheet-container" style="margin-top: 30px;">
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
+                        <b>Select period</b>
+                    </div>
+                </div>
+                <form action="" method="POST" enctype=multipart/form-data>
+                    {{ form.csrf_token }}
+                    <div class="form-row {% if form.year.errors %}error{% endif %}">
+                        <div class="label-col">
+                            <label class="field-label" for="event_id">{{ form.year.label }}</label>
+                        </div>
+                        <div class="input-col">
+                            {{ form.year }}
+                            {%- for error in form.year.errors %}
+                            {%- if form.year.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                            {%- endfor %}
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+    <div id="id01" class="modal">
+        <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">×</span>
+        <form class="modal-content" action="" method="POST" id='form'>
+            <div class="modal-container">
+                <h1 id="msg-h1"></h1>
+                <p id="msg-p"></p>
+                <div class="clearfix">
+                    <button class="cancelbtn modal-button" type="button" 
+                        onclick="document.getElementById('id01').style.display='none'">Cancel
+                    </button>
+                    <input class="deletebtn modal-button" type="submit" value="Delete" 
+                    onclick="document.getElementById('id01').style.display='none'">
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endblock %}

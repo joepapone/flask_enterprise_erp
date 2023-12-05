@@ -1,0 +1,110 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="col-11 col-s-11">
+        <div class="col-8 col-s-8" style="margin-right: 50px;">
+            {%- for message in get_flashed_messages() %}
+            <div>
+                {%- if "Error" not in message: %}
+                <div class="alert success">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+                {%- if "Error" in message: %}
+                <div class="alert error">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+            </div>
+            {%- endfor %}
+            <div class="table-overflow">
+                <table class="table-top">
+                    <tr>
+                        <th>
+                            <button class="sheet-button" id='select_year' onclick="Select_Function('select_year', 'Select year')">
+                                Select year
+                            </button>
+                        </th>
+                        <th class="search">
+                            <div class="search-box">
+                                <input class="search-text" id="search_allowance" name="search" type="text" placeholder="Search allowance ?"
+                                    onkeyup="SearchFunction('search_allowance', 'allowance', 1)">
+                                <input class="search-submit" id="search_submit" value="submit" type="submit">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
+                            </div>
+                        </th>
+                        <th class="action">
+                            <a href="{{ url_for('hr.allowance_add', employee_id=employee_id) }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </a>
+                        </th>
+                    </tr>
+                </table>
+                <table class="table" id="allowance">
+                    <caption>
+                        <div>
+                            Count: {{list|length}}
+                        </div>
+                    </caption>
+                    <tr>
+                        <th class="center sort" onclick="SortTableTxt('allowance', 0)">ID</th>
+                        <th class="center sort" style="width: 25%;" onclick="SortTableTxt('allowance', 1)">Allowance</th>
+                        <th class="center sort" style="width: 15%;" onclick="SortTableTxt('allowance', 2)">Gross amount</th>
+                        <th class="center sort" style="width: 15%;" onclick="SortTableTxt('allowance', 3)">Period</th>
+                        <th class="center sort" style="width: 20%;" onclick="SortTableTxt('allowance', 4)">Start date</th>
+                        <th class="center sort" style="width: 20%;" onclick="SortTableTxt('allowance', 5)">End date</th>
+                        <th class="action">Delete</th>
+                    </tr>
+                    {%- for item in list %}
+                    <tr>
+                        <td class="id"><a href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">{{ item.allowance_id }}</a></td>
+                        <td class="left"><a href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">{{ item.allowance_type.title }}</a></td>
+                        <td class="right"><a href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">{{ item.gross_value }} {{ item.currency.currency_symbol }}</a></td>
+                        <td class="left"><a href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">per {{ item.period.title}}</a></td>
+                        <td class="center"><a href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">{{ item.start_date}}</a></td>
+                        <td class="center"><a href="{{ url_for('hr.allowance_edit', employee_id=employee_id, allowance_id=item.allowance_id) }}">{{ item.end_date }}</a></td>
+                        <td class="action">
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete{{ item.allowance_id }}" 
+                            value="{{ url_for('hr.allowance_delete', employee_id=employee_id, allowance_id=item.allowance_id) }}" 
+                            onclick="DeleteFunction('delete{{ item.allowance_id }}', 'allowance')">
+                        </td>
+                    </tr>
+                    {%- endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="id01" class="modal">
+        <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">×</span>
+        <form class="modal-content" action="" method="POST" id='form'>
+            <div class="modal-container">
+                <h1 id="msg-h1"></h1>
+                <p id="msg-p"></p>
+                <div class="clearfix">
+                    <button class="cancelbtn modal-button" type="button" 
+                        onclick="document.getElementById('id01').style.display='none'">Cancel
+                    </button>
+                    <input class="deletebtn modal-button" type="submit" value="Delete" 
+                    onclick="document.getElementById('id01').style.display='none'">
+                </div>
+            </div>
+        </form>
+    </div>
+    <div id="modal-select" class="modal">
+        <span onclick="document.getElementById('modal-select').style.display='none'" class="close" title="Close Modal">×</span>
+        <form class="modal-content" action="" method="POST" id='form-select'>
+            <div class="modal-container">
+                <h1 id="title-select"></h1>
+
+                    <div class="form-row {% if form.year.errors %}error{% endif %}">
+                        <div style="width: 70%; margin: auto;">
+                            {{ form.year }}
+                            {%- for error in form.year.errors %}
+                            {%- if form.year.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                            {%- endfor %}
+                        </div>
+                    </div>
+
+            </div>
+        </form>
+    </div>
+    {% endblock %}

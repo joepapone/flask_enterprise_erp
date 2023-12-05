@@ -18,25 +18,25 @@
         <form action="" method="POST" enctype=multipart/form-data>
             {{ form.csrf_token }}
             <div class="form-container">
-                <div class="form-row {% if form.gross_value.errors %}error{% endif %}">
+                <div class="form-row {% if form.holiday.errors %}error{% endif %}">
                     <div class="label-col">
-                        <label class="field-label" for="gross_value">{{ form.gross_value.label }}</label>
+                        <label class="field-label" for="event_id">{{ form.holiday.label }}</label>
                     </div>
                     <div class="input-col">
-                        {{ form.gross_value }}
-                        {%- for error in form.gross_value.errors %}
-                        {%- if form.gross_value.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {{ form.holiday }}
+                        {%- for error in form.holiday.errors %}
+                        {%- if form.holiday.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>
-                <div class="form-row {% if form.currency_id.errors %}error{% endif %}">
+                <div class="form-row {% if form.holiday_date.errors %}error{% endif %}">
                     <div class="label-col">
-                        <label class="field-label" for="currency_id">{{ form.currency_id.label }}</label>
+                        <label class="field-label" for="created">{{ form.holiday_date.label }}</label>
                     </div>
                     <div class="input-col">
-                        {{ form.currency_id }}
-                        {%- for error in form.currency_id.errors %}
-                        {%- if form.currency_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {{ form.holiday_date }}
+                        {%- for error in form.holiday_date.errors %}
+                        {%- if form.holiday_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
                         {%- endfor %}
                     </div>
                 </div>

@@ -1,0 +1,107 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="col-5 col-s-5">
+        {%- for message in get_flashed_messages() %}
+        <div>
+            {%- if "Error" not in message: %}
+            <div class="alert success">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+            {%- if "Error" in message: %}
+            <div class="alert error">
+                <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+            </div>
+            {%- endif %}
+        </div>
+        {%- endfor %}
+        <form action="" method="POST" enctype=multipart/form-data>
+            {{ form.csrf_token }}
+            <div class="form-container">
+                <div class="form-row {% if form.start_date.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="start_date">{{ form.start_date.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.start_date }}
+                        {%- for error in form.start_date.errors %}
+                        {%- if form.start_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.end_date.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="end_date">{{ form.end_date.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.end_date }}
+                        {%- for error in form.end_date.errors %}
+                        {%- if form.end_date.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.employee_id.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="employee_id">{{ form.employee_id.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.employee_id }}
+                        {%- for error in form.employee_id.errors %}
+                        {%- if form.employee_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.gross_income.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="gross_income">{{ form.gross_income.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.gross_income }}
+                        {%- for error in form.gross_income.errors %}
+                        {%- if form.gross_income.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.adjustment.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="adjustment">{{ form.adjustment.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.adjustment }}
+                        {%- for error in form.adjustment.errors %}
+                        {%- if form.adjustment.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+
+                <div class="form-row {% if form.income_tax.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="income_tax">{{ form.income_tax.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.income_tax }}
+                        {%- for error in form.income_tax.errors %}
+                        {%- if form.income_tax.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row {% if form.currency_id.errors %}error{% endif %}">
+                    <div class="label-col">
+                        <label class="field-label" for="currency_id">{{ form.currency_id.label }}</label>
+                    </div>
+                    <div class="input-col">
+                        {{ form.currency_id }}
+                        {%- for error in form.currency_id.errors %}
+                        {%- if form.currency_id.errors %}<div class="error-message">{{ error }}</div>{%- endif %}
+                        {%- endfor %}
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="submit-col">
+                        <input class="field-submit" type="submit" value="Submit">
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endblock %}

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <title> Enterprise ERP </title>
+</head>
+<body onload="refresh()">
+    <!-- header -->
+    <div class="header">
+        <div class="image">
+            <a href="{{ url_for('root.about') }}">
+                <img class="image" src="{{ url_for('static', filename='icons/logo.png') }}">
+            </a>
+        </div>
+        <div class="title">
+            <a href="{{ url_for('root.home') }}">
+                <h1 class="title">{{ header }}</h1>
+            </a>
+        </div>
+    </div>
+    <!-- Navigation Bar -->
+    <ul class="topnav">
+        <li class="nav-menu left">
+            <div class="dropdown">
+                <div>
+                    <a href="{{ url_for('root.home') }}">
+                        <img class="image" src="{{ url_for('static', filename='icons/menu.png') }}">
+                    </a>
+                </div>
+                <div class="dropdown-content left">
+                    {%- for item in menus %}
+                        <a href="{{ item['link'] }}">{{ item['text'] }}</a>
+                    {%- endfor %}
+                </div>
+            </div>
+        </li>
+        <li class="nav-menu right">
+            <div class="dropdown">
+                <div>
+                    <img class="image avantar" src="{{ url_for('static', filename='icons/user.png') }}">
+                </div>
+                <div class="dropdown-content right">
+                    {%- if current_user.is_authenticated %}
+                    <a href="{{ url_for('admin.profile') }}"> ❱ Profile</a>
+                    <a href="{{ url_for('admin.logout') }}"> ❱ Logout</a>
+                    {% else %}
+                    <a href="{{ url_for('admin.login') }}"> ❱ Login</a>
+                    {%- endif %}
+                </div>
+            </div>
+        </li>
+        <li class="nav-menu right">
+            <div class="user">
+                {%- if current_user.is_authenticated %}
+                <b><pre>Welcome, {{ current_user.user_name }}</pre></b>
+                {%- endif %}
+            </div>
+        </li>
+    </ul>
+    <!-- heading -->
+    <div class="heading">
+        <div class="prefix-col">
+        </div>
+        <div class="block text">
+            <h1>{{ heading }}</h1>
+        </div>
+    </div>
+    <!-- Content -->
+    <div id="content" class="content">
+        <div class="prefix-col">
+        </div>
+        {%- block content %}{% endblock -%}
+    </div>
+    <div id="form_block">
+        <div id="id02" class="modal">
+            <span onclick="document.getElementById('id02').style.display='none'" class="close" title="Close Modal">×</span>
+            <form class="modal-content" action="/action_page.php" method="POST" id='form2'>
+                <div class="modal-container">
+                    <h1 id="msg-h2"></h1>
+                    <p id="msg-p2"></p>
+                    <div id="form_block">
+                        {%- block form_block %}{% endblock -%}
+                    </div>
+                    <div class="clearfix">
+                        <button class="cancelbtn modal-button" type="button" 
+                            onclick="document.getElementById('id02').style.display='none'">Cancel
+                        </button>
+                        <input class="deletebtn modal-button" type="submit" value="Save" 
+                        onclick="document.getElementById('id02').style.display='none'">
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- Footer -->
+    <div id="footer" class="footer">    
+        {% block footer -%}
+        <p>Enterprise ERP System.</p>
+        <p>&copy; Copyright 2021 by José Ferreira</p>
+        {%- endblock %}
+    </div>
+    <!-- Executes javascripts after DOM is complete -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>

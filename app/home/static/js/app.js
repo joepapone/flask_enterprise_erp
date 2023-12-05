@@ -8,7 +8,6 @@ window.onclick = function(event) {
     }
 }
 
-
 // Submit delete
 function DeleteFunction(input, item) {
     form_action = document.getElementById(input).value;
@@ -18,6 +17,40 @@ function DeleteFunction(input, item) {
     document.getElementById('msg-p').innerHTML='Are you sure you want to delete this ' + item + '?';
 }
 
+// Calendar function
+function Calendar_Function(input, year, month) {
+    // Previus
+    if (input == 'prev') {
+        if (month > 1) {
+            month = month - 1
+            location.href='/hr/holidays/' + year + '/' + month
+        } else if (month == 1) {
+            year = year - 1
+            month = 12
+            location.href='/hr/holidays/' + year + '/' + month
+        }
+    }
+
+    // Next
+    if (input == 'next')  {
+        if (month < 12) {
+            month = month + 1
+            location.href='/hr/holidays/' + year + '/' + month
+        } else if (month == 12) {
+            year = year + 1
+            month = 1
+            location.href='/hr/holidays/' + year + '/' + month
+        }
+    }
+}
+
+// Select
+function Select_Function(input, title) {
+    form_action = document.getElementById(input).value;
+    document.getElementById("form-select").action = form_action;
+    document.getElementById('modal-select').style.display='block';
+    document.getElementById('title-select').innerHTML=title;
+}
 
 // Select dropdown
 function DropdownFunction(source, destination, route) {
@@ -45,7 +78,6 @@ function DropdownFunction(source, destination, route) {
     });
 }
 
-
 // Search table.
 function SearchFunction(search_input, search_table, row) {
   // Declare variables
@@ -68,7 +100,6 @@ function SearchFunction(search_input, search_table, row) {
     }
   }
 }
-
 
 // Sort table text.
 function SortTableTxt(sort_table, col) {

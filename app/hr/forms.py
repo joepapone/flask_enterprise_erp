@@ -3,7 +3,7 @@ from wtforms.fields import StringField, TextAreaField, DecimalField, SelectField
 from wtforms.validators import ValidationError, InputRequired, Email
 from datetime import datetime
 
-from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Title, Gender, Marital, Leave_Type, Period, Benefit_Type
+from .models import Department, Job, Job_Terms, Job_Status, Employee_Status, Title, Gender, Marital, Leave_Type, Period, Allowance_Type
 from ..admin.models import Country, Currency
 from .. import db
 
@@ -93,6 +93,12 @@ def get_job_status():
     item_list.pop(0)
     return item_list
 
+# Get employee to populate select field
+def get_employee():
+    #item_list = [(item.employee_id, f'{item.given_name} {item.surname}') for item in db.session.scalars(db.select(Employee_InfoForm)).all()]
+    item_list = [(item.status_id, item.title) for item in db.session.scalars(db.select(Employee_Status)).all()]
+    return item_list
+
 # Get employee status to populate select field
 def get_employee_status():
     item_list = [(item.status_id, item.title) for item in db.session.scalars(db.select(Employee_Status)).all()]
@@ -123,9 +129,9 @@ def get_period():
     item_list = [(item.period_id,f'per {item.title}') for item in db.session.scalars(db.select(Period)).all()]
     return item_list
 
-# Get benefit type to populate select field
-def get_benefit_type():
-    item_list = [(item.benefit_type_id, item.title) for item in db.session.scalars(db.select(Benefit_Type)).all()]
+# Get allowance type to populate select field
+def get_allowance_type():
+    item_list = [(item.allowance_type_id, item.title) for item in db.session.scalars(db.select(Allowance_Type)).all()]
     return item_list
 
 # Get years to populate select field
@@ -318,28 +324,28 @@ class Leave_TakenForm(FlaskForm):
 
 # Salary form attributes
 class SalaryForm(FlaskForm):
-    period_id = SelectField(label='Period', choices=get_period ,validators=[InputRequired()], description='Period',
-    render_kw={'class': 'field-data', 'placeholder': 'Period..', 'autofocus': ''})
     gross_value = DecimalField(label='Gross value', validators=[InputRequired()], description='Gross value',
     render_kw={'class': 'field-data', 'autofocus': ''})
     currency_id = SelectField(label='Currency', choices=get_currency ,validators=[InputRequired()], description='Currency',
     render_kw={'class': 'field-data', 'placeholder': 'Currency..', 'autofocus': ''})
 
-# Benefit form attributes
-class BenefitForm(FlaskForm):
+# Allowance form attributes
+class AllowanceForm(FlaskForm):
     period_id = SelectField(label='Period', choices=get_period ,validators=[InputRequired()], description='Period',
     render_kw={'class': 'field-data', 'placeholder': 'Period..', 'autofocus': ''})
-    benefit_type_id = SelectField(label='Benefit type', choices=get_benefit_type ,validators=[InputRequired()], description='Benefit type',
-    render_kw={'class': 'field-data', 'placeholder': 'Benefit type..', 'autofocus': ''})
-    series  = DecimalField(label='Number of times', validators=[InputRequired()], description='Number of times',
-    render_kw={'class': 'field-data', 'autofocus': ''})
+    allowance_type_id = SelectField(label='Allowance type', choices=get_allowance_type ,validators=[InputRequired()], description='Allowance type',
+    render_kw={'class': 'field-data', 'placeholder': 'Allowance type..', 'autofocus': ''})
     gross_value  = DecimalField(label='Gross value', validators=[InputRequired()], description='Gross value',
     render_kw={'class': 'field-data', 'autofocus': ''})
     currency_id = SelectField(label='Currency', choices=get_currency ,validators=[InputRequired()], description='Currency',
     render_kw={'class': 'field-data', 'placeholder': 'Currency..', 'autofocus': ''})
+    start_date = DateField(label='Start date', validators=[InputRequired()], description="Start date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+    end_date = DateField(label='End date', validators=[InputRequired()], description="End date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
 
-# Time log form attributes
-class Time_LogForm(FlaskForm):
+# Attendance log form attributes
+class Attendance_LogForm(FlaskForm):
     start_time = DateTimeLocalField(label='Start time', validators=[InputRequired()], description="Start time",
     render_kw={'class': 'field-data', 'placeholder': 'YYYY-MM-DH HH:MM:SS..', 'autofocus': ""})
     end_time = DateTimeLocalField(label='End time', validators=[InputRequired()], description="End time",
@@ -348,8 +354,31 @@ class Time_LogForm(FlaskForm):
 # Year month form attributes
 class Year_MonthForm(FlaskForm):
     year = SelectField(label='Year', choices=get_years, description='Year',
-    render_kw={'class': 'field-data', 'placeholder': 'Year..', 'autofocus': ''})
+    render_kw={'class': 'field-data', 'placeholder': 'Year..', 'onchange': 'this.form.submit()'})
     month = SelectField(label='Month', choices=get_months, description='Month',
-    render_kw={'class': 'field-data', 'placeholder': 'Month..', 'autofocus': ''})
+    render_kw={'class': 'field-data', 'placeholder': 'Month..', 'onchange': 'this.form.submit()'})
 
+# Payroll form attributes
+class PayrollForm(FlaskForm):
+    start_date = DateField(label='Start date', validators=[InputRequired()], description="Start date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+    end_date = DateField(label='End date', validators=[InputRequired()], description="End date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
+    employee_id = SelectField(label='Employee', choices=get_employee ,validators=[InputRequired()], description='Employee',
+    render_kw={'class': 'field-data', 'placeholder': 'Employee..', 'autofocus': ''})
+    gross_income  = DecimalField(label='Gross income', validators=[InputRequired()], description='Gross income',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    adjustment  = DecimalField(label='Adjustment', validators=[InputRequired()], description='Adjustment',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    income_tax  = DecimalField(label='Income tax', validators=[InputRequired()], description='Income tax',
+    render_kw={'class': 'field-data', 'autofocus': ''})
+    currency_id = SelectField(label='Currency', choices=get_currency ,validators=[InputRequired()], description='Currency',
+    render_kw={'class': 'field-data', 'placeholder': 'Currency..', 'autofocus': ''})
+
+# Holiday form attributes
+class HolidayForm(FlaskForm):
+    holiday = StringField(label='Holiday', validators=[length(min=3, max=50), leave_type_duplicate], description='Holiday',
+    render_kw={'class': 'field-data', 'placeholder': 'Holiday..', 'autofocus': ''})
+    holiday_date = DateField(label='Date', validators=[InputRequired()], description="Date",
+    render_kw={'class': 'field-data', 'autofocus': ""})
 

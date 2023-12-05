@@ -17,15 +17,15 @@
         {%- endfor %}
         <div class="col-6 col-s-6">
             <div class="sheet-container">
-                <div class="sheet-row-header">
-                    <div class="sheet-col-header">
+                <div class="sheet-header background">
+                    <div class="sheet-header-title">
                         <b>Leave</b>
                     </div>
-                    <div class="sheet-col-icon">
+                    <div class="sheet-header-icon">
                         <a class="sheet-icon" href="{{ url_for('hr.leave_balance_add', employee_id=employee_id) }}">
                             <div class="tooltip">
                                 <span class="tooltiptext">Add leave</span>
-                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add_white.png') }}">
                             </div>
                         </a>
                     </div>
@@ -51,7 +51,7 @@
                                 <div>- Leave days: {{ item.leave_days }}</div>
                                 <div>- Balance: {{ item.leave_balance }}</div>
                             </a>
-                            <div class="sheet-row-header">
+                            <div class="sheet-header background">
                                 <div class="sheet-col-sub-header">- Taken: {{ item.leave_taken }}</div>
                                 {%- if item.leave_taken < item.leave_days %}
                                 <div>

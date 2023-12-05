@@ -1,7 +1,7 @@
 from datetime import datetime
 from ..admin.models import Country, Currency
 from .. import db
-from .hr import work_hours, work_time
+from .hr import cal_attendance, work_hours, work_time
 
 # Department data-model
 class Department(db.Model):
@@ -15,7 +15,7 @@ class Department(db.Model):
         return (self.department_id)
     
     def __repr__(self):
-        return f'Department: {self.department_name} ({self.department_id})'
+        return f'Department ({self.department_id}): {self.department_name}'
     
 # Job data-model
 class Job(db.Model):
@@ -35,7 +35,7 @@ class Job(db.Model):
         return (self.job_id)
         
     def __repr__(self):
-        return f'Job: {self.job_title} ({self.job_id})'
+        return f'Job ({self.job_id}): {self.job_title}'
 
 # Job terms data-model
 class Job_Terms(db.Model):
@@ -137,7 +137,7 @@ class Employee(db.Model):
         return (self.employee_id)
         
     def __repr__(self):
-        return f'Employee ({self.employee_id}) - Status: {self.status.title}'
+        return f'Employee ({self.employee_id}): {self.status.title}'
 
 # Employee information data-model
 class Employee_Info(db.Model):
@@ -172,7 +172,7 @@ class Employee_Info(db.Model):
         return (self.info_id)
         
     def __repr__(self):
-        return f'Employee ({self.info_id}): {self.given_name} {self.surname}'
+        return f'Employee info ({self.info_id}): {self.given_name} {self.surname}'
 
 # Email data-model
 class Email(db.Model):
@@ -357,24 +357,22 @@ class Salary(db.Model):
     # Main Fields
     salary_id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
-    period_id = db.Column(db.Integer, db.ForeignKey('period.period_id'), nullable=False)
     gross_value = db.Column(db.Numeric(10,2), default=0.00)
     currency_id = db.Column(db.Integer, db.ForeignKey('currency.currency_id'), nullable=False)
     created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     # ForeignKeys
     employee = db.relationship(Employee, foreign_keys=[employee_id])
-    period = db.relationship(Period, foreign_keys=[period_id])
     currency = db.relationship(Currency, foreign_keys=[currency_id])
 
     def get_work_hours(self, work_log):      
         return work_hours(work_log)
     
     def get_work_time(self, work_log):      
-        return work_time(work_log, self.period_id)
+        return work_time(work_log, 4)
     
     def get_amount(self, work_log):      
-        return work_time(work_log, self.period_id) * self.gross_value
+        return work_time(work_log, 4) * self.gross_value
               
     def get_id(self):
         return (self.salary_id)
@@ -382,53 +380,54 @@ class Salary(db.Model):
     def __repr__(self):
         return f'Salary ({self.salary_id})'
 
-# Benefit type data-model
-class Benefit_Type(db.Model):
+# Allowance type data-model
+class Allowance_Type(db.Model):
     # Table name
-    __tablename__ = 'benefit_type'
+    __tablename__ = 'allowance_type'
     # Main Fields
-    benefit_type_id = db.Column(db.Integer, primary_key=True) 
+    allowance_type_id = db.Column(db.Integer, primary_key=True) 
     title = db.Column(db.String(50), unique=True)
       
     def get_id(self):
         return (self.type_id)
         
     def __repr__(self):
-        return f'Benefit type ({self.benefit_type_id}): {self.title}'
+        return f'Allowance type ({self.allowance_type_id}): {self.title}'
 
-# Benefit data-model
-class Benefit(db.Model):
+# Allowance data-model
+class Allowance(db.Model):
     # Table name
-    __tablename__ = 'benefit'
+    __tablename__ = 'allowance'
     # Main Fields
-    benefit_id = db.Column(db.Integer, primary_key=True)
+    allowance_id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
     period_id = db.Column(db.Integer, db.ForeignKey('period.period_id'), nullable=False)
-    benefit_type_id = db.Column(db.Integer, db.ForeignKey('benefit_type.benefit_type_id'), nullable=False)
-    series = db.Column(db.Numeric(10,2), default=1.00)
+    allowance_type_id = db.Column(db.Integer, db.ForeignKey('allowance_type.allowance_type_id'), nullable=False)
     gross_value = db.Column(db.Numeric(10,2), default=0.00)
     currency_id = db.Column(db.Integer, db.ForeignKey('currency.currency_id'), nullable=False)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
     created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
     modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
     # ForeignKeys
     employee = db.relationship(Employee, foreign_keys=[employee_id])
     period = db.relationship(Period, foreign_keys=[period_id])
-    benefit_type = db.relationship(Benefit_Type, foreign_keys=[benefit_type_id])
+    allowance_type = db.relationship(Allowance_Type, foreign_keys=[allowance_type_id])
     currency = db.relationship(Currency, foreign_keys=[currency_id])
 
     def get_amount(self, work_log):      
         return work_time(work_log, self.period_id) * self.gross_value
 
     def get_id(self):
-        return (self.benefit_id )
+        return (self.allowance_id )
         
     def __repr__(self):
-        return f'Benefit ({self.benefit_id})'
+        return f'Allowance ({self.allowance_id}): {self.allowance_type.title}'
 
-# Time log data-model
-class Time_Log(db.Model):
+# Attendance log data-model
+class Attendance_Log(db.Model):
     # Table name
-    __tablename__ = 'time_log'
+    __tablename__ = 'attendance_log'
     # Main Fields
     log_id = db.Column(db.Integer, primary_key=True)
     employee_id = db.Column(db.Integer, db.ForeignKey('employee.employee_id', ondelete='CASCADE'), nullable=False)
@@ -441,8 +440,53 @@ class Time_Log(db.Model):
         delta = self.end_time - self.start_time
         return delta
     
+    def get_attendance(self, attendance_log):      
+        return cal_attendance(attendance_log, 20, 3)
+    
     def get_id(self):
         return (self.log_id )
         
     def __repr__(self):
-        return f'Time log ({self.log_id})'
+        return f'Attendance log ({self.log_id})'
+
+
+# Payroll data-model
+class Payroll(db.Model):
+    # Table name
+    __tablename__ = 'payroll'
+    # Main Fields
+    payroll_id = db.Column(db.Integer, primary_key=True)
+    employee_id = db.Column(db.Integer, db.ForeignKey('employee_info.employee_id'), nullable=False)
+    start_date = db.Column(db.DateTime)
+    end_date = db.Column(db.DateTime)
+    gross_income = db.Column(db.Numeric(10,2), default=0)
+    adjustment = db.Column(db.Numeric(10,2), default=0)
+    income_tax = db.Column(db.Numeric(10,2), default=0)
+    net_income = db.Column(db.Numeric(10,2), default=0)
+    currency_id = db.Column(db.Integer, db.ForeignKey('currency.currency_id'), nullable=False)
+    created = db.Column(db.TIMESTAMP, default=datetime.utcnow, nullable=False)
+    modified = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    # ForeignKeys
+    employee = db.relationship(Employee_Info, foreign_keys=[employee_id])
+    currency = db.relationship(Currency, foreign_keys=[currency_id])
+
+    def get_id(self):
+        return (self.payroll_id )
+        
+    def __repr__(self):
+        return f'Allowance ({self.payroll_id})'
+    
+# Holiday data-model
+class Holiday(db.Model):
+    # Table name
+    __tablename__ = 'holiday'
+    # Main Fields
+    holiday_id = db.Column(db.Integer, primary_key=True)
+    holiday = db.Column(db.String(50), unique=True)
+    holiday_date = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    
+    def get_id(self):
+        return (self.holiday_id)
+        
+    def __repr__(self):
+        return f'Holiday ({self.holiday_id}) {self.holiday}'

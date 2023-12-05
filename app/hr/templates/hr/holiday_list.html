@@ -1,0 +1,105 @@
+{% extends 'home/base.html' %}
+    {% block content %}
+    <div class="col-11 col-s-11">
+        <div class="col-5 col-s-5" style="margin-right: 50px;">
+            <div class="month">      
+                <ul>
+                    <a href="javascript:Calendar_Function('prev', {{ year }}, {{ month }})"><li class="prev">&#10094;</li></a>
+                    <a href="javascript:Calendar_Function('next', {{ year }}, {{ month }})"><li class="next">&#10095;</li></a>
+                    <li>
+                        {{ calendar_header.get_month() }}<br>
+                        <span style="font-size:18px">{{ calendar_header.year }}</span>
+                    </li>
+                </ul>
+            </div>
+            <ul class="weekdays">
+                <li>Mo</li>
+                <li>Tu</li>
+                <li>We</li>
+                <li>Th</li>
+                <li>Fr</li>
+                <li><span class="saturday">Sa</span></li>
+                <li><span class="sunday">Su</span></li>
+            </ul>
+            <ul class="days">
+                {%- for item in calendar %} 
+                <li><span class="{{ item.name }} {{ item.is_today }} {{ item.is_holiday }}">{{ item.num }}</span></li>
+                {%- endfor %}
+            </ul>
+        </div>
+        <div class="col-5 col-s-6">
+            {%- for message in get_flashed_messages() %}
+            <div>
+                {%- if "Error" not in message: %}
+                <div class="alert success">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+                {%- if "Error" in message: %}
+                <div class="alert error">
+                    <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span>{{ message }}
+                </div>
+                {%- endif %}
+            </div>
+            {%- endfor %}
+            <div class="table-overflow">
+                <table class="table-top">
+                    <tr>
+                        <th class="search">
+                            <div class="search-box">
+                                <input class="search-text" id="search_holiday" name="search" type="text" placeholder="Search holiday ?"
+                                onkeyup="SearchFunction('search_holiday', 'holiday', 1)">
+                                <input class="search-submit" id="search_submit" value="submit" type="submit">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/find.png') }}">
+                            </div>
+                        </th>
+                        <th class="action">
+                            <a href="{{ url_for('hr.holiday_add') }}">
+                                <img class="icon" src="{{ url_for('.static', filename='icons/add.png') }}">
+                            </a>
+                        </th>
+                    </tr>
+                </table>
+                <table class="table" id="holiday">
+                    <caption>
+                        <div>
+                            Count: {{list|length}}
+                        </div>
+                    </caption>
+                    <tr>
+                        <th class="center sort" style="width: 25%;" onclick="SortTableTxt('holiday', 1)">Date</th>
+                        <th class="left sort" style="width: 65%;" onclick="SortTableTxt('holiday', 2)">Holiday</th>
+                        <th class="action">Delete</th>
+                    </tr>
+                    {%- for item in list %}
+                    <tr>
+                        <td class="center"><a href="{{ url_for('hr.holiday_edit', holiday_id=item.holiday_id) }}">{{ item.holiday_date }}</a></td>
+                        <td class="left"><a href="{{ url_for('hr.holiday_edit', holiday_id=item.holiday_id) }}">{{ item.holiday}}</a></td>
+                        <td class="action">
+                            <input class="icon" type="image" src="{{ url_for('.static', filename='icons/minus.png') }}" id="delete{{ item.holiday_id }}" 
+                            value="{{ url_for('hr.holiday_delete', holiday_id=item.holiday_id) }}" 
+                            onclick="DeleteFunction('delete{{ item.holiday_id }}', 'holiday')">
+                        </td>
+                    </tr>
+                    {%- endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+    <div id="id01" class="modal">
+        <span onclick="document.getElementById('id01').style.display='none'" class="close" title="Close Modal">×</span>
+        <form class="modal-content" action="/action_page.php" method="POST" id='form'>
+            <div class="modal-container">
+                <h1 id="msg-h1"></h1>
+                <p id="msg-p"></p>
+                <div class="clearfix">
+                    <button class="cancelbtn modal-button" type="button" 
+                        onclick="document.getElementById('id01').style.display='none'">Cancel
+                    </button>
+                    <input class="deletebtn modal-button" type="submit" value="Delete" 
+                    onclick="document.getElementById('id01').style.display='none'">
+                </div>
+            </div>
+        </form>
+    </div>
+    {% endblock %}

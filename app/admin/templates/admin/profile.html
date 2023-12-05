@@ -15,39 +15,39 @@
             {%- endif %}
         </div>
         {%- endfor %}
-        <div class="page-container">
-            <div class="page-row-header">
-                <div class="page-col-header">
+        <div class="sheet-container">
+            <div class="sheet-header background">
+                <div class="sheet-header-title">
                     <b>{{description}}</b>
                 </div>
             </div>
-            <div class="page-row">
-                <div class="page-label-col">
-                    <div class="page-label-text"><b>Name</b></div>
+            <div class="sheet-row">
+                <div class="sheet-label-col">
+                    <div class="sheet-label-text"><b>Name</b></div>
                 </div>
-                <div class="page-data-col">
-                    <div class="page-data-text">{{ data['name'] }}</div>
-                </div>
-            </div>
-            <div class="page-row">
-                <div class="page-label-col">
-                    <div class="page-label-text"><b>Email</b></div>
-                </div>
-                <div class="page-data-col">
-                    <div class="page-data-text">{{ data['email'] }}</div>
+                <div class="sheet-data-col">
+                    <div class="sheet-data-text">{{ data['name'] }}</div>
                 </div>
             </div>
-            <div class="page-row">
-                <div class="page-label-col">
-                    <div class="page-label-text"><b>Role</b></div>
+            <div class="sheet-row">
+                <div class="sheet-label-col">
+                    <div class="sheet-label-text"><b>Email</b></div>
                 </div>
-                <div class="page-data-col">
-                    <div class="page-data-text">{{ data['role'] }}</div>
+                <div class="sheet-data-col">
+                    <div class="sheet-data-text">{{ data['email'] }}</div>
                 </div>
             </div>
-            <div class="page-row">
-                <div class="page-col">
-                    <img class="page-icon" src="{{ url_for('static', filename='icons/user.png') }}">
+            <div class="sheet-row">
+                <div class="sheet-label-col">
+                    <div class="sheet-label-text"><b>Role</b></div>
+                </div>
+                <div class="sheet-data-col">
+                    <div class="sheet-data-text">{{ data['role'] }}</div>
+                </div>
+            </div>
+            <div class="sheet-row">
+                <div class="sheet-image-col">
+                    <img class="sheet-image" src="{{ url_for('static', filename='icons/user.png') }}">
                 </div>
             </div>
         </div>
